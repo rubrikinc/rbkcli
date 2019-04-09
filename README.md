@@ -39,6 +39,16 @@ $ rbkcli cluster me
 }
 ```
 
+You can also use it as a SDK and build customized scripts:
+
+```python
+import rbkcli
+
+rbk_cli = rbkcli.Rbkcli()
+output = rbk_cli.execute('cluster me')
+print(output)
+```
+
 ## :blue_book: Documentation
 
 Here are some resources to get you started! If you find any challenges from this project are not properly documented or are unclear, please raise an issueand let us know! This is a fun, safe environment - don't worry if you're a GitHub newbie! :heart:
