@@ -1,8 +1,43 @@
 # rbkcli
 
+This project provides a Command Line Interface (CLI) convertion of Rubrik APIs.
+It can be used for both running commands or writing simplified scripts.
+
 ## :hammer: Installation
 
+Install from source and enable autocomplete:
+
+'''
+$ git clone https://github.com/rubrikinc/rbkcli.git
+$ cd rbkcli
+$ python setup.py install
+$ echo 'eval "$(_RBKCLI_COMPLETE=source rbkcli)"' >> ~/.bashrc
+'''
+
 ## :mag: Example
+
+By default, the rbkcli will attempt to read the the Rubrik Cluster credentials from the following environment variables:
+
+* `<rubrik_cdm_node_ip>`
+* `<rubrik_cdm_username>`
+* `<rubrik_cdm_password>`
+
+Once the above environment variables are exported, rbkcli will dynamically create the command line based on the available APIs in that cluster.
+
+'''
+$ rbkcli cluster me
+{
+  "acceptedEulaVersion": "0.0",
+  "apiVersion": "1",
+  "id": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+  "latestEulaVersion": "1.1",
+  "name": "MyCluster",
+  "timezone": {
+    "timezone": ""
+  },
+  "version": "4.2.2-1699"
+}
+'''
 
 ## :blue_book: Documentation
 
