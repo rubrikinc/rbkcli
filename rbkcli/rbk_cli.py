@@ -8,7 +8,11 @@ from rbkcli.cli import Rbkcli
 
 # Instantiating the target for the CLI as global var.
 global rbk
-rbk = Rbkcli()
+try:
+    rbk = Rbkcli()
+except RbkcliException.ApiRequesterError as error:
+    print('ImportApis # ' + str(error))
+    exit()
 
 # Definning the Command Line interface.
 @click.command(name='rbkcli')
@@ -41,7 +45,6 @@ rbk = Rbkcli()
 def cli(api_endpoint, method, version, parameter, query, info):
     '''Easy calls of Rubrik APIs from CLI'''
     try:
-        query_cmd = ','.join(query)
         output = rbk.cli_execute(api_endpoint, method, version, parameter,
                                  query, info)
         click.echo(output)
