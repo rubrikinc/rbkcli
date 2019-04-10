@@ -39,15 +39,6 @@ $ rbkcli cluster me
 }
 ```
 
-You can also use it as a SDK and build customized scripts:
-
-```python
-import rbkcli
-
-rbk_cli = rbkcli.Rbkcli()
-output = rbk_cli.execute('cluster me')
-print(output)
-```
 
 ## :blue_book: Documentation
 
