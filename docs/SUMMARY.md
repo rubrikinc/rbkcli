@@ -24,3 +24,4 @@
      - [/rbkcli/cmdlet/profile](rbkcli_cmdlet_profile.md)
      - [/rbkcli/cmdlet/sync](rbkcli_cmdlet_sync.md)
      - [/rbkcli/script](rbkcli_script.md)
+     - [/rbkcli/script/sync](rbkcli_script_sync.md)
