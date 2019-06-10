@@ -58,4 +58,4 @@ Notation in which you can define keys and values (as in  [JSON](https://www.w3sc
     $ rbkcli commands --select endpoint\!~config
     ```
 
-[Back to [Meta APIs](meta_apis.md)
+[Back to [Usage](usage.md)]
