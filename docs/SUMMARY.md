@@ -11,4 +11,16 @@
 ### Usage
 
 * [Usage](usage.md)
-* [Advanced usage](advanced_usage.md)
+    - [Natural key assignment](natural_key_assignment.md)
+    - [API Endpoints](api_endpoint.md)
+    - [JSON Output](json_output.md)
+
+### Meta APIs
+
+* [Meta APIs](meta_apis.md)
+     - [/rbkcli/commands](rbkcli_commands.md)
+     - [/rbkcli/jsonfy](rbkcli_jsonfy.md)
+     - [/rbkcli/cmdlet](rbkcli_cmdlet.md)
+     - [/rbkcli/cmdlet/profile](rbkcli_cmdlet_profile.md)
+     - [/rbkcli/cmdlet/sync](rbkcli_cmdlet_sync.md)
+     - [/rbkcli/script](rbkcli_script.md)
