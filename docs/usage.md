@@ -47,3 +47,6 @@ When an user types rbkcli -h or --help, it returns the following message:
 The arguments available affect the command execution in 2 different ways and therefore their explanation will be also split into the following groups:
 - [API endpoints to call](api_endpoint.md)
 - [JSON output customization](json_output.md)
+
+
+[Back to [Summary](SUMMARY.md)]
