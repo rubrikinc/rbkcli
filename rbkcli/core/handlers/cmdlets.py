@@ -501,21 +501,26 @@ class CmdletsControls():
         return result
 
     def _remove_from_file(self, id_, file):
-        profile = self.cmdlets_folder + '/' + file[0]
-        cmdltes_profile = self.tools.load_json_file(profile)
-        result_profile = copy.copy(cmdltes_profile)
-        for cmd in enumerate(cmdltes_profile):
-            if id_ == cmd[1]['id']:
-               result_profile.pop(cmd[0])
-               removed_cmdlet = cmd[1]
-        self.tools.create_json_file(result_profile, profile)
-        result = {
-            'result': 'Succeeded.',
-            'message': 'Found the following cmdlets with the provided ID(s).',
-            'data': removed_cmdlet     
-        }
-        return result
+        data = []
+        result = {}
+        for fil in file:
+            profile = self.cmdlets_folder + '/' + fil
+            cmdltes_profile = self.tools.load_json_file(profile)
+            result_profile = copy.copy(cmdltes_profile)
 
+            for cmd in enumerate(cmdltes_profile):
+                if id_ == cmd[1]['id']:
+                   result_profile.pop(cmd[0])
+                   removed_cmdlet = cmd[1]
+                   data.append(removed_cmdlet)
+            self.tools.create_json_file(result_profile, profile)
+        if data != []:
+            result = {
+                'result': 'Succeeded.',
+                'message': 'Found the following cmdlets with the provided ID(s).',
+                'data': data     
+            }
+        return result
 
     def patch_cmdlet(self):
         pass
