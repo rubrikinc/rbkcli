@@ -663,5 +663,3 @@ class MetaCmds(ApiTargetTools):
     def store_all_ops(self, ops):
         """Store all operations in intance variable, stetic reason."""
         self.all_ops = ops
-
-## The alias can be first interpreted and even a parameter gathered, before the resolution mechanism kicks in.

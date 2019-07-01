@@ -774,38 +774,3 @@ class JsonSelection(ApiTargetTools):
 
     def convert_to_prettyprint(self):
         return self.current_editor.convert_to_prettyprint()
-
-
-
-#### Need to fix iteration diferences between documentation and real json.
-#### implement filter and selection
-#### implement output handler.
-
-
-#### Create a subclass for selections variation:
-## sub-class: select, filter, context
-## As the code is similar just has variations on the arguments verification, a sub-class seems adequate
-
-## json core handler might be adequado, which leverage the base jsops
-
-## implement field replacement or field resolution.
-### load a list from API provided
-### from the original output, select a field and match agains the destination API list
-### return merged specified field to original output  
-
-# rbkcli vmware vm --resolve SlaDomain 'sla_domain' id:name
-# This command will:
-#1st get a list of all vmware vms (rbkcli vmware vm)
-#2nd get a list of all slas (rbkcli sla_domain) 
-#3nd select SlaDomain field
-#Use the selected field to search the id field of the slas
-#When matched add the name field to the original output in the followign format sla_domain#name
-#(--resolve SlaDomain id:name)
-
-### Need to fix auto table, when no selection or filter is specified.
-
-### Implement loop through "values" where we can get a list of values to be looped instead of a key value.
-### Study the possibilty of looping through list of values from a key as default behaviour.
-### Fix the "data, hasMore, Total" headers for any json analyzed or returned.
-
-### implement accumulate with context.

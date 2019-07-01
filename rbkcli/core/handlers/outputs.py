@@ -170,17 +170,4 @@ class OutputHandler(ApiTargetTools):
             self.result.text = output
         else:
             self.result.text = json.dumps(output, indent=2)
-
-# Missing implementation of:
-# print available fields for filtered/selected fields
-# select/filter nested keys
-# make sure that when the key does not exists, is not being added to the result, and result is being filtered successfully.
-## example "rbkcli host -f operatingSystem=Linux -s id,hostname,operatingSystem -t"
-# Fix the "available key" for the alias or other apis with no documentation.
-
-# Fix the empty selection, convertion to table error
-# implement negative filter, without this.
-# considere implementing multiple filtering, where .
-
-# implement filter keys from json as -k
-# implement result filtering from -f ?, -f ?MAP
+            

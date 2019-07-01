@@ -613,13 +613,3 @@ class CmdletsControls():
                         })
 
         self.endpoints = doc
-
-
-## The alias can be first interpreted and even a parameter gathered, before the resolution mechanism kicks in.
-## We can save the command and parameter to
-## Each alias can have a list of commands to be executed, making it possible to write a small script.
-## Need to write the "apply" new cmdlets code.
-## Code enhancements for this could be a class of api handlers, where meta, rbkcli are subclasses
-## think about call back being a workflow parameter as well, where you can create a long one liner
-## Need to implement the customizer for the callback function.
-
