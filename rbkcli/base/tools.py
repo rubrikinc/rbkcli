@@ -372,7 +372,18 @@ class RbkcliTools():
                 },
                 "whiteList": {
                     "description" : "",
-                    "value" : []
+                    "value" : [
+                                'rbkcli:/cmdlet/profile:get:NA',
+                                'rbkcli:/cmdlet/profile:post:NA',
+                                'rbkcli:/cmdlet/sync:post:NA',
+                                'rbkcli:/cmdlet:delete:NA',
+                                'rbkcli:/cmdlet:get:NA',
+                                'rbkcli:/cmdlet:post:NA',
+                                'rbkcli:/commands:get:NA',
+                                'rbkcli:/jsonfy:get:NA',
+                                'rbkcli:/script/sync:post:NA',
+                                'rbkcli:/script:get:NA'
+                            ]
                 },
                 "blackList": {
                     "description" : "",

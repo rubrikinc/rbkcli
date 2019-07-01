@@ -191,7 +191,7 @@ class Rbkcli():
 
         # Convert parameters atributes from tuple to list, so its editable.
         ## FIX
-       #print('raw_args = ' + str(raw_args))
+        #print('raw_args = ' + str(raw_args))
         new_kwargs = copy.deepcopy(kwargs)
         #print('new_kwargs 1= ' + str(new_kwargs))
         #print(new_kwargs)
