@@ -4,7 +4,7 @@
 
 Before starting the installation make sure ou match the following requirements
  - OS: Linux/Mac
- - Python3.4+
+ - Python3.5+
  - pip3 (Python's package indexer)
  - setuptools (Python module that automates moddules instalation)
  
