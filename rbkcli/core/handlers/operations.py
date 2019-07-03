@@ -160,8 +160,10 @@ class OperationsHandler(ApiTargetTools):
 
                         # The changes are applied to both handlers list.
                         version = changes.strip().split(':')
-                        self.handler[version[0]].focus_list.append(operation)
-                        self.ops.append(operation)
+                        if operation not in self.handler[version[0]].focus_list:
+                            self.handler[version[0]].focus_list.append(operation)
+                        if operation not in self.ops:
+                            self.ops.append(operation)
 
     def _apply_blacklist(self):
         """Apply changes from blacklist in config file to ops list."""
@@ -306,10 +308,16 @@ class OperationsHandler(ApiTargetTools):
 
     def _secure_keys(self, dict_, keys, replace='N/A'):
         """Avoid KeyValue error."""
-        for key in keys:
-            if key not in dict_.keys():
-                msg = str('OperationsHandler # There are keys that had to be'
-                          ' secured')
-                self.rbkcli_logger.debug(msg)
-                dict_[key] = replace
-        return dict_
+        try:
+            for key in keys:
+                if key not in dict_.keys():
+                    msg = str('OperationsHandler # There are keys that had to be'
+                              ' secured')
+                    self.rbkcli_logger.debug(msg)
+                    dict_[key] = replace
+            return dict_
+        except AttributeError:
+            msg = str('Target # Successfully generated list of authorized '
+                     'endpoints for user profile: [' + self.user_profile + ']')
+            self.rbkcli_logger.error(msg)
+            raise
