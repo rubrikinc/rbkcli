@@ -1,4 +1,4 @@
-"""Cli module for rbkcli."""
+"""CLI integration module."""
 
 import json
 import re
@@ -46,11 +46,11 @@ class Rbkcli():
                 comp = self._selective_autocomplete_without_version(self.ops)
         else:
             comp = self._full_autocomplete_without_version(self.ops)
+        
         # Return auto complete process.
         del ctx
         return comp
 
-    #def provide_autocomplete_argparse(self, incomplete, args, **ctx):
     def provide_autocomplete_argparse(self, **ctx):
         """Provide the autocomplete functionality, with click standard fn.."""
         # Getting list of operations with and without version attached to it.
@@ -175,7 +175,14 @@ class Rbkcli():
     def _create_request_structure(self, kwargs, raw_args):
         """Generate the request data structure for target handler."""
         # Define the arguments that will be included in the workflow map.
-        workflowable = ['-s', '--select','-f', '--filter', '-c', '--context', '-l', '--loop']
+        workflowable = ['-s',
+                        '--select',
+                        '-f',
+                        '--filter',
+                        '-c',
+                        '--context',
+                        '-l',
+                        '--loop']
         
         # Create a dictionary that resolved argument to var.
         work_dict = {
@@ -191,10 +198,7 @@ class Rbkcli():
 
         # Convert parameters atributes from tuple to list, so its editable.
         ## FIX
-        #print('raw_args = ' + str(raw_args))
         new_kwargs = copy.deepcopy(kwargs)
-        #print('new_kwargs 1= ' + str(new_kwargs))
-        #print(new_kwargs)
         for key, value in kwargs.items():
             new_value = []
             if isinstance(value, tuple):
@@ -202,7 +206,7 @@ class Rbkcli():
                     new_value.append(item)
                 new_kwargs[key] = new_value
 
-        #print('new_kwargs 2= ' + str(new_kwargs))
+
         # Create the workflow dictionary to be passed.
         output_workflow = []
         for arg in raw_args:
@@ -210,7 +214,6 @@ class Rbkcli():
                 if arg.startswith(predicted_arg):
                     if arg == predicted_arg:
                         value_ = new_kwargs[work_dict[arg]][0]
-                        #step = {'arg': work_dict[arg], 'value': value_}
                         if len(value_) > 1:
                             step = {'arg': work_dict[arg], 'value': value_}
                         else:
@@ -222,13 +225,14 @@ class Rbkcli():
                         if new_kwargs[work_dict[arg]] == []:
                             del new_kwargs[work_dict[arg]]
                     else:
-                        error = 'The provided argument is invalid [' + arg + ']...'
+                        error = str('The provided argument is invalid [' +
+                                    arg +
+                                    ']...')
                         msg = 'RbkcliError # ' + error
                         self.rbk_target.target.rbkcli_logger.error(msg)
                         raise RbkcliException.RbkcliError(error)
 
         # Add the workflow generated to the parsed arguments.
-        #print(new_kwargs)
         new_kwargs['output_workflow'] = output_workflow
 
         return new_kwargs
@@ -241,17 +245,13 @@ class Rbkcli():
         -execute() # For API requests
         -info() # For summarized info about the provided API
         """
-        #print(kwargs)
         self.ctx.workflow = 'command'
         parser.create_request_structure = self._create_request_structure
         self.ctx.parser = parser
-        #print('cli_execute:' + str(self.auth))
         self.rbk_target = RbkcliTarget(self.ctx, auth=self.auth)
 
-        ### Testing
+        ## FIX
         kwargs = self._create_request_structure(kwargs, raw_args)
-        #print(kwargs)
-
         self.result = self.rbk_target.target.command(args=kwargs)
 
         return self.format_response()
@@ -289,4 +289,3 @@ class Rbkcli():
                                '\nResponse text: ' + self.result.text)
 
         return response
-

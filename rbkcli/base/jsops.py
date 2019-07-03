@@ -6,13 +6,13 @@ import json
 from rbkcli.base.essentials import DotDict, RbkcliException
 
 class DynaTable():
-    '''Create a dynamically sized table with summary.'''
+    """Create a dynamically sized table with summary."""
 
     ROW_DIVISION_CHAR = '|'
     LINE_DIVISION_CHAR = '='
 
     def __init__(self, headers, rows, logger='', **kwargs):
-        '''Initialize DynaTable.'''
+        """Initialize DynaTable."""
 
         # Verifying if headers and rows have the same amout of objects.
         if len(headers) != len(rows) or len(headers) == 1:
@@ -34,10 +34,10 @@ class DynaTable():
         self.table = []
 
     def _format_rows(self):
-        '''
+        """
         Based on the maximum size acquired, reformat each value of each row
         to have that size.
-        '''
+        """
 
         try:
             rows_size = self._get_rows_size(self.headers, self.rows)
@@ -56,10 +56,10 @@ class DynaTable():
         return True
 
     def assemble_table(self):
-        '''
+        """
         Create and returns a 'table' list, by appending and joinning headers,
         line separator and rows.
-        '''
+        """
 
         table = []
         line = []
@@ -92,17 +92,17 @@ class DynaTable():
         return table
 
     def print_table(self):
-        '''Re-assembles the table and prints it, prints the table.'''
+        """Re-assembles the table and prints it, prints the table."""
 
         table = self.assemble_table()
         for i in table:
             print(i)
 
     def _get_rows_size(self, headers_calc, rows_calc):
-        '''
+        """
         Joins all values in one list and gets the maximum size, of all
         values per row.
-        '''
+        """
 
         rows_size = []
         for i in enumerate(headers_calc):
@@ -126,7 +126,7 @@ class RbkcliJsonOps():
         self._jsonfy()
 
     def _jsonfy(self):
-        """."""
+        """Load string to json data (dict)."""
         if (not isinstance(self.json_data, dict) and
                 not isinstance(self.json_data, list)):
             self.json_data = json.loads(self.json_data)
@@ -149,18 +149,15 @@ class RbkcliJsonOps():
         if isinstance(natural_str, list):
             natural_str = natural_str[0]
         natural_str = natural_str.split(',')
-        #print(natural_str)
+
         for item in natural_str:
             try:
-                #print(item)
-                #new = item.split('=')
-                #print(new)
                 key, value = item.split('=')
                 simple_dictstr.append('"%s": "%s"' % (key, value))
             except ValueError as e:
-                raise RbkcliException.ToolsError('jsops error: ' + str(e) + '\n')
-            
-        #print(simple_dictstr)
+                raise RbkcliException.ToolsError('jsops error: ' +
+                                                 str(e) +
+                                                 '\n')
 
         return str('{%s}' % ', '.join(simple_dictstr))
 
@@ -188,8 +185,8 @@ class RbkcliJsonOps():
         my_table = DynaTable(headers,
                              f_body,
                              summary=summary,
-                             ROW_DIVISION_CHAR="|",
-                             LINE_DIVISION_CHAR="=")
+                             ROW_DIVISION_CHAR='|',
+                             LINE_DIVISION_CHAR='=')
         table = my_table.assemble_table()
 
         return table
@@ -208,7 +205,6 @@ class RbkcliJsonOps():
 
 
 class JsonIteration():
-
     """Manipulates json data in crazy ways."""
     def __init__(self, definitions=[], json_data=[]):
         """Initialize the json operation."""
@@ -292,42 +288,40 @@ class JsonIteration():
 
 
 class PrettyPrint(JsonIteration):
-    """."""
+    """Print json without brackets and quotes."""
 
     def _iteration_context(self, definitions, json_data):
-        """."""
+        """Prepare the iteration adding custom vars."""
         self.counter = -2
         self.modifier = 2
         self.output = []
         self._iterate_json(json_data)
         self.output_str = '\n'.join(self.output)
+
         return self.output_str
-        
 
     def _action_dict(self, keys, values, json_data):
-        """."""
+        """Action taken when data is dictionary."""
         self.counter = self.counter + self.modifier
 
-        #if isinstance(values, unicode):
         if isinstance(values, dict):
-            #print('' + str(' ' * self.counter) + keys + ':')
             self.output.append('' + str(' ' * self.counter) + keys + ':')
             ('' + str(' ' * self.counter) + keys + ':')
             values = self._iterate_json(values)
         elif isinstance(values, list):
-            #print('' + str(' ' * self.counter) + keys + ':')
             self.output.append('' + str(' ' * self.counter) + keys + ':')
             values = self._iterate_json(values)
         else:
-            #print(str(' ' * self.counter) + str(keys) + ': ' + str(values))
-            self.output.append(str(' ' * self.counter) + str(keys) + ': ' + str(values))
+            self.output.append(str(' ' * self.counter) +
+                               str(keys) +
+                               ': ' +
+                               str(values))
         self.counter = self.counter - self.modifier
         return keys, values
 
     def _action_list(self, line, json_data):
-        """."""
+        """Action taken when data is list."""
         self.counter = self.counter + self.modifier
-        #if isinstance(values, unicode):
         
         if isinstance(line, dict):
             line = self._iterate_json(line)
@@ -336,20 +330,17 @@ class PrettyPrint(JsonIteration):
             line = self._iterate_json(line)
             line = self._before_iterate_list(line)
         else:
-            #print(str(' ' * self.counter) + str(line))
             self.output.append(str(' ' * self.counter) + str(line))
 
         self.counter = self.counter - self.modifier
         return line
 
     def _before_iterate_list(self, json_data):
-        """."""
-        #print(str(' ' * self.counter) + '----')
+        """Pre-action taken when data is list."""
         return json_data
 
     def _after_iterate_list(self, json_data):
-        """."""
-        #print(str(' ' * self.counter) + '----')
+        """Post-action taken when data is list."""
         return json_data
 
 
@@ -360,7 +351,7 @@ class ResolveRef(JsonIteration):
     """
 
     def _action_dict(self, keys, values, json_data):
-        """."""
+        """Action taken when data is dictionary."""
         definitions = self.definitions
         if keys == "$ref":
             ref_keys = self._convert_ref_to_keys(values)
@@ -373,7 +364,7 @@ class ResolveRef(JsonIteration):
         return keys, values
 
     def _action_list(self, line, json_data):
-        """."""
+        """Action taken when data is list."""
 
         return self._iterate_json(line)
 
@@ -428,7 +419,7 @@ class MapResponseDoc(JsonIteration):
                                    'required',
                                    'enum']
 
-        # get the schema of the response documentation only.
+        # Get the schema of the response documentation only.
         try:
             json_dict = json_data['doc']['responses']['200']['schema']
         except KeyError: 
@@ -465,15 +456,14 @@ class MapResponseDoc(JsonIteration):
         # Treating special case, which we might remove data from output.
         ## Will need further changes to allow configuration option.
         ## FIX this test
-        #elif keys == 'data' or keys == 'items' :
         elif keys == 'data':
             self.data_tag = True
             self.level = self.level + 1
             values = self._verifier(values)   
             self.level = self.level - 1
-        # Creating a safe check for the key levels of jsons that has both data and items.
+        # Creating a safe check for the key levels of jsons that has both
+        # data and items.
         elif keys == 'items' and not self.data_tag:
-            #self.data_tag = True
             self.level = self.level + 1
             values = self._verifier(values)   
             self.level = self.level - 1
@@ -558,16 +548,18 @@ class MapResponseDoc(JsonIteration):
 
 
 class MapSelect(JsonIteration):
+    """Maps and select provided json keys."""
 
     # Need to add the fields requested to this function, in that way
-    # during the iteration we can match the field requested with the lopped ones.
+    # during the iteration we can match the field requested with the
+    # lopped ones.
 
     ## Fix by unifying this class with MapJson, the current class performs
     # further actions than just MAP, but it also maps, so adding options
     # during the iteration should fix that.
 
     def _iteration_context(self, definitions, json_data):
-        """."""
+        """Define the context to use during iteration."""
         # Assign definitions to instance var.
         if definitions == []:
             definitions = {}
@@ -597,14 +589,15 @@ class MapSelect(JsonIteration):
 
         # Once the iteration is based on the metadata_key that is matched
         # then, the ones that are not matched are never treated, so:
-        # Created the unselected dictionary that stores the keys that were never analyzed.
+        # Created the unselected dictionary that stores the keys that were
+        # never analyzed.
         # If after the iteration, there are unselected fields that are
         # supposed to be filtered, then result shoud not be returned.
         # Pratical meaning here is, if a filter/selection was ordered but the 
         # field which we are filtering does not exist in the json at hand, 
-        # the code will interprete it as a miss match and not add it to the list of results.
+        # the code will interprete it as a miss match and not add it to the
+        # list of results.
         for key in self.unselected:
-            #if definitions[key]['filter_eq'] != '':
             if (definitions[key]['filter_eq'] != '' or 
                  definitions[key]['filter_aprox'] != '' or
                  definitions[key]['filter_not'] != '' or
@@ -623,8 +616,6 @@ class MapSelect(JsonIteration):
         """Get the value of the key obeying condition."""
         # Only load value if definitions has been passed.
         for key, value in self.definitions.items():
-            #print(found_metadata)
-            #print(value['dictKey'])
             # Match key metadata with passed metadata.
             if value['dictKey'] == found_metadata:
                 # In case a filter is specified take action.
@@ -670,14 +661,11 @@ class MapSelect(JsonIteration):
         
         # Generate key metadata and select the filtered key.
         metadata = self._gen_metadata(keys, values)
-        #self._select_key(metadata, values)
 
         # Generate cursor and append it to the map.
         self.cursor = self.cursor + metadata
         ## Test
-        #self._select_key(self.cursor, values)
-        
-        ###BAD TEST FOR SERIALIZED JSON in values
+        ### BAD TEST FOR SERIALIZED JSON in values
         if isinstance(values, str):
             try:
                 values = json.loads(values)
@@ -703,7 +691,7 @@ class MapSelect(JsonIteration):
         # Accumulate nesting level.
         self.level = self.level + 1
         
-        ###BAD TEST
+        ### BAD TEST
         if isinstance(line, str):
             try:
                 line = json.loads(line)
@@ -781,4 +769,3 @@ class MapSelect(JsonIteration):
 
         # Returns map only.
         return self.map
-

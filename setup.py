@@ -10,7 +10,7 @@ setuptools.setup(
     version='1.0.0',
     author='Bruno Manesco',
     author_email='bruno.manesco@rubrik.com',
-    description='CLI conversion from Rubrik APIs',
+    description='A python package that creates a CLI conversion from Rubrik APIs',
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     url='https://github.com/rubrikinc/rbkcli',
