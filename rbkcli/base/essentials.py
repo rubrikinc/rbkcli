@@ -21,7 +21,7 @@ SUPPORTED_API_METHODS = ['head',
                          'delete']
 USERS_PROFILE = ['dev', 'admin', 'support']
 SUPPORTED_USER_METHODS = {
-    'admin': SUPPORTED_API_METHODS,
+    'admin': ['get'],
     'support': SUPPORTED_API_METHODS,
     'dev': SUPPORTED_API_METHODS
 }
