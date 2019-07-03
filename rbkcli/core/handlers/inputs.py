@@ -263,7 +263,7 @@ class InputHandler(ApiTargetTools):
     def _is_valid_method(self):
         """Confirm if provided method is valid."""
         if (self.req.method not in
-                CONSTANTS.SUPPORTED_USER_METHODS[self.user_profile]):
+                CONSTANTS.SUPPORTED_USER_METHODS['dev']):
             return False
         return True
 
