@@ -1,3 +1,4 @@
+"""."""
 
 import json
 
@@ -7,23 +8,22 @@ from rbkcli.core.handlers import ApiTargetTools
 from rbkcli.core.handlers.outputs import OutputHandler
 
 class CallBack(ApiTargetTools):
-    #def __init__(self, operations, base_kit, formatter):
+    """."""
     def __init__(self, operations, base_kit):
+        """."""
         ApiTargetTools.__init__(self, base_kit)
-        #self.formatter = formatter
         self.operations = operations
         self.base_kit = base_kit
         self.validator = InputHandler(self.base_kit, self.operations)
         self.formatter = OutputHandler(base_kit, self.operations)
 
     def parseit(self, args):
+        """."""
         self.args = args
 
-        #print(self.args)
         if not isinstance(self.args, list):
             self.args = self.args.replace('rbkcli ', '')
             
-            #self.args = self.args.split()
             new_args = []
             self.args = self.args.split('"')
             if len(self.args) % 2 != 0:
@@ -35,27 +35,28 @@ class CallBack(ApiTargetTools):
                         new_args = new_args + newarg
                     else:
                         new_args.append(newarg)
-
             else:
                 print('Error ## Danger, danger, high voltage...')
 
             self.args = new_args
 
-        #print('args = ' + str(self.args))
         self.request = self.base_kit.parser.parse_args(self.args)
         self.request = vars(self.request)
-        #print('request = ' + str(self.request))
         self.request = self.base_kit.parser.un_list(self.request)
-        #print('last request = ' + str(self.request))
 
         return self.request, self.args
 
     def structreit(self, args, request):
+        """."""
         self.args = args
-        self.request = request
+        self.request = {}
+        requet_1 = {}
+        for key in request.keys():
+            self.request[key] = request[key]
+            requet_1[key] = request[key]
 
         # Structure the request to the needed format.
-        stct_request = self.base_kit.parser.create_request_structure(request, self.args)
+        stct_request = self.base_kit.parser.create_request_structure(requet_1, self.args)
 
         # Pass data to dot dictionary
         self.stct_request = DotDict()
@@ -67,14 +68,19 @@ class CallBack(ApiTargetTools):
         self.stct_request.formatt = 'raw'
         self.stct_request.param = self.stct_request.query
         self.stct_request.data = self.stct_request.parameter
+        self.stct_request.structured = True
 
         return self.stct_request
 
-    def callit(self, stct_request):
+    def callit(self, stct_request, args=None):
+        """."""
+        if 'structured' not in stct_request.keys():
+            if args is None:
+                args = []
+            stct_request = self.structreit(args, stct_request)
         self.stct_request = stct_request
 
         self.req = self.validator.validate(self.stct_request)
-        #print(self.req)
         api_result = self.operations.execute(self.req)
 
         if '{' in api_result.text or '[' in api_result.text:
@@ -85,13 +91,14 @@ class CallBack(ApiTargetTools):
         else:
             self.call_result = { 'result_text': api_result.text}
 
-        if 'data' in self.call_result.keys():
-            self.call_result = self.call_result['data']
+        if not isinstance(self.call_result, list):
+            if 'data' in self.call_result.keys():
+                self.call_result = self.call_result['data']
 
         return self.call_result
 
     def call_back(self, args):
-        #print('cb args= ' + str(args))
+        """."""
         self.request, self.args = self.parseit(args)
         self.stct_request = self.structreit(self.args, self.request)
 
@@ -105,5 +112,6 @@ class CallBack(ApiTargetTools):
         return self.formatter.outputfy(self.req, result)
 
     def call_back_text(self, args):
+        """."""
         result = self.call_back(args)
         return json.loads(result.text)

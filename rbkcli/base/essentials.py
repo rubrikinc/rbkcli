@@ -6,6 +6,8 @@ BASE_FOLDER = os.path.expanduser('~/rbkcli')
 TARGETS_FOLDER = BASE_FOLDER + '/targets'
 CONF_FOLDER = BASE_FOLDER + '/conf'
 LOGS_FOLDER = BASE_FOLDER + '/logs'
+SCRIPTS_FOLDER = BASE_FOLDER + '/scripts'
+CMDLETS_FOLDER = CONF_FOLDER + '/cmdlets'
 SUPPORTED_API_VERSIONS = ['v1',
                           'v2',
                           'internal',

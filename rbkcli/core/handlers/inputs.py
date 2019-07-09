@@ -160,7 +160,6 @@ class InputHandler(ApiTargetTools):
 
             for block in enumerate(auth_end):
                 if block[0] <= len(self.req.endpoint_parsed) - 1:
-
                     if (block[1] == self.req.endpoint_parsed[block[0]] or
                             re.search('{*id}', block[1])):
 

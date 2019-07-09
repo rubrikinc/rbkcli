@@ -2,6 +2,7 @@
 
 import copy
 import json
+import re
 
 from rbkcli.core.handlers import ApiTargetTools
 
@@ -316,8 +317,11 @@ class JsonEditor():
                         row.append(line)
 
                 else:
-                    line = self.filled_worked[head]
-                    line = str(line)
+                    try:
+                        line = self.filled_worked[head]
+                        line = str(line)
+                    except KeyError:
+                        line = 'N/E'
                     row.append(line)
 
             elif isinstance(self.filled_worked, list):
@@ -386,7 +390,6 @@ class JsonEditor():
             table_str = table_str + line + '\n'
 
         return table_str
-
 
     def convert_to_list1(self):
         self.filled_worked = self.selected_data
@@ -563,7 +566,6 @@ class JsonLooper(JsonEditor):
                 result = self._call_api(selected_objct)
                 ### NEEDS TESTING AF
                 selected_data = list_protection(result, selected_data)
-                #selected_data.append(result)
 
         return selected_data
         
@@ -575,93 +577,93 @@ class JsonLooper(JsonEditor):
         result_1 = self._call_api(result)
         return result_1
 
-    def _call_api1(self, fields_selected):
-        content = fields_selected[self.loop_key]
-        api_to_run = self.loop_api.replace('{' + self.loop_key + '}', content)
-        result_dict = self.cbacker.call_back(api_to_run)
-        result_dict = json.loads(result_dict.text)
-        for key, value in fields_selected.items():
-            result_dict['loop_'+key] = value
-
-        return result_dict
-
     def _call_api(self, fields_selected):
         final_result_dict = []
+        content = {}
+        api_to_run = self.loop_api
+        
+        # Make sure all keys have something to replace or no keys has.
         try:
-            #print('Fields selected: ' + str(fields_selected))
-            #print('Loop key' + self.loop_key)
-            content = fields_selected[self.loop_key]
+            for key_repl in self.loop_key:
+                a_content = fields_selected[key_repl]
+                if not isinstance(a_content, list):
+                    a_content = [a_content]
+                content[key_repl] = a_content
+
         except KeyError:
-            api_to_run = self.loop_api
-            content = []
+            content = {}
 
-        if not isinstance(content, list):
-            content = [content]
+        # Identify the key being used in the correct order, in case 2 level
+        # replacement is bein used.
+        if '{{' in self.loop_api:
+            start_sign = '{{'
+            end_sign = '}}'
+        elif '{' in self.loop_api:
+            start_sign = '{'
+            end_sign = '}'
 
-        new_result_dict = []
+        if content == {}:
+            return []
 
-        for objct in enumerate(content):
-            #api_to_run = self.loop_api.replace('{' + self.loop_key + '}', objct[1])
-            if '{{' in self.loop_api:
-                start_sign = '{{'
-                end_sign = '}}'
-            elif '{' in self.loop_api:
-                start_sign = '{'
-                end_sign = '}'
+        for i in enumerate(content[self.loop_key[0]]):
+            # For each provided key replace them in the next API to run.
+            api_to_run1 = api_to_run
+            for key_repl in self.loop_key:
+                api_to_run1 = api_to_run1.replace(str(start_sign +
+                                                     key_repl +
+                                                     end_sign),
+                                                 content[key_repl][i[0]])
 
-            api_to_run = self.loop_api.replace(start_sign + self.loop_key + end_sign, objct[1])
-            api_to_run = api_to_run.replace('{', start_sign)
-            api_to_run = api_to_run.replace('}', end_sign)
-            #print(api_to_run)
+            # If any signs are let move them to new level.
+            api_to_run1 = api_to_run1.replace('{', start_sign)
+            api_to_run1 = api_to_run1.replace('}', end_sign)
 
-            ## Test changes
-            result_dict = self.cbacker.call_back(api_to_run)
+            # Call the API
+            result_dict = self.cbacker.call_back(api_to_run1)
             result_dict = json.loads(result_dict.text)
 
+            # Recreate the result adding the loop keys.
             for key, value in fields_selected.items():
                 if not isinstance(value, list):
                     value = [value]
 
-                if key == self.loop_key:
-                    if isinstance(result_dict, dict):
-                        result_dict['loop_' + key] = value[0]
-                    elif isinstance(result_dict, list):
-                        for line in enumerate(result_dict):
-                            line[1]['loop_' + key] = value[0]
+                if isinstance(result_dict, dict):
+                    result_dict['loop_' + key] = value[0]
+                elif isinstance(result_dict, list):
+                    for line in enumerate(result_dict):
+                        line[1]['loop_' + key] = value[0]
 
-                else:
-                    if isinstance(result_dict, dict):
-                        result_dict['loop_' + key] = value[0]
-                    elif isinstance(result_dict, list):
-                        for line in enumerate(result_dict):
-                            line[1]['loop_' + key] = value[0]
-
-                
             ### NEEDS TESTING AF
             final_result_dict = list_protection(result_dict, final_result_dict)
-            #final_result_dict.append(result_dict)
 
         return final_result_dict
 
     def _split_api_key(self):
         if '{{' in self.to_api:
-            loop_key = self.to_api.split('{{')
-            loop_key = loop_key[1].split('}}')
-            loop_key = loop_key[0]
+            start = '{{'
+            end = '}}' 
         elif '{' in self.to_api:
-            loop_key = self.to_api.split('{')
-            loop_key = loop_key[1].split('}')
-            loop_key = loop_key[0]
+            start = '{'
+            end = '}'
         else:
-            loop_key = ''
+            loop_key = ['']
 
+        loop_key = self.to_api.split(start)
+        all_pieces = []
+        final_loop_key = []
+        for pieces in loop_key:
+            other_pieces = pieces.split(end)
+            all_pieces = all_pieces + other_pieces
 
-        return loop_key, self.to_api
+        for i in enumerate(all_pieces):
+            if i[0] % 2 != 0 :
+                final_loop_key.append(i[1])
+
+        return final_loop_key, self.to_api
 
     def loopit(self, args, cbacker):
         self.cbacker = cbacker
         self.to_api = args[1]
-        #print('to api: ' + self.to_api)
         self.loop_key, self.loop_api = self._split_api_key()
 
         return self.iterate(args[0])

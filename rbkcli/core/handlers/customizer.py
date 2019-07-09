@@ -249,10 +249,22 @@ class Customizer(AnyApiHandler):
 class RbkCliBlackOps():
     def __init__(self, call_backer):
         self.rbkcli = call_backer
-        #self.call_backer = call_backer
-
-    #def rbkcli(self, args):
-    #    response = self.call_backer(args)
+        self.request = DotDict({
+              'parameter': {},
+              'filter': None,
+              'version': '',
+              'context': None,
+              'table': False,
+              'select': None,
+              'list': False,
+              'query': '',
+              'method': 'post',
+              'api_endpoint': [],
+              'loop': None,
+              'pretty_print': False,
+              'info': False,
+              'documentation': False
+        })
 
 
 class CustomizerControls():

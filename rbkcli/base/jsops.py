@@ -481,9 +481,16 @@ class MapResponseDoc(JsonIteration):
 
         self.level = self.level + 1
         try:
+            # Attempt to get the documented type of the predicted parameter.
             objt_type = values['type']
         except:
-            objt_type = 'empty'
+            try:
+                # Best effort to get param type and keep map consistent.
+                for key, value in values.items():
+                    if isinstance(value, dict):
+                        objt_type = value['type']
+            except:
+                objt_type = 'empty'
 
         objt_type = self.type_dict[objt_type]
         key_str = '[%s#%s#%s]' % (keys, str(self.level), objt_type)

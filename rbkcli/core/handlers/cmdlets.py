@@ -360,6 +360,7 @@ class CmdletsControls():
                        'cmdlet_summary': '',
                        'cmdlet_description': '',
                        'command': [],
+                       'table_order': [],
                        'multiple_output': 'segmented',
                        'param': '',
                        'response_description': ''
@@ -595,7 +596,7 @@ class CmdletsControls():
                                 '200': {
                                     'description': line['response_description'],
                                     'schema': {},
-                                    'table_order': [],
+                                    'table_order': line['table_order'],
                                     'multiple_output': line['multiple_output']
                                 }
                             },
