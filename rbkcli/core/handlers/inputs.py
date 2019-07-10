@@ -269,7 +269,6 @@ class InputHandler(ApiTargetTools):
     def _is_valid_data(self):
         """Confirm if provided data is valid."""
         if '{' not in self.req.data and not isinstance(self.req.data, dict):
-        #if not isinstance(self.req.data, dict):
             data_ops = self.json_ops()
             self.req.data = data_ops.natural_simple_dictstr(self.req.data)
 

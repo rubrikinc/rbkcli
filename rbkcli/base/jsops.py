@@ -430,6 +430,7 @@ class MapResponseDoc(JsonIteration):
             'boolean': 'bool',
             'integer': 'int',
             'empty': 'dict',
+            'object': 'dict',
             'number': 'number',
             'array': 'list'
         }

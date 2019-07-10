@@ -7,7 +7,6 @@ import re
 from rbkcli.core.handlers import ApiTargetTools
 
 try:
-    #from rbkcli.core.handlers.callback import CallBack
     import rbkcli.core.handlers.callback
 except Exception as e:
     print(e)
@@ -60,14 +59,11 @@ class JsonEditor():
     def model_map(self):
         """Generate map from json model to allow verification."""
         # Get a map from the json provided.
-        #print(self.fields_model)
         table_order = []
         if self.fields_model == {} or self.fields_model == []:
             json_iter = MapSelect(definitions=[],
                                   json_data=self.json_data)
-            #print('try and map me')
         else:
-            # Verifies if the documentation provided covers the schema of response.
             two_hundred = self.fields_model['doc']['responses']['200']
             schema = two_hundred['schema']
             if 'table_order' in two_hundred.keys():
@@ -81,15 +77,14 @@ class JsonEditor():
 
         self.json_map = json_iter.mapit()
         self.json_map.table_order = table_order
-        #print(self.json_map)
+
         return self.json_map
 
     def new_model(self, json_data, fields_model=[]):
         """Overwrite model for verification."""
         self.json_data = json_data
         self.fields_model = self._validate_json(fields_model)
-        #print(self.json_data)
-        #print(self.fields_model)
+
         self.model_map()
 
     def _validate_req_fields(self):
@@ -111,6 +106,7 @@ class JsonEditor():
         return True
 
     def _get_available_fields(self, fields, mode='print'):
+        """Get available kesy from a certain json."""
         key_query = {
             '?': 'simple_keys',
             '?NK': 'nested_keys',
@@ -216,23 +212,22 @@ class JsonEditor():
 
         # Attribute it to instance variable.
         self.final_fields = final
-        #print(final)
 
     def _reformat_nested_ks(self, fields):
+        """Parse nested keys corectly."""
         fields = fields.replace('][', '_')
         fields = fields.replace(']', '')
         fields = fields.replace('[', '')
         return fields
 
-
     def _get_field_key(self, field):
         """Match provided field with existing mapped field."""
         # This needs to be reviewed and completed.
-        #print(field)
+
         if '[' not in field:
             for valid_field in self.json_map.full:
                 if valid_field.startswith('['+field+'#'):
-                    #print(valid_field)
+
                     return valid_field
         else:
             req_field = field.split(']')
@@ -241,22 +236,17 @@ class JsonEditor():
             for valid_field in self.json_map.full:
                 val_fields = valid_field.split(']')
                 val_fields.pop(-1)
-                #print(req_field)
-                #print(val_fields)
+
                 if len(req_field) == len(val_fields):
                     for fld in enumerate(req_field):
-                        #print(fld[1] + '#')
-                        #print(val_fields[fld[0]])
+
                         if not val_fields[fld[0]].startswith(fld[1] + '#'):
                             break
                         elif val_fields[fld[0]].startswith(fld[1] + '#'):
                             if len(req_field) == fld[0]+1:
                                 result_field = valid_field
-                        #if fld[1] == val_fields[fld[0]]
-            #print(result_field)
-            #print(result_field)
-            return result_field
 
+            return result_field
 
     def iterate(self, req_fields):
         """Get the selected fields from json data."""
@@ -273,7 +263,7 @@ class JsonEditor():
         return self.selected_data
 
     def _iterate_json(self):
-        """."""
+        """Iterate through the json data provided."""
         if isinstance(self.json_data, dict):
             selected_data = self._iterate_dict()
         elif isinstance(self.json_data, list):
@@ -282,7 +272,7 @@ class JsonEditor():
         return selected_data
 
     def _iterate_list(self):
-        """."""
+        """Iterate through the list data found."""
         selected_data = []
         for objct in self.json_data:
             selection = MapSelect(definitions=self.final_fields,
@@ -294,12 +284,13 @@ class JsonEditor():
         return selected_data
         
     def _iterate_dict(self):
-        """."""
+        """Iterate through the dict data found."""
         selection = MapSelect(definitions=self.final_fields,
                               json_data=self.json_data)
         return selection.iterit()
 
     def convert_to_table(self):
+        """Convert json to table."""
         self.filled_worked = self.selected_data
         body = []
         for head in self.final_fields_order:
@@ -338,8 +329,7 @@ class JsonEditor():
         headers = self.final_fields_order
         summary = 'Total amount of objects'
         table = DynaTable(headers, body, summary=summary)
-        
-        #table.print_table()
+
         table_str = ''
         try:
             table_lst = table.assemble_table()
@@ -354,6 +344,7 @@ class JsonEditor():
         return table_str
 
     def convert_to_list(self):
+        """Convert json to list."""
         self.filled_worked = self.selected_data
         table_str = ''
 
@@ -367,6 +358,7 @@ class JsonEditor():
         return table_str
 
     def _dict_list_table(self, dict_):
+        """Convert dict to listed table."""
         header = ['key', 'value']
         key_row = []
         value_row = []
@@ -391,58 +383,18 @@ class JsonEditor():
 
         return table_str
 
-    def convert_to_list1(self):
-        self.filled_worked = self.selected_data
-        body = []
-        for head in self.final_fields_order:
-            row = []
-
-            if isinstance(self.filled_worked, dict):
-                if 'data' in self.filled_worked.keys():
-                    self.filled_worked = self.filled_worked[data]
-                    for objt in self.filled_worked:
-                        line = objt[head]
-                        line = str(line)
-                        row.append(line)
-
-                else:
-                    line = self.filled_worked[head]
-                    line = str(line)
-                    row.append(line)
-
-            elif isinstance(self.filled_worked, list):
-                for objt in self.filled_worked:
-                    line = objt[head]
-                    line = str(line)
-                    row.append(line)
-            body.append(row)
-
-        headers = self.final_fields_order
-        summary = 'Total amount of objects'
-        table = DynaTable(headers, body, summary=summary)
-        
-        #table.print_table()
-        table_str = ''
-        try:
-            table_lst = table.assemble_table()
-        except IndexError as error:
-            msg = 'No results returned, canno\'t create table...'
-            self.rbkcli_logger.error('DynamicTableError # ' + msg)
-            raise RbkcliException.DynaTableError(msg + '\n')
-        for line in table_lst:
-            table_str = table_str + line + '\n'
-
-        return table_str
-
     def convert_to_prettyprint(self):
-
+        """Convert json to prettyprint."""
         pprint_inst = PrettyPrint(json_data= self.selected_data)
         return pprint_inst.iterit()
 
+
 class JsonFilter(JsonEditor):
+    """Class to filter certain values from json data."""
     def _get_order_keys(self):
+        """Get the order that the keys are organized."""
         all_keys = []
-        #print(self.json_map.table_order)
+
         full_keys = copy.copy(self.json_map.full)
         if self.json_map.table_order != []:
             for field in self.json_map.table_order:
@@ -450,7 +402,6 @@ class JsonFilter(JsonEditor):
                     if keys.startswith('[%s#' % field):
                         all_keys.append(keys)
                         full_keys.remove(keys)
-                        #print(keys)
             if full_keys != []:
                 all_keys = all_keys + full_keys
         else:
@@ -459,13 +410,12 @@ class JsonFilter(JsonEditor):
         return all_keys
 
     def _request_creator(self, fields):
-    #def _select_request_creator(self, fields):
-        """."""
+        """Create the set of keys to be returned."""
         # Create a list of available 1st levels.
-        # Attribute that list to a dictionary as the final result, like select_reques_creator
+        # Attribute that list to a dictionary as the final result,
+        # like select_reques_creator
         # Iterate the results obeying the filter passed 
         all_keys = self._get_order_keys()
-        #all_keys = self.json_map.full
         if fields[0].startswith('KEY='):
             fields = fields[0].replace('KEY=', '')
             all_keys = []
@@ -478,7 +428,6 @@ class JsonFilter(JsonEditor):
         if fields[0].startswith('VALUE='):
             value_fields = ''
             fields = fields[0].replace('VALUE', '')
-            #all_keys = []
             all_keys = self.json_map.simple_keys
             for key in all_keys:
                 value_fields = value_fields + ',' + key + fields
@@ -549,14 +498,13 @@ class JsonFilter(JsonEditor):
         # Make sure the order which request was mande is kept in a list.
         self.final_fields_order = first_levels
 
-        #print(final)
         # Attribute it to instance variable.
         self.final_fields = final
 
 class JsonLooper(JsonEditor):
-
+    """Json operation to loop other APIs."""
     def _iterate_list(self):
-        """."""
+        """Iterate through the list data found."""
         selected_data = []
         for objct in self.json_data:
             selection = MapSelect(definitions=self.final_fields,
@@ -570,7 +518,7 @@ class JsonLooper(JsonEditor):
         return selected_data
         
     def _iterate_dict(self):
-        """."""
+        """Iterate through the dict data found."""
         selection = MapSelect(definitions=self.final_fields,
                               json_data=self.json_data)
         result = selection.iterit()
@@ -578,6 +526,7 @@ class JsonLooper(JsonEditor):
         return result_1
 
     def _call_api(self, fields_selected):
+        """Call API looped with callbacker."""
         final_result_dict = []
         content = {}
         api_to_run = self.loop_api
@@ -639,6 +588,7 @@ class JsonLooper(JsonEditor):
         return final_result_dict
 
     def _split_api_key(self):
+        """Split key to replace and API to call."""
         if '{{' in self.to_api:
             start = '{{'
             end = '}}' 
@@ -662,6 +612,7 @@ class JsonLooper(JsonEditor):
         return final_loop_key, self.to_api
 
     def loopit(self, args, cbacker):
+        """Method to loop json to API."""
         self.cbacker = cbacker
         self.to_api = args[1]
         self.loop_key, self.loop_api = self._split_api_key()
@@ -669,6 +620,7 @@ class JsonLooper(JsonEditor):
         return self.iterate(args[0])
 
 def list_protection(to_append, final_result):
+    """Adjust the return data to be a valid list."""
     if isinstance(to_append, list):
         final_result = final_result + to_append
     else:
@@ -677,6 +629,7 @@ def list_protection(to_append, final_result):
     return final_result
 
 class JsonContextor(JsonEditor):
+    """Json operation to change the context of the json output."""
     def iterate(self, req_fields):
         """Get the selected fields from json data."""
         # Atribute provided selection var to instance var.
@@ -691,14 +644,12 @@ class JsonContextor(JsonEditor):
 
         new_context_map = MapSelect(json_data=self.selected_data)
         self.json_map = new_context_map.mapit()
-        #print(self.json_map)
         self.final_fields_order = self._get_available_fields('?', mode='')
-        #print(self.final_fields_order)
 
         return self.selected_data
 
     def _iterate_list(self):
-        """."""
+        """Iterate through the list data found."""
         selected_data = []
         selection_value_lst = []
         for objct in self.json_data:
@@ -720,7 +671,7 @@ class JsonContextor(JsonEditor):
         return selected_data
         
     def _iterate_dict(self):
-        """."""
+        """Iterate through the dict data found."""
         selection_value_lst = []
         selection = MapSelect(definitions=self.final_fields,
                               json_data=self.json_data)
@@ -769,10 +720,13 @@ class JsonSelection(ApiTargetTools):
         return looper.loopit(req_fields, self.cbacker)
 
     def convert_to_table(self):
+        """Method to convet json output to table."""
         return self.current_editor.convert_to_table()
 
     def convert_to_list(self):
+        """Method to convet json output to list."""
         return self.current_editor.convert_to_list()
 
     def convert_to_prettyprint(self):
+        """Method to convet json output to prettyprint."""
         return self.current_editor.convert_to_prettyprint()

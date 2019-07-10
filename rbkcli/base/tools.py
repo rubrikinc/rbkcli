@@ -371,6 +371,9 @@ class RbkcliTools():
                 "whiteList": {
                     "description" : "",
                     "value" : [
+                                'v1:/session:post:NA',
+                                'internal:/report/{id}/table:post:NA',
+                                'internal:/support/support_bundle:post:NA',
                                 'rbkcli:/cmdlet/profile:get:NA',
                                 'rbkcli:/cmdlet/profile:post:NA',
                                 'rbkcli:/cmdlet/sync:post:NA',
@@ -380,7 +383,8 @@ class RbkcliTools():
                                 'rbkcli:/commands:get:NA',
                                 'rbkcli:/jsonfy:get:NA',
                                 'rbkcli:/script/sync:post:NA',
-                                'rbkcli:/script:get:NA'
+                                'rbkcli:/script:get:NA',
+                                'scripts:/log/bundle:post:NA'
                             ]
                 },
                 "blackList": {

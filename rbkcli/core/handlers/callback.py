@@ -1,4 +1,4 @@
-"""."""
+"""Callback module for rbkcli."""
 
 import json
 
@@ -8,9 +8,9 @@ from rbkcli.core.handlers import ApiTargetTools
 from rbkcli.core.handlers.outputs import OutputHandler
 
 class CallBack(ApiTargetTools):
-    """."""
+    """Class to provide rbkcli internal api calls."""
     def __init__(self, operations, base_kit):
-        """."""
+        """Initialize callback class."""
         ApiTargetTools.__init__(self, base_kit)
         self.operations = operations
         self.base_kit = base_kit
@@ -18,7 +18,7 @@ class CallBack(ApiTargetTools):
         self.formatter = OutputHandler(base_kit, self.operations)
 
     def parseit(self, args):
-        """."""
+        """Parse arguments provided."""
         self.args = args
 
         if not isinstance(self.args, list):
@@ -47,7 +47,7 @@ class CallBack(ApiTargetTools):
         return self.request, self.args
 
     def structreit(self, args, request):
-        """."""
+        """Reestructure arguments provided."""
         self.args = args
         self.request = {}
         requet_1 = {}
@@ -73,7 +73,7 @@ class CallBack(ApiTargetTools):
         return self.stct_request
 
     def callit(self, stct_request, args=None):
-        """."""
+        """Call endpoint provided with arguments."""
         if 'structured' not in stct_request.keys():
             if args is None:
                 args = []
@@ -98,20 +98,18 @@ class CallBack(ApiTargetTools):
         return self.call_result
 
     def call_back(self, args):
-        """."""
+        """Perform same level of parsing (even CLI) as any other request."""
         self.request, self.args = self.parseit(args)
         self.stct_request = self.structreit(self.args, self.request)
-
 
         result = DotDict()
         result.text = self.callit(self.stct_request)
         result.status_code = 200
         result.text = json.dumps(result.text, indent=2)
 
-
         return self.formatter.outputfy(self.req, result)
 
     def call_back_text(self, args):
-        """."""
+        """Returns dict directly instead of API result."""
         result = self.call_back(args)
         return json.loads(result.text)

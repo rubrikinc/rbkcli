@@ -1,4 +1,4 @@
-"""Input Handler module for rbkcli."""
+"""Output Handler module for rbkcli."""
 
 import json
 import re
@@ -8,8 +8,7 @@ from rbkcli.core.handlers import ApiTargetTools
 from rbkcli.base.jsops import MapResponseDoc
 from rbkcli.core.handlers.jsometa import JsonSelection, JsonEditor
 
-
-# This will be instantiated as soons as the target is instantiated.
+# This will be instantiated as soon as the target is instantiated.
 # It will have 2 different workflows, one in wich the API is run and the output of it needs to be modified.
 # The other when prior to running the API it requests the available keys.
     # If the available keys are documented under a schema then we use that to provide available keys.
@@ -20,9 +19,11 @@ from rbkcli.core.handlers.jsometa import JsonSelection, JsonEditor
 # -> Every map request will interrupt the workflow, returning the map
 
 
-
 class OutputHandler(ApiTargetTools):
     """
+    Class that analyze and modify outputs.
+
+    Changes are done based on the parameters provided by the user.
     """
 
     def __init__(self, base_kit, operations):
@@ -32,7 +33,6 @@ class OutputHandler(ApiTargetTools):
         self.req = self.dot_dict()
         self.result = self.dot_dict()
         self.result.text = ''
-        #self.result.status_code = 200
         self.json_iter = self.dot_dict()
 
     def available_fields(self, req):
@@ -52,11 +52,9 @@ class OutputHandler(ApiTargetTools):
         """Validate if json response is documented and can be used."""
         # Try to load as json, if possible create json output.
         json_document = json.loads(self.req.documentation_objct)
-        #print(json_document)
 
         self.json_iter = MapResponseDoc(json_data=json_document)
         self.json_iter.iterit()
-        #print(self.json_iter.map)
 
         if self.json_iter.map.full != []:
             return True
@@ -86,7 +84,6 @@ class OutputHandler(ApiTargetTools):
             '?MAP': 'full',
         }
         
-        #print(self.req)
         query_provided = self.req.output_workflow[0]['value']
 
         try:
@@ -114,17 +111,14 @@ class OutputHandler(ApiTargetTools):
         self.result.text = final_return_keys
 
     def outputfy(self, req, output):
-        """."""
+        """Request the correct output convertion."""
         self.req = req
         self.output_workflow = req.output_workflow
         self.result = output
-        #print(self.output_workflow)
+
         self.selection = None
         for line in enumerate(self.output_workflow):
-            #if line[0] >= 0:
-            #    self.selection.new_model(self.result.text)
-            #    print(self.selection.json_map.full)
-                #self.result.text
+
             self.treat_field(line[0], line[1]['arg'], line[1]['value'])
 
         if self.req.table:
@@ -144,14 +138,14 @@ class OutputHandler(ApiTargetTools):
         return self.result
 
     def treat_field(self, ix, action, act_value):
-        #print(self.req)
+        """Perform the json modification requested."""
         json_dict = json.loads(self.result.text)
         if isinstance(json_dict, dict) or isinstance(json_dict, list):
             fields_model = []
             if ix == 0:
                 fields_model = self.operations.documentation(self.req)
                 fields_model = fields_model.text
-                #print(fields_model)
+
             self.selection = JsonSelection(json_dict,
                                            fields_model,
                                            self.operations,
@@ -170,4 +164,3 @@ class OutputHandler(ApiTargetTools):
             self.result.text = output
         else:
             self.result.text = json.dumps(output, indent=2)
-            

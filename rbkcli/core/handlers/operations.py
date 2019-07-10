@@ -137,7 +137,6 @@ class OperationsHandler(ApiTargetTools):
             raise Exception('Empty Operations list')
 
         # Passing all available cmds to meta cmds handler.
-        #self.handler['cmdlets'].store_all_ops(self.ops)
         self.handler['rbkcli'].store_all_ops(self.ops)
 
         # Log Successfull action.

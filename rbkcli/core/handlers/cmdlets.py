@@ -1,4 +1,4 @@
-"""Meta commands module for rbkcli."""
+"""Cmdlets module for rbkcli."""
 
 import os
 import json
@@ -36,7 +36,6 @@ class Cmdlets(ApiTargetTools):
         """Initialize Meta commands class."""
         ApiTargetTools.__init__(self, base_kit)
 
-
         self.user_profile = user_profile
         self.version = 'cmdlets'
         self.filter_lists = {}
@@ -50,17 +49,13 @@ class Cmdlets(ApiTargetTools):
         ## Structural changes needed: gen_authorization_lists
         ### So the following 3 fn will have toi be adjusted
 
-        #self._gen_docs()
-
     def gen_authorization_lists(self):
         """
         Create custom lists of authorized based in the user profile.
 
         The focus list is used to verify if the API can be executed or not.
         """
-        #print(self.endpoints)
 
-        #self._gen_docs()
         self.meta_api.doc = self.endpoints
         filter_list = self._create_all_methods_list(string='REQUIRES SUPPORT'
                                                     ' TOKEN')
@@ -89,10 +84,7 @@ class Cmdlets(ApiTargetTools):
     def execute_api(self, *args, **kwargs):
         """Execute method based in the endpoint and method entered."""
         method, endpoint = args
-        ## TEST
-        #print(args)
-        #print(kwargs)
-        #del kwargs
+
         if '?' in endpoint:
             endpoint, query = endpoint.split('?')
         else:
@@ -122,12 +114,6 @@ class Cmdlets(ApiTargetTools):
                     elif isinstance(my_result, list):
                         for item in my_result:
                             last_command_.append(item)
-
-                    #if isinstance(my_result, dict):
-                    #    for key, value in my_result.items():
-                    #        last_command[key] = value
-                    #elif isinstance(my_result, list):
-                    #    last_command['comand_'+str(ops[0])] = my_result
             else:
                 this_result = self.cbacker.call_back(opers)
                 last_command = self._load_json(this_result)
@@ -136,9 +122,9 @@ class Cmdlets(ApiTargetTools):
             last_command = last_command_
 
         return json.dumps(last_command, indent=2)
-        #return endpoint[method]['exec_fn'](kwargs)
 
     def _assign_parameters(self, oper, entered_param, existing_param):
+        """Assign parameters to callback internally."""
         if entered_param == {}:
             entered_param = '{}'
         entered_param = json.loads(entered_param)
@@ -155,6 +141,7 @@ class Cmdlets(ApiTargetTools):
         return oper
 
     def _load_json(self, json_data):
+        """Load json method, for simplification and error treatment."""
         result = {}
         try:
             result = json.loads(json_data.text)
@@ -164,6 +151,7 @@ class Cmdlets(ApiTargetTools):
         return result
 
     def _get_cmdlets_files(self):
+        """Get list of cmdlets profiles file.."""
         cmdlets_files = []
         self.cmdlets_folder = CONSTANTS.CONF_FOLDER + '/cmdlets'
         try:
@@ -176,25 +164,25 @@ class Cmdlets(ApiTargetTools):
         return cmdlets_files
 
     def _load_cmdlets_files(self, cmdlets_files):
+        """Load the content of the cmdlet profile file."""
         loaded_cmdlets = []
         for file in cmdlets_files:
             loaded_cmdlets = loaded_cmdlets + self.tools.load_json_file(self.cmdlets_folder+'/'+file)
         return loaded_cmdlets
     
     def _get_usable_cmdlets(self, loaded_cmdlets):
+        """Confirm if cmdlet is uniq, return only usable/uniq."""
         usable_cmdlets = []
         usable_cmdlets_list = []
         existing_cmdlets = copy.deepcopy(loaded_cmdlets)
         for item in enumerate(existing_cmdlets):
             if item[1]['name'] in usable_cmdlets_list:
-                #loaded_cmdlets.remove(item[0])
                 pass
             else:
                 usable_cmdlets_list.append(item[1]['name'])
                 usable_cmdlets.append(item[1])
 
         return usable_cmdlets
-
 
     def _gen_docs(self):
         """Create static API documentation and store to class var."""
@@ -265,21 +253,22 @@ class Cmdlets(ApiTargetTools):
         return filter_list
 
 
-    #def initialize_callbacker(self, operations, formatter):
+    
     def initialize_callbacker(self, operations):
-        #self.formatter = formatter
+        """Instantiate callback object."""
         self.operations = operations
-        #self.cbacker = CallBack(self.operations, self.base_kit, self.formatter)
         self.cbacker = CallBack(self.operations, self.base_kit)
 
 
 class CmdletsControls():
-
+    """Cmdlets APIs class."""
     def __init__(self, tools):
+        """Initialize Cmdlets control class."""
         self.tools = tools
         self.cmdlets_folder = CONSTANTS.CONF_FOLDER + '/cmdlets'
 
     def list_cmdlets_profiles(self, kwargs):
+        """List all cmdlets profiles."""
         result = []
         profiles = self._get_cmdlets_files()
         for profile in profiles:
@@ -293,6 +282,7 @@ class CmdletsControls():
         return json.dumps(result, indent=2)
 
     def add_cmdlet_profile(self, kwargs):
+        """Adds a cmdlet profile file."""
         # Get parameters passed to the operation.
         parameters = kwargs['data']
         parameters = json.loads(parameters)
@@ -337,14 +327,15 @@ class CmdletsControls():
         return json.dumps(result, indent=2)
 
     def list_cmdlets(self, kwargs):
+        """List all cmdlets in all profiles."""
         cmdlets_files = self._get_cmdlets_files()
-        #print(cmdlets_files)
         loaded_cmdlets = self._load_cmdlets_files(cmdlets_files)
         usable_cmdlets = self._get_usable_cmdlets(loaded_cmdlets)
 
         return json.dumps(usable_cmdlets, indent=2)
 
     def sync_cmdlets(self, kwargs):
+        """Add any newly created cmdlet to me.json environment."""
         target_folder = kwargs['target_folder']
         self._update_env_file(target_folder+'/me.json')
         result = {
@@ -353,6 +344,7 @@ class CmdletsControls():
         return result
 
     def _gen_cmdlet(self):
+        """."""
         new_cmdlet = {
                        'id': str(self.tools.gen_uuid()),
                        'profile': 'cmdlets.json',
@@ -369,7 +361,7 @@ class CmdletsControls():
         return new_cmdlet
 
     def _compare_provided_expected(self, provided, expected):
-
+        """Compare keys expected with keys provided."""
         message = []
         # Get the passed parameters that are expected in the new_cmdlet.
         for key, value in provided.items():
@@ -382,7 +374,7 @@ class CmdletsControls():
 
 
     def add_cmdlet(self, kwargs):
-
+        """Add a new cmdlet to a given profile."""
         # Get target folder from operations.
         target_folder = kwargs['target_folder']
 
@@ -415,23 +407,21 @@ class CmdletsControls():
 
         # Validating if provided cmdlet profile exists.
         cmdlets_files = self._get_cmdlets_files()
-        #cmdlet_file = ['cmdlets.json']
         prov_prfile = new_cmdlet['profile']
         prov_prfile_file =  prov_prfile + '-cmdlets.json'
         if prov_prfile in cmdlets_files:
             cmdlet_file = [prov_prfile]
-            #print(cmdlet_file)
             loaded_cmdlets = self._load_cmdlets_files(cmdlet_file)
+        
         # Validating the name of the profile, without sufix.
         elif prov_prfile_file in cmdlets_files:
             cmdlet_file = [prov_prfile_file]
-            #print(cmdlet_file)
             loaded_cmdlets = self._load_cmdlets_files(cmdlet_file)
+        
         # If cmdlets.json file does not exist, then create it automatically.
         elif new_cmdlet['profile'] == 'cmdlets.json':
             loaded_cmdlets = []
             cmdlet_file = str(self.cmdlets_folder + '/' + 'cmdlets.json')
-            #print(cmdlet_file)
             self.tools.safe_create_json_file([], cmdlet_file)
         else:
             message.append('Error: Unable to add cmdlet, unrecognized '
@@ -450,7 +440,6 @@ class CmdletsControls():
         # If status is still succeeded then apply changes.
         if result['result'] == 'Succeeded':
             loaded_cmdlets.append(new_cmdlet)
-            #cmdlet_file = ['cmdlets.json']
             self.tools.create_json_file(loaded_cmdlets, 
                                         str(self.cmdlets_folder +
                                         '/' +
@@ -463,12 +452,14 @@ class CmdletsControls():
         return json.dumps(result, indent=2)
 
     def _update_env_file(self, file):
+        """Update the me.json file for the target."""
         file_dict = self.tools.load_json_file(file)
         self._gen_docs()
         file_dict['apis']['cmdlets'] = self.endpoints
         self.tools.create_json_file(file_dict, file)
 
     def remove_cmdlet(self, kwargs):
+        """Delete the cmdlet from a given profile."""
         target_folder = kwargs['target_folder']
         result = []
         data = kwargs['data']
@@ -485,6 +476,7 @@ class CmdletsControls():
         return json.dumps(result, indent=2)
 
     def _remove_cmdlet_id(self, id_):
+        """Find the cmdlets with the provided id."""
         result = {}
         cmdlets_files = self._get_cmdlets_files()
         loaded_cmdlets = self._load_cmdlets_files(cmdlets_files)
@@ -502,6 +494,7 @@ class CmdletsControls():
         return result
 
     def _remove_from_file(self, id_, file):
+        """Remove the found cmdlet from given profile."""
         data = []
         result = {}
         for fil in file:
@@ -524,9 +517,11 @@ class CmdletsControls():
         return result
 
     def patch_cmdlet(self):
+        """Adjust cmdlet with given id."""
         pass
 
     def _get_cmdlets_files(self):
+        """Get list of cmdlet profile file."""
         cmdlets_files = []
         
         try:
@@ -535,11 +530,12 @@ class CmdletsControls():
                 if file.endswith('cmdlets.json'):
                     cmdlets_files.append(file)
         except Exception as e:
-            #print(e)
             return []
         return cmdlets_files
 
     def _load_cmdlets_files(self, cmdlets_files):
+        """Load cmdlet profile file."""
+
         loaded_cmdlets = []
 
         for file in cmdlets_files:
@@ -548,11 +544,12 @@ class CmdletsControls():
             for cmdleto in profile:
                 cmdleto['profile'] = file
                 profile_final.append(cmdleto)
-            #print(profile_final)
             loaded_cmdlets = loaded_cmdlets + profile_final
         return loaded_cmdlets
     
     def _get_usable_cmdlets(self, loaded_cmdlets):
+        """Verify if cmdlet is uniq, return only uniq cmdlets."""
+
         usable_cmdlets = []
         usable_cmdlets_list = []
         existing_cmdlets = loaded_cmdlets
