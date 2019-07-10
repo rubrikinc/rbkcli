@@ -390,6 +390,13 @@ class RbkcliTools():
                 "blackList": {
                     "description" : "",
                     "value" : []
+                },
+                "userProfile": {
+                    "description" : str("String value which can be admin or "
+                                        "support. A profile is a set of API"
+                                        " endpoints that is available in the"
+                                        " command line."),
+                    "value" : "admin"
                 }
             }
         }

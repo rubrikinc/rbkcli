@@ -10,14 +10,14 @@ from .tools import RbkcliLogger, RbkcliTools
 
 class RbkcliBase():
     """Define the base class for all other classes."""
-    def __init__(self, log_name='empty', module='', user_profile='admin',
+    def __init__(self, log_name='empty', module='', user_profile='config',
                  base_folder='', log_mode='', workflow='command'):
         """Initialize base class."""
         self.create_base_folder(base_folder)
         if log_name == 'empty':
             log_name = CONSTANTS.LOGS_FOLDER + '/rbkcli.log'
-        self.user_profile = user_profile
         self.rbkcli_logger = RbkcliLogger(log_name, module, mode=log_mode)
+        self.user_profile = user_profile
         self.verify_config_keys()
         self.workflow = workflow
 
@@ -55,6 +55,17 @@ class RbkcliBase():
         """Verify configuration file and adpt parameters."""
         self.conf_dict = RbkcliTools(self.rbkcli_logger).load_conf_file()
         self.verify_loglevel()
+
+        # Get valid user profile from configuration file, else admin profile.
+        user_profile = self.conf_dict['config']['userProfile']['value']
+        try:
+            if self.user_profile == 'config':
+                if user_profile in CONSTANTS.USERS_PROFILE:
+                    self.user_profile = user_profile
+                else:
+                    self.user_profile = 'admin'
+        except KeyError:
+            self.user_profile = 'admin'
 
     def verify_loglevel(self):
         """Upate log level in case config was changed."""
