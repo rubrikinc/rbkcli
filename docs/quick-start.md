@@ -2,11 +2,11 @@
 
 ## Requirements
 
-Before starting the installation make sure ou match the following requirements
+Before starting the installation make sure you match the following requirements
  - OS: Linux/Mac
  - Python3.5+
  - pip3 (Python's package indexer)
- - setuptools (Python module that automates moddules instalation)
+ - setuptools (Python module that automates modules installation)
  
  In order to install the requirements you can run the following commands:
  
@@ -18,7 +18,7 @@ Before starting the installation make sure ou match the following requirements
 
 ## Installation
 
-Install from source and enable autocomplete:
+Install from source and enable auto-complete:
 
 ```
 $ git clone git@github.com:rubrikinc/rbkcli.git
@@ -35,7 +35,7 @@ By default, the rbkcli will attempt to read the the Rubrik Cluster credentials f
 * `rubrik_cdm_username`
 * `rubrik_cdm_password`
 
-You can also specify a token to be used in the authentication by exporting the following evironment variable:
+You can also specify a token to be used in the authentication by exporting the following environment variable:
 * `rubrik_cdm_token`
 
 So the commands to be run would be:
@@ -66,7 +66,7 @@ EnvironmentHandler # No cached API found for this target, importing APIs...
 }
 ```
 
-At this point all rbkcli features should be available, including autocomplete.
+At this point all rbkcli features should be available, including auto-complete.
 
 ## More information
 
@@ -75,3 +75,4 @@ For more information about rbkcli tool and its features go to:
 
 For complete **rbkcli** usage and feature documentation go to:
 * [Summary](SUMMARY.md)
+

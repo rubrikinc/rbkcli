@@ -43,7 +43,7 @@
                                     'type': 'string'
                                 },   
                                 'param': {
-                                    'description': 'Parameter to replace in the commads, provided in a comma separated list.',
+                                    'description': 'Parameter to replace in the commands, provided in a comma separated list.',
                                     'type': 'string'
                                 },
                                 'profile': {
@@ -183,7 +183,7 @@
         },
         {
         'name': 'param',
-        'description': 'Parameter to replace in the commads, provided in a comma separated list.',
+        'description': 'Parameter to replace in the commands, provided in a comma separated list.',
         'in': 'body',
         'required': False,
         'type': 'string'
@@ -222,7 +222,7 @@
                                 'type': 'string'
                             },
                             'message': {
-                                'description': 'Message(s) explainning how was the execution of the requested operation.',
+                                'description': 'Message(s) explaining how was the execution of the requested operation.',
                                 'type': 'array'
                             },
                             'data': {
@@ -334,7 +334,7 @@
                                 'type': 'string'
                             },
                             'message': {
-                                'description': 'Message(s) explainning how was the execution of the requested operation.',
+                                'description': 'Message(s) explaining how was the execution of the requested operation.',
                                 'type': 'array'
                             },
                             'data': {

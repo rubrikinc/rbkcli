@@ -23,7 +23,7 @@ Notation in which you can define keys and values (as in  [JSON](https://www.w3sc
     $ rbkcli commands --select method=get
     ```
 
-    * When you want to select results that contain a key with an aproximated value (or key that contains the string), use:
+    * When you want to select results that contain a key with an approximated value (or key that contains the string), use:
     ```
     <key1>~<value>
     ```
@@ -40,12 +40,12 @@ Notation in which you can define keys and values (as in  [JSON](https://www.w3sc
     ```
     $ rbkcli commands --select method!=delete
     ```
-    Obs.: Because bash interpretes exclamation mark as a special character, users should escape that character:
+    Obs.: Because bash interprets exclamation mark as a special character, users should escape that character:
     ```
     $ rbkcli commands --select method\!=delete
     ```
     
-    * When you want to select results that contain a key without an aproximated value (or key that does not contains the string), use:
+    * When you want to select results that contain a key without an approximated value (or key that does not contains the string), use:
     ```
     <key1>~<value>
     ```
@@ -53,7 +53,7 @@ Notation in which you can define keys and values (as in  [JSON](https://www.w3sc
     ```
     $ rbkcli commands --select endpoint!~config
     ```
-    Obs.: Because bash interpretes exclamation mark as a special character, users should escape that character:
+    Obs.: Because bash interprets exclamation mark as a special character, users should escape that character:
     ```
     $ rbkcli commands --select endpoint\!~config
     ```

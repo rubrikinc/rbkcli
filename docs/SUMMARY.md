@@ -25,3 +25,35 @@
      - [/rbkcli/cmdlet/sync](rbkcli_cmdlet_sync.md)
      - [/rbkcli/script](rbkcli_script.md)
      - [/rbkcli/script/sync](rbkcli_script_sync.md)
+	 
+### Files and Configs
+
+* [Configuration File - NR](not_ready.md)
+* [Folder Structure - NR](not_ready.md)
+
+	 
+### Delivery
+
+* [Portable](portable.md)
+	- [rbkcli.pex for python 3.5/3.6/3.7](https://github.com/rubrikinc/rbkcli/releases/tag/v1.0.0-beta%2Bportable)
+	
+* [PyPI](rbkcli_pip.md)
+	- [rbkcli PyPI page](https://pypi.org/project/rbkcli/)
+
+### Use Cases
+
+* [Complex commands - NR](not_ready.md)
+* [Scripts](use_scripts.md)
+* [Cmdlets - NR](not_ready.md)
+* [Real case scenarios - NR](not_ready.md)
+* [rbkcli as a SDK - NR](not_ready.md)
+
+### How To
+
+* [Use a credential's file - NR](not_ready.md)
+* [Change available API endpoints - NR](not_ready.md)
+* [Disable logging - NR](not_ready.md)
+* [Use rbkcli with a proxy/VPN - NR](not_ready.md)
+
+
+

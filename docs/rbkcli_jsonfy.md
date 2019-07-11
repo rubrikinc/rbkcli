@@ -82,7 +82,7 @@
           "property": "my property"
         }
         ```
-    5. Example 5: You can assing the content of the file to bash variable and provide the variable as parameter. Obs.: The same can be done to any API that requires a json parameter.
+    5. Example 5: You can assign the content of the file to bash variable and provide the variable as parameter. Obs.: The same can be done to any API that requires a json parameter.
         ```
         $ example_var=$(cat /tmp/example.json)
         $ rbkcli jsonfy -p "$example_var"

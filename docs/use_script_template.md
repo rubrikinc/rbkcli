@@ -1,0 +1,116 @@
+
+# Script Template
+---
+When adding scripts to rbkcli framework, there are certain requirements that needs to be met.
+In order to understand those requirements let's take a look at a simple example:
+
+## DemoScript breakdown:
+
+1. The code:
+    The DemoScript is not a great script, but successfully demonstrates that users can freely implement new CLIs, to be used in rbkcli framework, which are not always necessarily related to Rubrik APIs.
+    ```python
+    """rbkcli demo custom script"""
+    
+    import subprocess
+    from rbkcli import RbkCliBlackOps
+    
+    class MyOperation(RbkCliBlackOps):
+        method = 'get'
+        endpoint = '/DemoScript/cmd_passthrough'
+        description = 'Rbkcli command that calls local bash commands.'
+        summary = 'Call bash commands provided'
+        parameters = 'jobId'
+        
+        def execute(self, args):
+            # Check received args:
+            print(args)
+            
+            # Run a call back to rbkcli
+            result = self.rbkcli.call_back('cluster me -s id')
+            
+            # Print call back return
+            print(result.text)
+            
+            # Print received parameter as proxy key:
+            print(args.parameters.proxy)
+            
+            # Call bash command with the provided parameter:
+            proxyc_call = subprocess.check_output(str(args.parameters.proxy).split())
+            
+            # print the result.
+            print(proxyc_call.decode("utf-8") )
+            
+            return "{}"
+    ```
+2. The base:
+    As in any in Python script/module, your first step is to import the necessary packages or Classes from packages:
+    ```python
+    """rbkcli demo custom script"""
+    
+    import subprocess
+    from rbkcli import RbkCliBlackOps
+    ```
+    As shown above you can also add a docstring in the first with a short summary explaining the script.
+    The class imported from **rbkcli** is called *"RbkCliBlackOps"* and its responsible for integrating the script to the framework.
+
+3. The child class:
+    To leverage the *"RbkCliBlackOps"* class you will need to define a child class:
+    ```python
+    class MyOperation(RbkCliBlackOps):
+    ```
+    After defining the child class, there are 5 parameters that needs to be defined for the successful import of the script as a CLI. Filling those parameters properly also helps in having a well documented command line.
+    ```python
+        method = 'get'
+        endpoint = '/DemoScript/cmd_passthrough'
+        description = 'Rbkcli command that calls local bash commands.'
+        summary = 'Call bash commands provided'
+        parameters = 'jobId'
+    ```
+    These parameters will generate the OpenAPI documentation which is the base of any command line interface in **rbkcli**. The most important parameters, which will determine, how will the command be called by user are:
+    * endpoint (the actual command line path to be called)
+    * method (method to be provided when calling the endpoint, could be one of: get, post, delete, put, patch)
+    
+    The other parameters are  used to generate accurate documentation.
+    
+4. The method:
+    The method which will be called when user calls the CLI with the script endpoint is **execute**.
+    ```python
+        def execute(self, args):
+            # Check received args:
+            print(args)
+    ```
+    Execute receives one parameter formatted as dictionary, which contains the following contextual data: method called, endpoint called, target of the call, parameters passed, query passed.
+    If executed the above code would return the following:
+    ```json
+    {'method': 'get', 'target': '192.168.75.200', 'parameters': {}, 'query': '', 'endpoint': 'DemoScript/cmd_passthrough'}
+    ```
+    As the **args** dictionary is a special type of dictionary, its keys can be accessed as Python's objects properties, with a "."(dot):
+    ```python
+    # Print received parameter as proxy key:
+    print(args.parameters.proxy)
+    ```
+    As parameters should be always provided as json or natural key assignment (json converter), you can also treat expected parameters as properties of parameters, in this case **proxy** is a expected parameter that might not be provided, which will cause a exception.
+    
+5. The call back:
+    Besides the method and arguments provided, the **RbkCliBlackOps** class has a callback object called rbkcli, with a "call_back" method, that allows you to call existing APIs in the same format as the command line:
+    ```python
+    # Run a call back to rbkcli
+    result = self.rbkcli.call_back('cluster me -s id')
+    ```
+6. The external bits:
+    You can also freely perform any actions with other packages outside Rubrik and use that data in the command line being designed:
+    ```python
+    # Call bash command with the provided parameter:
+    proxyc_call = subprocess.check_output(str(args.parameters.proxy).split())
+
+    # print the result.
+    print(proxyc_call.decode("utf-8") )
+    ```
+7. The return:
+    You can return any type of data desired, but the rbkcli output module will convert that depending on the format. If the returned data is a list or a dict, it will be printed (by rbkcli framework) as a json which allows the user to leverage json manipulation/conversion arguments.
+    If the returned result is empty or a string, the user will have no manipulation over it.
+    ```python
+    return "{}"
+    ```
+
+

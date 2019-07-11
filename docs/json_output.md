@@ -1,5 +1,5 @@
 # Json output customization arguments
-The following arguments are all related to customization of the JSON output received from APIs, as well as using the output to create advanced workflows. This arguments can be used multiple times in the same command line and it will cause a modification to the received output. It works in a similar manner to the pipeline on Linux bash. Because of the nature of the data needed by this argumetns, the values provided have it own notation. The notaion rbkcli uses is called *[natural key assignment](natural_key_assignment.md)* (it was mentioned on [**-p/--parameters**] section), please visit its documentation for more information on its usage.
+The following arguments are all related to customization of the JSON output received from APIs, as well as using the output to create advanced workflows. This arguments can be used multiple times in the same command line and it will cause a modification to the received output. It works in a similar manner to the pipeline on Linux bash. Because of the nature of the data needed by this arguments, the values provided have it own notation. The notation rbkcli uses is called *[natural key assignment](natural_key_assignment.md)* (it was mentioned on [**-p/--parameters**] section), please visit its documentation for more information on its usage.
 
 - **-s/--select:**: This is an optional argument used to select only specific keys from a Json output, customizing the output as desired. With this argument you can, get simple keys (not nested), get all keys in json output, select specific keys as well as select keys with condition.
     1. To get the simple keys in json output, use the following:
@@ -142,7 +142,7 @@ The following arguments are all related to customization of the JSON output rece
         ```
         Obs.: Even though we have only specified 2 keys in the filter, all keys are returned and the objects that does not match that filter are discarded.
     
-- **-c/--context:**: This is an optional argument used to display only the value of a specified key. It changes the context of the output from general, to the specified key, it is specially useful when dealing with nested keys and conplex outputs or creating simple list of data. It also accepts conditions to generate the list. With this argument you can, get simple keys (not nested), get all keys in json output and get the keys values alone.
+- **-c/--context:**: This is an optional argument used to display only the value of a specified key. It changes the context of the output from general, to the specified key, it is specially useful when dealing with nested keys and complex outputs or creating simple list of data. It also accepts conditions to generate the list. With this argument you can, get simple keys (not nested), get all keys in json output and get the keys values alone.
     1. To get the simple keys in json output, use the following:
     Example 1:
         ```
@@ -220,7 +220,7 @@ The following arguments are all related to customization of the JSON output rece
           }
         ]
         ```
-        Explannation: rbkcli ran ```cluster me``` command and from it, took the id key, which was used while calling the command ```cluster/{id}```. The Loop replaces the selected id by the "{id}" string provided and performs a call back to run the new api ```cluster/a8cd537d-e274-46d8-871e-f80ac47c264c```. Once that is done Loop merges the key used in the loop into the result, in this case being called "loop_id". We can verify this by running manually  ```cluster/a8cd537d-e274-46d8-871e-f80ac47c264c```:
+        Explanation: rbkcli ran ```cluster me``` command and from it, took the id key, which was used while calling the command ```cluster/{id}```. The Loop replaces the selected id by the "{id}" string provided and performs a call back to run the new API endpoint ```cluster/a8cd537d-e274-46d8-871e-f80ac47c264c```. Once that is done Loop merges the key used in the loop into the result, in this case being called "loop_id". We can verify this by running manually  ```cluster/a8cd537d-e274-46d8-871e-f80ac47c264c```:
         ```
         $ rbkcli cluster/a8cd537d-e274-46d8-871e-f80ac47c264c
         {
@@ -237,7 +237,7 @@ The following arguments are all related to customization of the JSON output rece
         ```
         Obs.: We can see it returns the same output without the looped key.
         
-- **-T/--table:** This is an optional argument and a flag used to convert the final output into a table where possible. This canno't be used with *[-L/--list]* or *[-P/--pretty_print]*. The Table argument will atempt to convert every key into a row, if the output contains multiple results with keys of same name (multiple results and all of them have an "id" key for example), then one row with that name will be created and the values for each result will be added as a line. It works best with outputs that contain multiple results and it looks nicer when it is used with *[-s/--select]* or *[-f/--filter]* .
+- **-T/--table:** This is an optional argument and a flag used to convert the final output into a table where possible. This cannot be used with *[-L/--list]* or *[-P/--pretty_print]*. The Table argument will attempt to convert every key into a row, if the output contains multiple results with keys of same name (multiple results and all of them have an "id" key for example), then one row with that name will be created and the values for each result will be added as a line. It works best with outputs that contain multiple results and it looks nicer when it is used with *[-s/--select]* or *[-f/--filter]* .
     1. To generate a table for an output, use the following:
     Example 1
         ```
@@ -261,7 +261,7 @@ The following arguments are all related to customization of the JSON output rece
         **Total amount of objects [2]
         ```
     
-- **-L/--list:** This is an optional argument and a flag used to convert the final output into a table with a list format where possible. This canno't be used with *[-T/--table]* or *[-P/--pretty_print]*. The Table argument will atempt to convert every key in the output into a "key" row and every value into a "value" row. It works better with outputs that have only one result returned.
+- **-L/--list:** This is an optional argument and a flag used to convert the final output into a table with a list format where possible. This cannot be used with *[-T/--table]* or *[-P/--pretty_print]*. The Table argument will attempt to convert every key in the output into a "key" row and every value into a "value" row. It works better with outputs that have only one result returned.
      1. To generate a table with list of keys and values for an output, use the following:
         Example 1:
         ```
@@ -279,7 +279,7 @@ The following arguments are all related to customization of the JSON output rece
         
         **Total amount of objects [8]
         ```
-- **-P/--pretty_print:** This is an optional argument and a flag used to convert the final output into a table with a list format where possible. This canno't be used with *[-T/--table]* or *[-L/--list]*. The pretty print argument will convert all json output into simple indented string output. It is usefull to get a raw list of the json output and oftenly can be combined with *[-c/--context]*.
+- **-P/--pretty_print:** This is an optional argument and a flag used to convert the final output into a table with a list format where possible. This cannot be used with *[-T/--table]* or *[-L/--list]*. The pretty print argument will convert all json output into simple indented string output. It is useful to get a raw list of the json output and often can be combined with *[-c/--context]*.
     1. To generate a pretty print output, use the following:
         Example 1:
         ```
