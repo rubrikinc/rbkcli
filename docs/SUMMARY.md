@@ -44,7 +44,7 @@
 
 * [Complex commands - NR](not_ready.md)
 * [Scripts](use_scripts.md)
-* [Cmdlets - NR](not_ready.md)
+* [Cmdlets](use_cmdlets.md)
 * [Real case scenarios - NR](not_ready.md)
 * [rbkcli as a SDK - NR](not_ready.md)
 
