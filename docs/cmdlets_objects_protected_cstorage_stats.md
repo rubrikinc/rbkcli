@@ -1,0 +1,95 @@
+ # /cmdlets/objects/protected/storage_stats
+ 
+ ### Basic Usage
+ In order to run this cmdlet you must run:
+ ```
+ $ rbkcli objects protected storage_stats
+ ```
+ For better visibility you can use the json table converter:
+ ```
+ $ rbkcli objects protected storage_stats --table
+ ```
+ 
+ ### Description
+ 
+ This is a default cmdlet, which provides a list of all objects, their local storage and storage growth, the data comes from System Capacity report. It will return a json list of results with the following fields: ObjectName, Location, ObjectState, ObjectType, SlaDomain, LocalStorage, LocalStorageGrowth.
+ 
+ 
+ ### Technical Info Breakdown
+ 
+ Following is the original **rbkcli** command, which this **cmdlet** translates to:
+ ```
+ rbkcli report -f "name=System Capacity,type=Canned" -l id "jsonfy/report_table -p report_id={id},limit=9999" -s ObjectName,Location,ObjectState,ObjectType,SlaDomain,LocalStorage,LocalStorageGrowth
+ ```
+ 
+ Let's start by understanding the initial command:
+ ```
+ rbkcli report -f "name=System Capacity,type=Canned"
+ ```
+ In this command we are querying for all the reports available in Rubrik system and then filtering by the name of "System Capacity" and the type "Canned". 
+ 
+ Moving to the second part of the command we have:
+ ```
+ --loop id "jsonfy/report_table -p report_id={id},limit=9999"
+ ```
+ With the result received, which is just one, we loop the "id" field into the API endpoint "/jsonfy/report_table -p report_id={id},limit=9999". 
+ The "/jsonfy/report_table" is a custom script, which requests the following endpoint: "/internal/report/{id}/table" and converts that data into json list of elements.
+ Effectively we are requesting a maximum limit of "9999" objects in the results, coming from that report.
+ 
+ For the last part of of the command we have:
+ ```
+ --select ObjectName,Location,ObjectState,ObjectType,SlaDomain,LocalStorage,LocalStorageGrowth
+ ```
+ From all the fields generated from the report table requested, we only select those seven above, having a more concise result.
+ 
+ ### Adding it manually
+ The command line used to create a cmdlet such as this is:
+ ```
+ rbkcli cmdlet -m post -p '{"profile": "rbkcli","command": ["rbkcli report -f \"name=System Capacity,type=Canned\" -l id \"jsonfy/report_table -p report_id={id},limit=9999\" -s ObjectName,Location,ObjectState,ObjectType,SlaDomain,LocalStorage,LocalStorageGrowth"],"table_order": ["ObjectName", "Location", "ObjectState", "ObjectType", "SlaDomain", "LocalStorage", "LocalStorageGrowth"],"cmdlet_summary": "List all objects and their local storage stats","cmdlet_description": "List all objects, their local storage and storage growth.","name": "objects protected storage_stats","param": "","response_description": "Returns a json list of results with the following fields: ObjectName, Location, ObjectState, ObjectType, SlaDomain, LocalStorage, LocalStorageGrowth."}'
+ ```
+ 
+ The response given from rbkcli would be:
+ 
+ ```json
+  {
+    "result": "Succeeded",
+    "message": [],
+    "cmdlet_to_add": {
+    "id": "e0d5a3ed-6658-44f4-a289-e975be98db54",
+    "profile": "rbkcli",
+    "name": "objects protected storage_stats",
+    "cmdlet_summary": "List all objects and their local storage stats",
+    "cmdlet_description": "List all objects, their local storage and storage growth.",
+    "command": [
+      "rbkcli report -f \"name=System Capacity,type=Canned\" -l id \"jsonfy/report_table -p report_id={id},limit=9999\" -s ObjectName,Location,ObjectState,ObjectType,SlaDomain,LocalStorage,LocalStorageGrowth"
+    ],
+    "table_order": [
+      "ObjectName",
+      "Location",
+      "ObjectState",
+      "ObjectType",
+      "SlaDomain",
+      "LocalStorage",
+      "LocalStorageGrowth"
+    ],
+    "multiple_output": "segmented",
+    "param": "",
+    "response_description": "Returns a json list of results with the following fields: ObjectName, Location, ObjectState, ObjectType, SlaDomain, LocalStorage, LocalStorageGrowth."
+    }
+  }
+ ```
+ 
+ ### Further usage
+ Additional usage for this command line could be:
+ - Filtering by object type, type which is equal to "ManagedVolume":
+ ```
+ $ rbkcli objects protected storage_stats -f ObjectType=ManagedVolume -T
+ ```
+ - Searching for an object by SLA domain name, name which contains "Silver":
+ ```
+ $ rbkcli objects protected storage_stats -f SlaDomain~Silver -T
+ ```
+ - Filtering by object growth, growth which does not contains "-" (negative sign) nor is equal to "0":
+ ```
+ $ rbkcli objects protected storage_stats -f LocalStorageGrowth\!~- -f LocalStorageGrowth\!=0 -T
+ ```
