@@ -10,5 +10,5 @@ To check the documentation on set of commands that manages **Cmdlets**, visit th
 ## Cases
 Following are the default **Cmdlets** which are added upon installation:
  - [/cmdlets/objects/protected/](cmdlets_objects_protected.md)
- - [/cmdlets/objects/protected/compliance - NR](not_ready.md)
- - [/cmdlets/objects/protected/storage_stats - NR](not_ready.md)
+ - [/cmdlets/objects/protected/compliance](cmdlets_objects_protected_compliance.md)
+ - [/cmdlets/objects/protected/storage_stats](cmdlets_objects_protected_storage_stats.md)
