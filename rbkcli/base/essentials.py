@@ -1,4 +1,4 @@
-"""Essentials module for rbkcli."""
+"""Essential module, parameters shared for rbkcli."""
 
 import os
 
@@ -6,6 +6,8 @@ BASE_FOLDER = os.path.expanduser('~/rbkcli')
 TARGETS_FOLDER = BASE_FOLDER + '/targets'
 CONF_FOLDER = BASE_FOLDER + '/conf'
 LOGS_FOLDER = BASE_FOLDER + '/logs'
+SCRIPTS_FOLDER = BASE_FOLDER + '/scripts'
+CMDLETS_FOLDER = CONF_FOLDER + '/cmdlets'
 SUPPORTED_API_VERSIONS = ['v1',
                           'v2',
                           'internal',
@@ -22,7 +24,7 @@ SUPPORTED_API_METHODS = ['head',
 USERS_PROFILE = ['dev', 'admin', 'support']
 SUPPORTED_USER_METHODS = {
     'admin': ['get'],
-    'support': ['get'],
+    'support': SUPPORTED_API_METHODS,
     'dev': SUPPORTED_API_METHODS
 }
 SUPPORTED_OUTPUT_FORMATS = ['raw',
@@ -36,15 +38,9 @@ CONF_DICT = {}
 class DotDict(dict):
     """Create a dictionary managed/accessed with dots."""
 
-    #__getattr__ = dict.__getitem__
+    __getattr__ = dict.__getitem__
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
-
-    def __getattr__(self, key):
-        try:
-            return self[key]
-        except KeyError:
-            raise AttributeError
 
 
 CONSTANTS = DotDict({

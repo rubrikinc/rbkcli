@@ -112,14 +112,12 @@ class ApiTarget(RbkcliBase):
         self.req.param = self.req.query
         self.req.data = self.req.parameter
 
-        #self.ini_req = copy.deepcopy(self.req)
         for key, value in self.req.items():
             self.ini_req[key] = value
         # Get the documentation string for every API run.
         self.req.documentation_objct = self.documentation(args=self.req).text
 
         ## FIX
-        ### print(self.req.output_workflow)
 
         # If info requested, only print info.
         if self.req.info:
@@ -138,7 +136,6 @@ class ApiTarget(RbkcliBase):
             result = self.execute(args=self.req)
 
         return self.formatter.outputfy(self.req, result)
-        #return result
 
     def _gen_req_dict(self, kwargs):
         """Generate the request dictionary to be passed."""
@@ -163,10 +160,9 @@ class ApiTarget(RbkcliBase):
         base_kit.api_handler = self.api_handler
         base_kit.discover_fn = self.ctx.discover_fn
         base_kit.auth = self.auth
-        base_kit.user_profile = self.ctx.user_profile
+        base_kit.user_profile = self.user_profile
         base_kit.json_ops = self.json_ops
         base_kit.workflow = self.ctx.workflow
-        #base_kit.target_folder = self.environment.env.folder
 
         ### Test here
         callback_kit = self.dot_dict()
@@ -187,7 +183,6 @@ class RubrikCluster(ApiTarget):
     def __init__(self, ctx, auth=None, env=None):
         """Initialize Rbkcli Rubrik Cluster."""
         ctx['discover_fn'] = self._discovery_action
-        #print('RubrikCluster:' + str(auth))
         ApiTarget.__init__(self, ctx, auth=auth, env=env)
 
     def _discovery_action(self):
@@ -244,7 +239,7 @@ class RbkcliTarget():
 
     def __init__(self, ctx, auth=None, env=None):
         """Initialize RbkcliTarget class."""
-        #print('RbkcliTarget:' + str(auth))
+
         # Attribute the to instance var the instantiation of a Cluster.
         self.target = RubrikCluster(ctx,
                                     auth=auth,

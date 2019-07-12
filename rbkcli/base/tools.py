@@ -26,9 +26,9 @@ from rbkcli.base.essentials import CONSTANTS, DotDict, RbkcliException
 
 
 class RbkcliLogger():
-    '''Customize logger.'''
+    """Customize logger."""
     def __init__(self, log_name, module, mode=''):
-        '''Initialize logger.'''
+        """Initialize logger."""
         self.module = module
         self.logger = logging.getLogger('rbkcli')
         self.logger.status = 'creating'
@@ -40,52 +40,52 @@ class RbkcliLogger():
         self.status = 'created'
 
     def error(self, msg):
-        '''Log an error msg to file.'''
+        """Log an error msg to file."""
         self.logger.error(msg)
 
     def info(self, msg):
-        '''Log an info msg to file.'''
+        """Log an info msg to file."""
         self.logger.info(msg)
 
     def debug(self, msg):
-        '''Log a debug msg to file..'''
+        """Log a debug msg to file.."""
         self.logger.debug(msg)
 
     def exception(self, msg):
-        '''Log an exception msg to file..'''
+        """Log an exception msg to file.."""
         self.logger.exception(msg)
 
     def warning(self, msg):
-        '''Log an warning msg to file..'''
+        """Log an warning msg to file.."""
         self.logger.warning(msg)
 
     def print_error(self, msg):
-        '''Log and print an error msg to file.'''
+        """Log and print an error msg to file."""
         print(msg)
         self.logger.error(msg)
 
     def print_info(self, msg):
-        '''Log and print an info msg to file.'''
+        """Log and print an info msg to file."""
         print(msg)
         self.logger.info(msg)
 
     def print_debug(self, msg):
-        '''Log and print a debug msg to file..'''
+        """Log and print a debug msg to file.."""
         print(msg)
         self.logger.debug(msg)
 
     def print_exception(self, msg):
-        '''Log and print an exception msg to file..'''
+        """Log and print an exception msg to file.."""
         print(msg)
         self.logger.exception(msg)
 
     def print_warning(self, msg):
-        '''Log and print an warning msg to file..'''
+        """Log and print an warning msg to file.."""
         print(msg)
         self.logger.warning(msg)
 
     def _validate_log_folder(self, log_name):
-        '''Validate the folder provided, if does not exist, create it.'''
+        """Validate the folder provided, if does not exist, create it."""
         try:
             if not os.path.isfile(log_name):
                 raise FileNotFoundError(log_name)
@@ -96,7 +96,7 @@ class RbkcliLogger():
             RbkcliTools(self.logger).safe_create_folder(folder)
 
     def _configure_logger(self, log_name, mode):
-        '''Configure logger with console and file handling.'''
+        """Configure logger with console and file handling."""
         formatted = logging.Formatter('%(asctime)-15s - [%(threadName)-12.12s]'
                                     ' %(levelname)-8s [%(module)s] - '
                                     '%(message)-s')
@@ -120,10 +120,9 @@ class RbkcliLogger():
 
 
 class RbkcliTools():
-    '''Define tools to be widely available throughout the code.'''
-
+    """Define tools to be widely available throughout the code."""
     def __init__(self, logger, conf_dict={}, workflow='command'):
-        '''Initialize the tools.'''
+        """Initialize the tools."""
         self.logger = logger
         self.ssh_conn = False
         self.called_tools = []
@@ -132,7 +131,7 @@ class RbkcliTools():
         self.auth = DotDict({})
 
     def load_yaml_file(self, yaml_file):
-        '''Open file as read, load yaml, returns dict.'''
+        """Open file as read, load yaml, returns dict."""
         self.called_tools.append('load_yaml_file')
         
         try: 
@@ -144,7 +143,7 @@ class RbkcliTools():
         return dict_result
 
     def load_json_file(self, json_file):
-        '''Open file as read, load json, returns dict.'''
+        """Open file as read, load json, returns dict."""
         self.called_tools.append('load_json_file')
         try:
             with open(json_file, 'r') as file:
@@ -158,7 +157,7 @@ class RbkcliTools():
         return dict_result
 
     def create_yaml_file(self, yml_dict, yml_file):
-        '''Open file as write, dump yaml dict to file.'''
+        """Open file as write, dump yaml dict to file."""
         self.called_tools.append('create_yaml_file')
         try:
             with open(yml_file, 'w') as file:
@@ -179,7 +178,7 @@ class RbkcliTools():
             raise RbkcliException.ToolsError(error)
 
     def create_json_file(self, json_dict, json_file):
-        '''Open file as write, dump json dict to file.'''
+        """Open file as write, dump json dict to file."""
         self.called_tools.append('create_json_file')
         try:
             with open(json_file, 'w') as file:
@@ -201,7 +200,7 @@ class RbkcliTools():
         return False
 
     def safe_create_json_file(self, json_dict, json_file):
-        '''Open file as write, dump json dict to file.'''
+        """Open file as write, dump json dict to file."""
         if os.path.isfile(json_file):
             return False
         else:
@@ -210,7 +209,7 @@ class RbkcliTools():
         return True
 
     def create_simple_swagger_file(self, data, file):
-        '''Create a swagger file, version 2, providing minimum data.'''
+        """Create a swagger file, version 2, providing minimum data."""
         self.called_tools.append('create_simple_swagger_file')
         swagger_example = {
             'basePath': data['base_path'],
@@ -231,7 +230,7 @@ class RbkcliTools():
         return self.create_yaml_file(swagger_example, file)
 
     def ssh_connection(self, server, username, password, port=22):
-        '''Create paramiko's SSH session with provided data.'''
+        """Create paramiko's SSH session with provided data."""
         self.called_tools.append('ssh_connection')
         self.ssh_conn = paramiko.SSHClient()
         self.ssh_conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -243,7 +242,7 @@ class RbkcliTools():
         return self.ssh_conn
 
     def ssh_cmd(self, cmd, ssh_conn=''):
-        '''Execute ssh command using Paramiko exec_command() method.'''
+        """Execute ssh command using Paramiko exec_command() method."""
         self.called_tools.append('ssh_cmd')
 
         # If connection arg is not given use the instance ssh_con
@@ -252,7 +251,6 @@ class RbkcliTools():
 
         # Declaring
         results = {}
-
         stdin, stdout, stderr = ssh_conn.exec_command(cmd)
 
         # Split session output in a dictionary
@@ -266,7 +264,7 @@ class RbkcliTools():
         return results
 
     def ssh_cmd_shell(self, cmd, ssh_conn=''):
-        '''Execute ssh command using Paramiko invoke_shell() method.'''
+        """Execute ssh command using Paramiko invoke_shell() method."""
         self.called_tools.append('ssh_cmd_shell')
 
         # Declaring
@@ -289,7 +287,7 @@ class RbkcliTools():
         return results
 
     def load_env_auth(self):
-        '''Load authentication data from environment variables.'''
+        """Load authentication data from environment variables."""
         self.called_tools.append('load_env_auth')
         try:
             self.auth.server = os.environ['rubrik_cdm_node_ip']
@@ -310,21 +308,21 @@ class RbkcliTools():
                 keys = ''
                 for line in self.auth.keys():
                     keys = keys + ',' + line
-                msg = '%s [%s]' % ('IOTools # Successfully loaded environmental '
-                                   'vars', keys.strip(','))
+                msg = '%s [%s]' % ('IOTools # Successfully loaded'
+                                   ' environmental vars', keys.strip(','))
                 self.logger.debug(msg)
 
         return self.auth
 
     def load_conf_file(self, file='', conf_dict={}):
-        '''Load configuration data from json file.'''
+        """Load configuration data from json file."""
         self.called_tools.append('load_conf_file')
 
         try:
             if file == '':
                 file = CONSTANTS.CONF_FOLDER + '/rbkcli.conf'
-            msg = '%s [%s]' % ('IOTools # Successfully loaded configuration file'
-                               ': ', file)
+            msg = '%s [%s]' % ('IOTools # Successfully loaded configuration'
+                               ' file: ', file)
             if conf_dict == {} and self.conf_dict == {}:
                 self.conf_dict = self.load_json_file(file)
                 self.logger.debug(msg)
@@ -346,7 +344,7 @@ class RbkcliTools():
         return self.conf_dict
 
     def create_vanila_conf(self):
-        '''Create a default configuration file.'''
+        """Create a default configuration file."""
         self.called_tools.append('create_vanila_conf')
         conf_dict = {
             "config": {
@@ -372,11 +370,33 @@ class RbkcliTools():
                 },
                 "whiteList": {
                     "description" : "",
-                    "value" : []
+                    "value" : [
+                                'v1:/session:post:NA',
+                                'internal:/report/{id}/table:post:NA',
+                                'internal:/support/support_bundle:post:NA',
+                                'rbkcli:/cmdlet/profile:get:NA',
+                                'rbkcli:/cmdlet/profile:post:NA',
+                                'rbkcli:/cmdlet/sync:post:NA',
+                                'rbkcli:/cmdlet:delete:NA',
+                                'rbkcli:/cmdlet:get:NA',
+                                'rbkcli:/cmdlet:post:NA',
+                                'rbkcli:/commands:get:NA',
+                                'rbkcli:/jsonfy:get:NA',
+                                'rbkcli:/script/sync:post:NA',
+                                'rbkcli:/script:get:NA',
+                                'scripts:/log/bundle:post:NA'
+                            ]
                 },
                 "blackList": {
                     "description" : "",
                     "value" : []
+                },
+                "userProfile": {
+                    "description" : str("String value which can be admin or "
+                                        "support. A profile is a set of API"
+                                        " endpoints that is available in the"
+                                        " command line."),
+                    "value" : "admin"
                 }
             }
         }
@@ -392,7 +412,7 @@ class RbkcliTools():
             raise RbkcliException.ToolsError(msg)
 
     def load_auth_file(self):
-        '''Load authentication data from json file.'''
+        """Load authentication data from json file."""
         self.called_tools.append('load_auth_file')
 
         try:
@@ -407,7 +427,7 @@ class RbkcliTools():
             raise RbkcliException.ToolsError(msg)
  
     def load_file_auth(self):
-        '''Load authentication data from json file.'''
+        """Load authentication data from json file."""
         self.called_tools.append('load_file_auth')
 
         if self.conf_dict['config']['useCredentialsFile']['value'] == 'False':
@@ -429,7 +449,7 @@ class RbkcliTools():
         return self.auth
 
     def load_auth_key(self, key):
-        '''Load key by key confirming if consistency is kept.'''
+        """Load key by key confirming if consistency is kept."""
         try:
             self.auth[key] = self.auth_dict[key]
 
@@ -454,7 +474,7 @@ class RbkcliTools():
                 raise RbkcliException.ToolsError(msg)
 
     def load_auth(self):
-        '''Load authentication.'''
+        """Load authentication."""
         self.called_tools.append('load_auth')
         try:
             self.auth = self.load_file_auth()
@@ -466,47 +486,37 @@ class RbkcliTools():
         
         # Change the verification for target verification, auth verification
         # # To be performed before API execution.
-        #if not self._verify_auth_consistency(self.auth):
-        #    self.auth = self._load_interactive_auth()
         if not self._verify_target_consistency(self.auth):
             raise Exception('Verify auth code')
 
         return self.auth
 
     def _verify_target_consistency(self, auth):
-        '''Verify if minimun auth params has been provided.'''   
+        """Verify if minimun auth params has been provided."""   
         self.auth = auth
         if 'server' in self.auth.keys():
-            #if self.auth.server == '' or not self.is_valid_ip(self.auth.server):
-            if self.auth.server == '' or not self.is_valid_ip_port(self.auth.server):
+            if (self.auth.server == '' or
+                not self.is_valid_ip_port(self.auth.server)):
                 if self.workflow == 'command':
                     msg = 'Invalid or missing Rubrik server'
                     self.logger.error('AuthenticationError # ' + msg)
                     self.auth.server = self._user_input('Rubrik server IP: ',
-                                                        #self.is_valid_ip)
                                                         self.is_valid_ip_port)
         else:
             if self.workflow == 'command':
                 msg = 'Invalid or missing authentication parameters.'
                 self.logger.error('AuthenticationError # ' + msg)
                 self.auth.server = self._user_input('Rubrik server IP: ',
-                                                    #self.is_valid_ip)
                                                     self.is_valid_ip_port)
             elif self.workflow == 'complete':
                 self.auth.server = ''
         return True
 
     def verify_auth_consistency(self, auth):
-        '''Verify if minimun auth params has been provided.'''
+        """Verify if minimun auth params has been provided."""
         self.auth = auth
 
         ## Fix Clean
-        #if 'server' in self.auth.keys():
-        #    if self.auth.server == '' or not self.is_valid_ip(self.auth.server):
-        #        msg = 'Invalid or missing Rubrik server'
-        #        self.logger.error('AuthenticationError # ' + msg)
-        #        self.auth.server = self._user_input('Rubrik server IP: ',
-        #                                            self.is_valid_ip)
         if 'token' in self.auth.keys():
             if self.auth.token == '' or not self.is_valid_uuid(self.auth.token):
                 msg = 'Invalid or missing Rubrik token'
@@ -515,22 +525,18 @@ class RbkcliTools():
                                                     self.is_valid_uuid)
             else:
                 pass
-                # return True
 
         if 'username' in self.auth.keys() and 'password' in self.auth.keys():
             if self.auth.username != '' and self.auth.password != '':
                 pass
-                # return True
             elif self.auth.username == '':
                 msg = 'Invalid or missing username/password'
                 self.logger.error('AuthenticationError # ' + msg)
                 self.auth.username = self._user_input('Rubrik username: ',
                                          self.is_not_empty_str)
-
             elif self.auth.password != '':
                 print('password:' + self.auth.password)
                 pass
-                # return True
             elif self.auth.password == '':
                 msg = 'Invalid or missing password format'
                 self.logger.error('AuthenticationError # ' + msg)
@@ -545,13 +551,11 @@ class RbkcliTools():
         return True
 
     def load_interactive_auth(self, auth):
-        '''Get auth values from user.'''
+        """Get auth values from user."""
         self.auth = auth
         msg = 'Interactive authentication required.'
         self.logger.warning('AuthenticationWarning # ' + msg)
         ## Fix clean
-        #self.auth.server = self._user_input('Rubrik server IP: ',
-        #                                    self.is_valid_ip)
         self.auth.username = self._user_input('Rubrik username: ',
                                          self.is_not_empty_str)
         self.auth.password = self._user_input('Rubrik password: ',
@@ -562,7 +566,7 @@ class RbkcliTools():
         return self.auth
 
     def _update_auth_file(self):
-        '''.'''
+        """Add server and username to auth file."""
         auth_dict = {
             'server': self.auth.server,
             'username': self.auth.username,
@@ -573,11 +577,10 @@ class RbkcliTools():
         self.create_json_file(auth_dict, file)
 
     def json_load(self, json_str):
-        '''Load json data.'''
+        """Load json data."""
         self.called_tools.append('json_dump')
 
         ##FIX
-
         try:
             json_dict = json.loads(json_str)
         except json.decoder.JSONDecodeError:
@@ -586,12 +589,12 @@ class RbkcliTools():
         return json_dict
 
     def yaml_load(self, yaml_str):
-        '''Load yaml data.'''
+        """Load yaml data."""
         self.called_tools.append('json_dump')
         return yaml.safe_load(yaml_str)
 
     def json_dump(self, json_dict):
-        '''Dump json data.'''
+        """Dump json data."""
         self.called_tools.append('json_dump')
 
         if not isinstance(json_dict, dict) and not isinstance(json_dict, list):
@@ -600,7 +603,7 @@ class RbkcliTools():
         return json.dumps(json_dict, indent=2, sort_keys=True)
 
     def jsonfy(self, avar):
-        '''.'''
+        """Load json data from string."""
         avar_dict = {}
         if isinstance(avar, requests.models.Response):
             avar_dict = self.json_load(avar.text)
@@ -612,12 +615,12 @@ class RbkcliTools():
         return self.json_dump(avar_dict)
 
     def cp_dict(self, existing_dict):
-        '''Copy dictionary completly.'''
+        """Copy dictionary completly."""
         self.called_tools.append('cp_dict')
         return copy.deepcopy(existing_dict)
 
     def download_file(self, url):
-        '''Download file from provided url.'''
+        """Download file from provided url."""
         self.called_tools.append('download_file')
         pool = urllib3.PoolManager(cert_reqs='CERT_NONE')
         try:
@@ -641,7 +644,7 @@ class RbkcliTools():
         return content
 
     def safe_create_folder(self, folder_path):
-        '''Create folders that don't exist in a path provided.'''
+        """Create folders that don't exist in a path provided."""
         path = ''
         folder_path = folder_path.replace(CONSTANTS.BASE_FOLDER + "/", "")
         folders = folder_path.strip().split('/')
@@ -669,7 +672,7 @@ class RbkcliTools():
             return False
 
     def is_valid_uuid1(self, uuid_to_test, version=4):
-        '''Copy dictionary completly.'''
+        """Copy dictionary completly."""
         self.called_tools.append('is_valid_uuid')
         try:
             uuid_obj = UUID(uuid_to_test, version=version)
@@ -679,17 +682,15 @@ class RbkcliTools():
         return str(uuid_obj) == uuid_to_test
 
     def is_valid_uuid(self, uuid_to_test, version=4):
-        '''Copy dictionary completly.'''
+        """Copy dictionary completly."""
+        # Because of the creation of the universal ID rbkcli no longer
+        # verifies id validity
         self.called_tools.append('is_valid_uuid')
-        #try:
-        #    uuid_obj = UUID(uuid_to_test, version=version)
-        #except:
-        #    return False
 
         return True
 
     def is_valid_ip(self, ip):
-        '''Validate if provided IP is valid, takes IPv4/IPv6.'''
+        """Validate if provided IP is valid, takes IPv4/IPv6."""
         try:
             new_ip = ipaddress.ip_address(ip)
             result = True
@@ -699,11 +700,12 @@ class RbkcliTools():
         return result
 
     def is_valid_ip_port(self, ip_port):
-        '''Validate if provided IP is valid, takes IPv4/IPv6.'''
+        """Validate if provided IP is valid, takes IPv4/IPv6."""
         if ':' in ip_port:
             ip, port = ip_port.split(':')
             try:
-                if self.is_valid_ip(ip) and int(port) < 65535 and int(port) > 0:
+                if (self.is_valid_ip(ip) and
+                    int(port) < 65535 and int(port) > 0):
                     return True
                 else:
                     return False
@@ -713,14 +715,16 @@ class RbkcliTools():
             return self.is_valid_ip(ip_port)
 
     def is_not_empty_str(self, value):
+        """Test if string is not empty."""
         return not value == '' 
 
     def _user_input(self, msg, validator, inputer=input):
-        '''Validate user input.'''
+        """Validate user input."""
         value = inputer(msg)
         while not validator(value):
             value = input(msg)
         return value
 
     def gen_uuid(self):
+        """Generate UUID version 4."""
         return uuid.uuid4()

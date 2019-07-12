@@ -1,0 +1,64 @@
+[
+  {
+    "cmdlet_description": "List all objects that are or were protected, the data comes from Object Protection Summary report.",
+    "cmdlet_summary": "List all objects that are or were protected.",
+    "command": [
+      "rbkcli report -f \"name=Object Protection Summary,type=Canned\" -l id \"jsonfy/report_table -p report_id={id},limit=9999\" -s ObjectId,ObjectName,ObjectState,ObjectType"
+    ],
+    "id": "06baeccd-5b44-4749-8c89-4d3c41db557f",
+    "multiple_output": "segmented",
+    "name": "objects protected",
+    "param": "",
+    "profile": "rbkcli-cmdlets.json",
+    "response_description": "Returns a json list of results with the following fields: ObjectId, ObjectName, ObjectState, ObjectType.",
+    "table_order": [
+      "ObjectId",
+      "ObjectName",
+      "ObjectState",
+      "ObjectType"
+    ]
+  },
+  {
+    "cmdlet_description": "List the compliance status of all objects that are or were protected, the data comes from Object Protection Summary report.",
+    "cmdlet_summary": "List the compliance status of all objects that are or were protected.",
+    "command": [
+      "rbkcli report -f \"name=Object Protection Summary,type=Canned\" -l id \"jsonfy/report_table -p report_id={id},limit=9999\" -s ObjectName,ObjectState,ObjectType,SlaDomain,ComplianceStatus,Location"
+    ],
+    "id": "6a3f27d1-bbd0-48a7-85c1-a95e4722c71f",
+    "multiple_output": "segmented",
+    "name": "objects protected compliance",
+    "param": "",
+    "profile": "rbkcli-cmdlets.json",
+    "response_description": "Returns a json list of results with the following fields: ObjectName, ObjectState, ObjectType, SlaDomain, ComplianceStatus, Location.",
+    "table_order": [
+      "ObjectName",
+      "ObjectState",
+      "ObjectType",
+      "SlaDomain",
+      "ComplianceStatus",
+      "Location"
+    ]
+  },
+  {
+    "cmdlet_description": "List all objects, their local storage and storage growth.",
+    "cmdlet_summary": "List all objects and their local storage stats.",
+    "command": [
+      "rbkcli report -f \"name=System Capacity,type=Canned\" -l id \"jsonfy/report_table -p report_id={id},limit=9999\" -s ObjectName,Location,ObjectState,ObjectType,SlaDomain,LocalStorage,LocalStorageGrowth"
+    ],
+    "id": "4c608290-010c-4406-9a18-dafa7334eac6",
+    "multiple_output": "segmented",
+    "name": "objects protected storage_stats",
+    "param": "",
+    "profile": "rbkcli",
+    "response_description": "Returns a json list of results with the following fields: ObjectName, Location, ObjectState, ObjectType, SlaDomain, LocalStorage, LocalStorageGrowth.",
+    "table_order": [
+      "ObjectName",
+      "Location",
+      "ObjectState",
+      "ObjectType",
+      "SlaDomain",
+      "LocalStorage",
+      "LocalStorageGrowth"
+    ]
+  }
+]

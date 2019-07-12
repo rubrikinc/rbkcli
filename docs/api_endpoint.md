@@ -1,7 +1,7 @@
 # API Endpoints arguments
 The arguments described following are all related to calling the API endpoint desired with the appropriate data being provided.
-- **<api_endpoint>:** This is a required argument and as such no “-” parameters are needed. Provide the API endpoint which you want to call, it accepts the endpoint in a couple of different ways, but it is only autocompletable when using in the following form:
-    1. *autocompletable format:* provide the endpoint with or without its version, separated by spaces.   Example:  
+- **<api_endpoint>:** This is a required argument and as such no “-” parameters are needed. Provide the API endpoint which you want to call, it accepts the endpoint in a couple of different ways, but it is only auto-completable when using in the following form:
+    1. *auto-completable format:* provide the endpoint with or without its version, separated by spaces.   Example:  
         ```
         $ rbkcli cluster me
         ```
@@ -9,7 +9,7 @@ The arguments described following are all related to calling the API endpoint de
         $ rbkcli v1 cluster me
         ```
 
-    2. *other accepted formats:* provide the endpoint with or without its version, separated by slashes (“/”) as if it was the endpoint path.The result will be the same as the ones above, but autocomplete is not available.
+    2. *other accepted formats:* provide the endpoint with or without its version, separated by slashes (“/”) as if it was the endpoint path.The result will be the same as the ones above, but auto-complete is not available.
     Examples:
         ```
         $ rbkcli /cluster/me

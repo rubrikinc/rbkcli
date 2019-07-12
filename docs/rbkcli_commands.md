@@ -2,7 +2,7 @@
 The "commands" endpoint is used to list all the APIs that were import by rbkcli. It creates a unified list of objects returned as a JSON by default. Use the JSON customization arguments to filter the list and find the API you want.
 ## Methods
 ### get
-- **Description:** Retrieve a list of all the available commands on rbkcli, icluding all APIs imported.
+- **Description:** Retrieve a list of all the available commands on rbkcli, including all APIs imported.
 - **Parameters:** No parameters are accepted.
 - **Response:** Following is the json response structure, under properties are the fields which are returned:
     1. OpenAPI description:
@@ -27,7 +27,7 @@ The "commands" endpoint is used to list all the APIs that were import by rbkcli.
                                     'type': 'array'
                                 },
                                 'summary': {
-                                    'description': 'Short description of the action perfromed when Endpoint and method are called.',
+                                    'description': 'Short description of the action performed when Endpoint and method are called.',
                                     'type': 'string'
                                 },                                               
                             }
@@ -49,7 +49,7 @@ The "commands" endpoint is used to list all the APIs that were import by rbkcli.
           }
         ]
         ```
-- **Usage:** As commands output is quite simple, not containning any nested json, usually a couple of simple filters would suffice to narrow down the results:
+- **Usage:** As commands output is quite simple, not containing any nested json, usually a couple of simple filters would suffice to narrow down the results:
     Example: Get commands related to "vmware" and "snapshots":
     ```
     ~$ rbkcli commands --filter endpoint~"vmware" --filter endpoint~"snapshot" -T

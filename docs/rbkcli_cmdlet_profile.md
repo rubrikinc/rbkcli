@@ -82,7 +82,7 @@
                                 'type': 'string'
                             },
                             'message': {
-                                'description': 'Message(s) explainning how was the execution of the requested operation.',
+                                'description': 'Message(s) explaining how was the execution of the requested operation.',
                                 'type': 'array'
                             },
                             'data': {

@@ -21,7 +21,7 @@ $  rbkcli commands --filter version=rbkcli -T
 
 ```
 
-They are, as a mater of fact, features designed to complement and facilitate the usage of Rubrik APIs. Whenever new versions of rbkcli are developped, with new features, it is in under this API version where the new features should land and be called from.
+They are, as a mater of fact, features designed to complement and facilitate the usage of Rubrik APIs. Whenever new versions of rbkcli are developed, with new features, it is in under this API version where the new features should land and be called from.
 
  - [/rbkcli/commands](rbkcli_commands.md)
  - [/rbkcli/jsonfy](rbkcli_jsonfy.md)

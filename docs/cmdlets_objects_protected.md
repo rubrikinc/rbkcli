@@ -1,0 +1,92 @@
+ # /cmdlets/objects/protected/
+ 
+ ### Basic Usage
+ In order to run this cmdlet you must run:
+ ```
+ $ rbkcli objects protected
+ ```
+ For better visibility you can use the json table converter:
+ ```
+ $ rbkcli objects protected --table
+ ```
+ 
+ ### Description
+ 
+ This is a default cmdlet, which provides a list all objects that are or were protected, the data comes from Object Protection Summary report. It will return a json list of results with the following fields in the respective order: ObjectId, ObjectName, ObjectState, ObjectType. 
+ 
+ 
+ ### Technical Info Breakdown
+ 
+ Following is the original **rbkcli** command, which this **cmdlet** translates to:
+ ```
+ rbkcli report -f "name=Object Protection Summary,type=Canned" -l id "jsonfy/report_table -p report_id={id},limit=9999" -s ObjectId,ObjectName,ObjectState,ObjectType
+ ```
+ 
+ Let's start by understanding the initial command:
+ ```
+ rbkcli report -f "name=Object Protection Summary,type=Canned" 
+ ```
+ In this command we are querying for all the reports available in Rubrik system and then filtering by the name of "Object Protection Summary" and the type "Canned". 
+ 
+ Moving to the second part of the command we have:
+ ```
+ --loop id "jsonfy/report_table -p report_id={id},limit=9999"
+ ```
+ With the result received, which is just one, we loop the "id" field into the API endpoint "/jsonfy/report_table -p report_id={id},limit=9999". 
+ The "/jsonfy/report_table" is a custom script, which requests the following endpoint: "/internal/report/{id}/table" and converts that data into json list of elements.
+ Effectively we are requesting a maximum limit of "9999" objects in the results, comming from that report.
+ 
+ For the last part of of the command we have:
+ ```
+ --select ObjectId,ObjectName,ObjectState,ObjectType
+ ```
+ From all the fields generated from the report table requested, we only select those four above, having a more concise result.
+ 
+ ### Adding it manually
+ The command line used to create a cmdlet such as this is:
+ ```
+ rbkcli cmdlet -m post -p '{"profile": "rbkcli","command": ["rbkcli report -f \"name=Object Protection Summary,type=Canned\" -l id \"jsonfy/report_table -p report_id={id},limit=9999\" -s ObjectId,ObjectName,ObjectState,ObjectType"],"table_order": ["ObjectId", "ObjectName", "ObjectState", "ObjectType"],"cmdlet_summary": "List all objects that are or were protected.","cmdlet_description": "List all objects that are or were protected, the data comes from Object Protection Summary report.","name": "objects protected","param": "","response_description": "Returns a json list of results with the following fields: ObjectId, ObjectName, ObjectState, ObjectType."}'
+ ```
+ 
+ The response given from rbkcli would be:
+ 
+ ```json
+ {
+  "result": "Succeeded",
+  "message": [],
+  "cmdlet_to_add": {
+    "id": "39e9e4d6-f85a-4acc-aa2b-29771ad14855",
+    "profile": "rbkcli",
+    "name": "objects protected",
+    "cmdlet_summary": "List all objects that are or were protected.",
+    "cmdlet_description": "List all objects that are or were protected, the data comes from Object Protection Summary report.",
+    "command": [
+      "rbkcli report -f \"name=Object Protection Summary,type=Canned\" -l id \"jsonfy/report_table -p report_id={id},limit=9999\" -s ObjectId,ObjectName,ObjectState,ObjectType"
+    ],
+    "table_order": [
+      "ObjectId",
+      "ObjectName",
+      "ObjectState",
+      "ObjectType"
+    ],
+    "multiple_output": "segmented",
+    "param": "",
+    "response_description": "Returns a json list of results with the following fields: ObjectId, ObjectName, ObjectState, ObjectType."
+  }
+}
+ ```
+ 
+ ### Further usage
+ Additional usage for this command line could be:
+ - Filtering by object type, type which is equal to "Mssql":
+ ```
+ $ rbkcli objects protected -f ObjectType=Mssql -T
+ ```
+ - Searching for an object by name, name which contains "Win2012":
+ ```
+ $ rbkcli objects protected -f ObjectName~Win2012 -T
+ ```
+ - Filtering by object status, not "Active" objects:
+ ```
+ $ rbkcli objects protected -f ObjectState!=Active -T
+ ```

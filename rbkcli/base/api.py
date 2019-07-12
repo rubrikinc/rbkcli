@@ -108,7 +108,7 @@ class ApiRequester():
         except KeyError as bad_key:
             msg = ('Authorization key not found ' + str(bad_key))
             auth = self._create_username_header(msg)
-        ##
+        ## FIX
         except AttributeError as bad_key:
             msg = ('Authorization key not found ' + str(bad_key))
             auth = self._create_username_header(msg)

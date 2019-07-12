@@ -160,7 +160,6 @@ class InputHandler(ApiTargetTools):
 
             for block in enumerate(auth_end):
                 if block[0] <= len(self.req.endpoint_parsed) - 1:
-
                     if (block[1] == self.req.endpoint_parsed[block[0]] or
                             re.search('{*id}', block[1])):
 
@@ -263,14 +262,13 @@ class InputHandler(ApiTargetTools):
     def _is_valid_method(self):
         """Confirm if provided method is valid."""
         if (self.req.method not in
-                CONSTANTS.SUPPORTED_USER_METHODS[self.user_profile]):
+                CONSTANTS.SUPPORTED_USER_METHODS['dev']):
             return False
         return True
 
     def _is_valid_data(self):
         """Confirm if provided data is valid."""
         if '{' not in self.req.data and not isinstance(self.req.data, dict):
-        #if not isinstance(self.req.data, dict):
             data_ops = self.json_ops()
             self.req.data = data_ops.natural_simple_dictstr(self.req.data)
 

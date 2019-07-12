@@ -1,4 +1,4 @@
-"""Meta commands module for rbkcli."""
+"""Customizer module for dynamic script discovery and intantiation."""
 
 import os
 import json
@@ -14,9 +14,9 @@ from rbkcli.core.handlers.callback import CallBack
 
 
 class AnyApiHandler(ApiTargetTools):
-
+    """Parent Class to create any new API handlers."""
     def __init__(self, user_profile, base_kit, version):
-
+        """Initialize API handler."""
         ApiTargetTools.__init__(self, base_kit)
         self.user_profile = user_profile
         self.base_kit = base_kit
@@ -26,11 +26,9 @@ class AnyApiHandler(ApiTargetTools):
         self.focus_list = []
         self.all_ops = []
         self.all_apis = {}
-
         self.meta_api = self.dot_dict()
         # Define the path to search.
         self.scripts_folder = CONSTANTS.BASE_FOLDER + '/scripts'
-
 
     def gen_authorization_lists(self):
         """
@@ -38,9 +36,7 @@ class AnyApiHandler(ApiTargetTools):
 
         The focus list is used to verify if the API can be executed or not.
         """
-        #print(self.endpoints)
 
-        #self._gen_docs()
         self.meta_api.doc = self.endpoints
 
         filter_list = self._create_all_methods_list(string='REQUIRES SUPPORT'
@@ -100,16 +96,15 @@ class AnyApiHandler(ApiTargetTools):
         return filter_list
 
     def initialize_callbacker(self, operations):
-        #self.formatter = formatter
+        """Initialize call back."""
         self.operations = operations
-        #self.cbacker = CallBack(self.operations, self.base_kit, self.formatter)
         self.cbacker = CallBack(self.operations, self.base_kit)
 
 
 class Customizer(AnyApiHandler):
-
+    """Class to handle scripts as an API."""
     def __init__(self, user_profile, base_kit):
-
+        """Initialize scripts API class."""
         AnyApiHandler.__init__(self, user_profile, base_kit, 'scripts')
 
     def _gen_docs(self):
@@ -123,8 +118,6 @@ class Customizer(AnyApiHandler):
             'definitions': {},
             'paths': {}
             }
-
-        #search_path = '/tmp'
     
         # Define classes that are instantiable:
         intantiable_class = '(<class \'rbkcli.core.handlers.customizer.RbkCliBlackOps'
@@ -174,6 +167,7 @@ class Customizer(AnyApiHandler):
         self.endpoints = self.meta_api.doc
     
     def _gen_doc_script(self, instance):
+        """Generate the documentation for scripts found."""
         self.meta_api.doc['paths'][instance.endpoint] = {
         instance.method: {
             'description': instance.description,
@@ -196,7 +190,7 @@ class Customizer(AnyApiHandler):
         }
 
     def _execute_api(self, *args):
-
+        """Instantiate and execute script called by API."""
         # split arguments as needed
         args, kwargs = args
         method, endpoint = args
@@ -247,33 +241,52 @@ class Customizer(AnyApiHandler):
         return json.dumps(result, indent=2)
 
 class RbkCliBlackOps():
+    """External Script API class for rbkcli integration."""
     def __init__(self, call_backer):
+        """Initialize external scripts integration class."""
         self.rbkcli = call_backer
-        #self.call_backer = call_backer
-
-    #def rbkcli(self, args):
-    #    response = self.call_backer(args)
+        self.request = DotDict({
+              'parameter': {},
+              'filter': None,
+              'version': '',
+              'context': None,
+              'table': False,
+              'select': None,
+              'list': False,
+              'query': '',
+              'method': 'post',
+              'api_endpoint': [],
+              'loop': None,
+              'pretty_print': False,
+              'info': False,
+              'documentation': False
+        })
 
 
 class CustomizerControls():
+    """APIs to manage customizations scripts class."""
     def __init__(self, tools):
+        """Initialize scripts customizer APIs class."""
         self.tools = tools
         # Define the path to search.
         self.meta_api = DotDict()
         self.scripts_folder = CONSTANTS.BASE_FOLDER + '/scripts'
 
     def _update_env_file(self, file):
+        """Update me.json file with newl added scripts."""
         file_dict = self.tools.load_json_file(file)
         self._gen_docs()
         file_dict['apis']['scripts'] = self.endpoints
         self.tools.create_json_file(file_dict, file)
 
     def sync_scripts(self, kwargs):
+        """Search for available scripts and add them as available operations."""
         target_folder = kwargs['target_folder']
         self._update_env_file(target_folder+'/me.json')
         return {'result': 'Applied scripts to environment configuration.'}
 
     def list_scripts(self, kwargs):
+        """List available scripts to be used."""
         self._gen_docs()
         return json.dumps(self.scripts_list, indent=2)
 
@@ -290,8 +303,6 @@ class CustomizerControls():
             }
         self.scripts_list = []
 
-        #search_path = '/tmp'
-    
         # Define classes that are instantiable:
         intantiable_class = '(<class \'rbkcli.core.handlers.customizer.RbkCliBlackOps'
         # Get liat of folders in the path.
@@ -348,6 +359,7 @@ class CustomizerControls():
         self.endpoints = self.meta_api.doc
 
     def _gen_doc_script(self, instance):
+        """Generate documentation for the script operations."""
         self.meta_api.doc['paths'][instance.endpoint] = {
         instance.method: {
             'description': instance.description,

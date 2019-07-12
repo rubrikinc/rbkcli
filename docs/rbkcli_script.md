@@ -53,7 +53,7 @@
           }
         ]
         ```
-- **Usage:** It is used to see all existing classes inside scripts under folder ~/rbkcli/scripts/ and its subfolders, classes importable by rbkcli.
+- **Usage:** It is used to see all existing classes inside scripts under folder ~/rbkcli/scripts/ and its sub-folders, classes importable by rbkcli.
     1. Example 1: Get a raw list of all RbkcliBlackOps child classes.
         ```
         $ rbkcli script

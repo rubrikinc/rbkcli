@@ -1,7 +1,4 @@
-# PYTHON_ARGCOMPLETE_OK
-#!/usr/bin/python3
-
-"""CLI module to integrate with rbkcli."""
+"""Command Line Interface module with autocomplete."""
 
 import sys
 import argparse
@@ -52,7 +49,8 @@ class CustomParser(argparse.ArgumentParser):
 
         # Changed the prefix of message to be printed and the order.
         def print_error_usage(message):
-            error_msg = ('ArgumentError # %s\n\nUsage:') % (message) + self.usage
+            error_msg = str(('ArgumentError # %s\n\nUsage:') % (message) +
+                            self.usage)
             sys.stderr.write(error_msg)
             sys.exit(2)
 
@@ -70,6 +68,7 @@ class CustomParser(argparse.ArgumentParser):
 
         self.exit(print_error_usage(message))
 
+
 class RbkCli():
     def __init__(self, auth=None):
         # Definninf the CLI.
@@ -77,9 +76,7 @@ class RbkCli():
         self.operation = self._define_cli()
         self.auth = auth
         if auth is not None:
-            #print('RBK:' + str(self.auth))
             RBK = Rbkcli(auth=self.auth)
-
 
     def execute(self, arg_list):
         # Parsing the CLI.
@@ -100,14 +97,13 @@ class RbkCli():
         except RbkcliException as msg:
             self.operation.general_error(str(msg))
 
-
     def _define_cli(self):
         prog = 'rbkcli'
         description = 'Easy calls to Rubrik APIs from CLI.'
 
         # Making sure description will always have the prog name prior to
         # description, the prog, might be passed as by dynaSwitch
-        description = "> [" + prog + "] " + description
+        description = '> [' + prog + '] ' + description
 
         epilog = str('For all available commands run: '
                      '$ rbkcli commands -q <cmd_name>')
@@ -127,16 +123,17 @@ class RbkCli():
         operation._optionals.title = '==> Optional arguments <=='
 
         # The API endpoint to be requested, required argument.
-        help_msg = "The API endpoint to be requested, required argument"
+        help_msg = 'The API endpoint to be requested, required argument'
+        arg_cmplt = RBK.provide_autocomplete_argparse
         operation.add_argument('api_endpoint',
                                metavar=('<api_endpoint>'),
                                type=str,
                                nargs='+',
-                               help=help_msg).completer = RBK.provide_autocomplete_argparse
+                               help=help_msg).completer = arg_cmplt
                                
         # Defining the optional arguments for backup
         # The method to reach the endpoint, default is get.
-        help_msg = "Method to request Rubrik API"
+        help_msg = 'Method to request Rubrik API'
         operation.add_argument('-m',
                                '--method',
                                metavar=('<method>'),
@@ -146,7 +143,7 @@ class RbkCli():
                                default='get')
 
         # Version of the imported API in the target.
-        help_msg = "Explicit version of the Endpoint requested."
+        help_msg = 'Explicit version of the Endpoint requested.'
         operation.add_argument('-v',
                                '--version',
                                metavar=('<version>'),
@@ -156,7 +153,7 @@ class RbkCli():
                                default='')
 
         # In path query to customize API request.
-        help_msg = "In path query to customize API request."
+        help_msg = 'In path query to customize API request.'
         operation.add_argument('-q',
                                '--query',
                                metavar=('<query>'),
@@ -166,7 +163,7 @@ class RbkCli():
                                default='')
 
         # Parameter passed to the API request, json.
-        help_msg = "Parameter passed to the API request, json."
+        help_msg = 'Parameter passed to the API request, json.'
         operation.add_argument('-p',
                                '--parameter',
                                metavar=('<parameter>'),
@@ -176,21 +173,21 @@ class RbkCli():
                                default={})
 
         # Flag to return information on the Provided API endpoint.
-        help_msg = "Flag to return information on the Provided API endpoint."
+        help_msg = 'Flag to return information on the Provided API endpoint.'
         operation.add_argument('-i',
                                '--info',
                                action='store_true',
                                help=help_msg)
 
         # Documentation related to the provided endpoint and method.
-        help_msg = "Documentation related to the provided endpoint and method."
+        help_msg = 'Documentation related to the provided endpoint and method.'
         operation.add_argument('-d',
                                '--documentation',
                                action='store_true',
                                help=help_msg)
 
         # Select the json fields from the output.
-        help_msg = "Select the json fields from the output."
+        help_msg = 'Select the json fields from the output.'
         operation.add_argument('-s',
                                '--select',
                                metavar=('<select>'),
@@ -200,7 +197,8 @@ class RbkCli():
                                help=help_msg)
 
         # Filter the value of the provided fields from the json results.
-        help_msg = "Filter the value of the provided fields from the json results."
+        help_msg = str('Filter the value of the provided fields from the json'
+                       ' results.')
         operation.add_argument('-f',
                                '--filter',
                                metavar=('<filter>'),
@@ -210,7 +208,7 @@ class RbkCli():
                                help=help_msg)
 
         # Cut the json output into the provided field of context.
-        help_msg = "Cut the json output into the provided field of context."
+        help_msg = 'Cut the json output into the provided field of context.'
         operation.add_argument('-c',
                                '--context',
                                metavar=('<context>'),
@@ -220,7 +218,7 @@ class RbkCli():
                                help=help_msg)
 
         # Loop resulting json values into another API request.
-        help_msg = "Loop resulting json values into another API request."
+        help_msg = 'Loop resulting json values into another API request.'
         operation.add_argument('-l',
                                '--loop',
                                metavar=('<key>', '<new_endpoint>'),
@@ -231,21 +229,21 @@ class RbkCli():
         
         out_format = operation.add_mutually_exclusive_group(required=False)
         # Convert json output into Table output, if possible.
-        help_msg = "Convert json output into Table output, if possible."
+        help_msg = 'Convert json output into Table output, if possible.'
         out_format.add_argument('-T',
                                '--table',
                                action='store_true',
                                help=help_msg)
 
         # Convert json output into Table output, if possible.
-        help_msg = "Convert json output into list output, if possible."
+        help_msg = 'Convert json output into list output, if possible.'
         out_format.add_argument('-L',
                                '--list',
                                action='store_true',
                                help=help_msg)
 
         # Convert json output into Table output, if possible.
-        help_msg = "Convert json output into list output, if possible."
+        help_msg = 'Convert json output into list output, if possible.'
         out_format.add_argument('-P',
                                '--pretty_print',
                                action='store_true',
@@ -262,7 +260,6 @@ class RbkCli():
                 value = value[0]
                 args_dict[key] = value
         return args_dict
-
 
     def _execute(self, args_dict, arg_list, operation):
         try:

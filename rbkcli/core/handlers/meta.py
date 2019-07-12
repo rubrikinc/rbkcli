@@ -81,10 +81,6 @@ class MetaCmds(ApiTargetTools):
     def execute_api(self, *args, **kwargs):
         """Execute method based in the endpoint and method entered."""
         method, endpoint = args
-        ## TEST
-        #print(args)
-        #print(kwargs)
-        #del kwargs
         if '?' in endpoint:
             endpoint, query = endpoint.split('?')
         else:
@@ -569,15 +565,14 @@ class MetaCmds(ApiTargetTools):
                                                             headers=headers,
                                                             summary=summary)
 
-        #return '\n'.join(commands_table)
         return json.dumps(result_dict, indent=2)
 
 
     @RbkcliResponse.successfull_response
     def ops_jsonfy_get(self, kwargs):
+        """rbkcli jsonfy operation, convert str to json."""
         params = kwargs['params']
         data = kwargs['data']
-        #print(type(data))
         result_dict_keys = []
 
         try:
@@ -589,7 +584,6 @@ class MetaCmds(ApiTargetTools):
                 with open(result_dict['file'], 'r') as f:
                     result_dict = json.load(f)
         except Exception as e:
-            #print(data)
             result_dict = {
                 'result': 'Failed',
                 'message': 'jsonfy failed to parse with: ' + str(e),
@@ -601,42 +595,47 @@ class MetaCmds(ApiTargetTools):
 
     @RbkcliResponse.successfull_response
     def ops_cmdlets_get(self, kwargs):
-
+        """rbkcli cmdlets operation, list available cmdlets."""
         return CmdletsControls(self.tools).list_cmdlets(kwargs)
 
     @RbkcliResponse.successfull_response
     def ops_cmdlets_sync_post(self, kwargs):
+        """rbkcli cmdlets sync operation, apply changes to cmdlets."""
         kwargs['target_folder'] = self.base_kit.target_folder
         return CmdletsControls(self.tools).sync_cmdlets(kwargs)
 
     @RbkcliResponse.successfull_response
     def ops_scripts_sync_post(self, kwargs):
+        """rbkcli scripts sync operation, apply changes to scripts."""
         kwargs['target_folder'] = self.base_kit.target_folder
         return CustomizerControls(self.tools).sync_scripts(kwargs)
 
     @RbkcliResponse.successfull_response
     def ops_scripts_get(self, kwargs):
+        """rbkcli scripts operation, list available scripts."""
         kwargs['target_folder'] = self.base_kit.target_folder
         return CustomizerControls(self.tools).list_scripts(kwargs)
 
     @RbkcliResponse.successfull_response
     def ops_cmdlets_post(self, kwargs):
+        """rbkcli cmdlets create operation."""
         kwargs['target_folder'] = self.base_kit.target_folder
         return CmdletsControls(self.tools).add_cmdlet(kwargs)
     
     @RbkcliResponse.successfull_response
     def ops_cmdlets_delete(self, kwargs):
+        """rbkcli cmdlets delete operation."""
         kwargs['target_folder'] = self.base_kit.target_folder
         return CmdletsControls(self.tools).remove_cmdlet(kwargs)
 
     @RbkcliResponse.successfull_response
     def ops_cmdlets_profile_get(self, kwargs):
-
+        """rbkcli cmdlets profile operation, list available profiles."""
         return CmdletsControls(self.tools).list_cmdlets_profiles(kwargs)
 
     @RbkcliResponse.successfull_response
     def ops_cmdlets_profile_post(self, kwargs):
-
+        """rbkcli cmdlets profile create operation."""
         return CmdletsControls(self.tools).add_cmdlet_profile(kwargs)
 
     def _generate_op_json(self, ops):
@@ -663,5 +662,3 @@ class MetaCmds(ApiTargetTools):
     def store_all_ops(self, ops):
         """Store all operations in intance variable, stetic reason."""
         self.all_ops = ops
-
-## The alias can be first interpreted and even a parameter gathered, before the resolution mechanism kicks in.
