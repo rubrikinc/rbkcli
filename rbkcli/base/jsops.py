@@ -153,7 +153,11 @@ class RbkcliJsonOps():
         for item in natural_str:
             try:
                 key, value = item.split('=')
-                simple_dictstr.append('"%s": "%s"' % (key, value))
+                if value[0] == '[' and value[-1] == ']':
+                    value = value[1:-1]
+                    simple_dictstr.append('"%s": ["%s"]' % (key, value))
+                else:
+                    simple_dictstr.append('"%s": "%s"' % (key, value))
             except ValueError as e:
                 raise RbkcliException.ToolsError('jsops error: ' +
                                                  str(e) +
