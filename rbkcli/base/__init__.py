@@ -57,8 +57,8 @@ class RbkcliBase():
         self.verify_loglevel()
 
         # Get valid user profile from configuration file, else admin profile.
-        user_profile = self.conf_dict['config']['userProfile']['value']
         try:
+            user_profile = self.conf_dict['config']['userProfile']['value']
             if self.user_profile == 'config':
                 if user_profile in CONSTANTS.USERS_PROFILE:
                     self.user_profile = user_profile

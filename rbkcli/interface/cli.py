@@ -12,7 +12,7 @@ from rbkcli.core.target import RbkcliTarget
 class Rbkcli():
     """Class that provides the connection from any CLI to the Rbkcli."""
 
-    def __init__(self, user_profile='admin', base_folder='', auth=None):
+    def __init__(self, user_profile='config', base_folder='', auth=None):
         """Initialize CLI helper."""
         # Instantiate CLI target
         self.ops = []
