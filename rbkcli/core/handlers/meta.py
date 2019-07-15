@@ -274,6 +274,68 @@ class MetaCmds(ApiTargetTools):
                         'description': 'Add a new cmdlet to rbkcli',
                         'operationId': 'addCmdlet',
                         'parameters': [],
+                        'parameters': [
+                            {
+                            'name': 'cmdlet_description',
+                            'description': 'Description of the cmdlet being added.',
+                            'in': 'body',
+                            'required': False,
+                            'type': 'string'
+                            },
+                            {
+                            'name': 'cmdlet_summary',
+                            'description': 'Short description of cmdlet being added',
+                            'in': 'body',
+                            'required': False,
+                            'type': 'string'
+                            },
+                            {
+                            'name': 'command',
+                            'description': 'List of rbkcli existing commands which the cmdlet will trigger, each command can have a "<parameter>" entry which will be replaced by the parameter provided',
+                            'in': 'body',
+                            'required': True,
+                            'type': 'array/string'
+                            },
+                            {
+                            'name': 'multiple_output',
+                            'description': 'Format of the json output of multiple commands triggered, segmented per command triggered or combined in one json.',
+                            'enum': [
+                                'segmented',
+                                'combined'
+                            ],
+                            'in': 'body',
+                            'required': False,
+                            'type': 'string'
+                            },
+                            {
+                            'name': 'name',
+                            'description': 'The display name of the cmdlet, which will be used to call it.',
+                            'in': 'body',
+                            'required': True,
+                            'type': 'string'
+                            },
+                            {
+                            'name': 'param',
+                            'description': 'Parameter to replace in the commads, provided in a comma separated list.',
+                            'in': 'body',
+                            'required': False,
+                            'type': 'string'
+                            },
+                            {
+                            'name': 'profile',
+                            'description': 'Name of the file where the cmdlets are saved, default is cmdlets.json.',
+                            'in': 'body',
+                            'required': True,
+                            'type': 'string'
+                            },
+                            {
+                            'name': 'response_description',
+                            'description': 'Description of the json response returned by the cmdlet.',
+                            'in': 'body',
+                            'required': False,
+                            'type': 'string'
+                            },
+                        ],
                         'responses': {
                             '200': {
                                 'description': str('Returns status of the add task.'),
@@ -304,7 +366,7 @@ class MetaCmds(ApiTargetTools):
                         'summary': 'Add new cmdlet to rbkcli',
                         'tags': '',
                         'x-group': ''
-                    }                    
+                    }                     
                 },
                 ##TEST
                 '/cmdlet/profile': {
