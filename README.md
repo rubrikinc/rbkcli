@@ -1,9 +1,13 @@
 # rbkcli
 
-This project provides a Command Line Interface (CLI) convertion of Rubrik APIs.
+This project provides a Command Line Interface (CLI) conversion of Rubrik APIs.
 It can be used for both running commands or writing simplified scripts.
 
 ## :hammer: Installation
+
+Install from pip:
+
+`pip install rbkcli`
 
 Install from source and enable autocomplete:
 
