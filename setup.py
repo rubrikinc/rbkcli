@@ -5,7 +5,7 @@ import os
 from distutils.dir_util import copy_tree
 from distutils.errors import DistutilsFileError
 
-with open('README.md', 'r') as fh:
+with open('docs/README-PIP.md', 'r') as fh:
     LONG_DESCRIPTION = fh.read()
 
 def create_structure():
@@ -34,7 +34,7 @@ def create_structure():
 
 setuptools.setup(
     name='rbkcli',
-    version='1.0.0',
+    version='1.0.0-beta.0',
     author='Bruno Manesco',
     author_email='bruno.manesco@rubrik.com',
     description='A python package that creates a CLI conversion from Rubrik APIs',
