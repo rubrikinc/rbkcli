@@ -6,7 +6,8 @@ from distutils.dir_util import copy_tree
 from distutils.errors import DistutilsFileError
 
 with open('docs/README-PIP.md', 'r') as fh:
-    LONG_DESCRIPTION = fh.read()
+    long_description = fh.read()
+
 
 def create_structure():
     """For scripts and cmdlets provided with package."""
@@ -32,13 +33,14 @@ def create_structure():
         except DistutilsFileError as error:
             pass
 
+
 setuptools.setup(
     name='rbkcli',
-    version='1.0.0-beta.0',
+    version='1.0.0-beta.1',
     author='Bruno Manesco',
     author_email='bruno.manesco@rubrik.com',
     description='A python package that creates a CLI conversion from Rubrik APIs',
-    long_description=LONG_DESCRIPTION,
+    long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/rubrikinc/rbkcli',
     packages=setuptools.find_packages(),
