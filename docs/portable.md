@@ -29,11 +29,8 @@ The result of running the .pex file will be exactly the same as running the inst
  - rbkcli SDK: Once the rbkcli module will not be installed, users won't be able to create customized scripts that are independent from the rbkcli.pex file (call RbkCli). The custom scripts added as part of rbkcli will still be ran normally (class RbkCliBlackOps).
 
 ## Versions
-The .pex can be created per Python Interpreter version, so far I successfully created 2 variations of the file:
- - [rbkcli.v100.3x.pex](https://github.com/rubrikinc/rbkcli/releases/tag/v1.0.0-beta%2Bportable): Can be used in any Linux box, with the interpreter in the following versions:
+The .pex can contain all packages that are required for rbkcli to run, currently with the above set of packages, **rbkcli** has released a beta executable.
+ - [rbkcli-1.0.0b0.pex](https://github.com/rubrikinc/rbkcli/releases/tag/v1.0.0-beta.0%2Bportable): Can be used in any Linux box, with the interpreter in the following versions:
     * Python3.5
     * Python3.6
     * Python3.7
- 
-
-
