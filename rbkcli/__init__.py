@@ -1,6 +1,6 @@
 """Init module for rbkcli"""
 
-__version__ = '1.0.0-beta.0'
+__version__ = '1.0.0-beta.2'
 __author__ = 'Bruno Giovanini Manesco'
 __all__ = []
 
