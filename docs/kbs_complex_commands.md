@@ -1,6 +1,5 @@
-
 # Complex commands
----
+
 Very often when validating backups or troubleshooting issues, support engineers are required to get details of a sub-list of objects. In order to make that possible without the need of scripting, users can create **Complex commands**.
 Such commands leverage **json output** manipulation with **Natural key assignment**, filtering results and looping it into another API.
 To make sure you have the right background before exploring the **Complex commands** , visit the following:
@@ -147,7 +146,6 @@ The following organization can help you get the data you need:
 
 Following are examples of **Complex commands** with a breakdown explanation of the parameters used:
  - [Get archived snapshots details from all filesets](complex_commands_1.md)
- - [Get details on all HDDs of the cluster - NR ](not_ready.md)
  - [Get all failed events related to VMware VMs on a specific date - NR ](not_ready.md)
  
 Generally all **Cmdlets** are originally a complex commands. For examples of **Cmdlets** visit:

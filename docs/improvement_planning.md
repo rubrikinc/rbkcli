@@ -1,5 +1,4 @@
 # Feature Planning
----
 
 Following are the improvements **rbkcli** needs, those are areas where we can use help from whom is available. Click the link and see the description of the available improvements.
 You can also suggest new or different improvements and I will add them to the road map!

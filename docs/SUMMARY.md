@@ -40,20 +40,10 @@
 * [PyPI](rbkcli_pip.md)
 	- [rbkcli PyPI page](https://pypi.org/project/rbkcli/)
 
-### Use Cases
+### Knowledge Base Articles
 
-* [Complex commands](use_complex_commands.md)
-* [Scripts](use_scripts.md)
-* [Cmdlets](use_cmdlets.md)
-* [Real case scenarios - NR](not_ready.md)
-* [rbkcli as a SDK](use_rbkcli_sdk.md)
+* [Use cases and How To(s)](kbs.md)
 
-### How To
-
-* [Use a credential's file - NR](not_ready.md)
-* [Change available API endpoints to CLI - NR](not_ready.md)
-* [Disable logging - NR](not_ready.md)
-* [Use rbkcli with a proxy/VPN - NR](not_ready.md)
 
 ### Contribution
 

@@ -1,6 +1,5 @@
-
 # rbkcli SDK
----
+
 The **rbkcli SDK** allows you to instantiate objects from RbkCli class to create independent parallel connections to different clusters or nodes. In other words it allows for a higher level of automation leveraging all **rbkcli** capabilities.
 
 ## Usage
