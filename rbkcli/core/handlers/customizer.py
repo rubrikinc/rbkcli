@@ -192,8 +192,10 @@ class Customizer(AnyApiHandler):
     def _execute_api(self, *args):
         """Instantiate and execute script called by API."""
         # split arguments as needed
+
         args, kwargs = args
         method, endpoint = args
+        endpoint_key = kwargs['endpoint_key'].split(':')[1]
 
         # identify what might be a query to the API.
         if '?' in endpoint:
@@ -202,7 +204,8 @@ class Customizer(AnyApiHandler):
             query = ''
 
         # Get endpoint doc
-        api = self.meta_api.doc['paths']['/' + endpoint][method]
+        api = self.meta_api.doc['paths'][endpoint_key][method]
+        #api = self.meta_api.doc['paths']['/' + endpoint][method]
 
         # Treat source to be a importable path.
         source = api['source'].split('/')
