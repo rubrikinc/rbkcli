@@ -28,8 +28,8 @@ The available areas are:
 
 |       Number      |    Area                    |                            Description                          |
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
-| [0001](KB0001.md) | [simple_cmd](KB0001.md)    | [Get status of all disks in the cluster - NR](KB0001.md)             |
-| [0002](KB0002.md) | [simple_cmd](KB0002.md)    | [Get a list of all SLAs in the cluster] - NR(KB0002.md)              |
+| [0001](KB0001.md) | [simple_cmd](KB0001.md)    | [Get status of all disks in the cluster - NR](KB0001.md)        |
+| [0002](KB0002.md) | [simple_cmd](KB0002.md)    | [Get a list of all SLAs in the cluster - NR](KB0002.md)         |
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
 | [0003](KB0003.md) | [complex_cmd](KB0003.md)   | [Get archived snapshots details for all filesets](KB0003.md)    |
 | [0004](KB0004.md) | [complex_cmd](KB0004.md)   | [Get all failed events related to VMware VMs by date - NR](KB0004.md)|
@@ -40,7 +40,7 @@ The available areas are:
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
 | [0005](KB0005.md) | [scripts](KB0005.md)       | [Use script template to write your own script](KB0005.md)       |
 | [0009](KB0009.md) | [scripts](KB0009.md)       | [Generate and Download log bundle](KB0009.md)                   |
-| [0010](KB0010.md) | [scripts](KB0010.md)       | [Get API stats from logs](KB0010.md)                            |
+| [0010](KB0010.md) | [scripts](KB0010.md)       | [Get API statistics from spray-server logs](KB0010.md)          |
 | [0011](KB0011.md) | [scripts](KB0011.md)       | [Display any report as a table - NR](KB0011.md)                 |
 | [0012](KB0012.md) | [scripts](KB0012.md)       | [Convert any csv file to json - NR](KB0012.md)                  |
 | [0013](KB0013.md) | [scripts](KB0013.md)       | [Protect a csv list of VMs - NR](KB0013.md)                     |
