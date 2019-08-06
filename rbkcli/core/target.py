@@ -2,7 +2,7 @@
 
 import copy
 
-from rbkcli.base import CONSTANTS, RbkcliBase
+from rbkcli.base import CONSTANTS, RbkcliBase, RbkcliException
 from rbkcli.core.handlers.environment import EnvironmentHandler
 from rbkcli.core.handlers.inputs import InputHandler
 from rbkcli.core.handlers.outputs import OutputHandler
@@ -196,7 +196,21 @@ class RubrikCluster(ApiTarget):
 
         # Request the data from the target.
         cluster_data = requester.demand('get', '/v1/cluster/me')
-        node_data = requester.demand('get', '/internal/node')
+        node_data = requester.demand('get', '/internal/cluster/me/node')
+        unauthr_user = str('The request was a legal request, but the server '
+                           'is refusing to respond to it.')
+
+        # Verify if the discovery process got necessary data
+        if node_data.status_code == 404:
+            error = str('Unable to discover cluster, discovery APIs returned '
+                        'status code ' + str(node_data.status_code) + '. Is '
+                        + str(self.auth.server) + ' a valid Rubrik system?\n')
+            raise RbkcliException.ApiRequesterError(error)
+        elif node_data.text == unauthr_user:
+            error = str('Unable to discover cluster, discovery APIs returned '
+                        'message: \n --> ' + str(node_data.text) + '\nIs '
+                        + str(self.auth.username) + ' a full Rubrik admin?\n')
+            raise RbkcliException.ApiRequesterError(error)
 
         # Convert data to usable dict.
         node_dict = self.tools.json_load(node_data.text)

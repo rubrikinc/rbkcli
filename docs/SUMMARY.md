@@ -28,8 +28,9 @@
 	 
 ### Files and Configs
 
-* [Configuration File - NR](not_ready.md)
-* [Folder Structure - NR](not_ready.md)
+* [Folder Structure](folder_structure.md)
+* [Configuration File](configuration_file.md)
+* [Logs](logs.md)
 
 	 
 ### Delivery
