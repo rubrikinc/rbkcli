@@ -157,6 +157,7 @@ class ApiRequester():
               self.auth_prpt.type_ == 'username'):
             error_msg = 'The supplied authentication is invalid'
             self.logger.error('ApiRequester # ' + error_msg)
+            error_msg = error_msg + '.\n'
             raise RbkcliException.ApiRequesterError(error_msg)
         else:
             # Log successfull actions

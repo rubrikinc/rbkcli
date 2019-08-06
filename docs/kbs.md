@@ -45,7 +45,7 @@ The available areas are:
 | [0012](KB0012.md) | [scripts](KB0012.md)       | [Convert any csv file to json - NR](KB0012.md)                  |
 | [0013](KB0013.md) | [scripts](KB0013.md)       | [Protect a csv list of VMs - NR](KB0013.md)                     |
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
-| [0014](KB0014.md) | [rbkcli_sdk](KB0014.md)    | [Run rbkcli commands in multiple targets - NR](KB0014.md)       |
+| [0014](KB0014.md) | [rbkcli_sdk](KB0014.md)    | [Run rbkcli commands in multiple targets](KB0014.md)            |
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
 | [0015](KB0015.md) | [configuration](KB0015.md) | [Change available API endpoints to CLI - NR](KB0015.md)         |
 | [0016](KB0016.md) | [configuration](KB0016.md) | [Disable logging - NR](KB0016.md)                               |
