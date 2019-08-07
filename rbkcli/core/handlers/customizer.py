@@ -2,7 +2,6 @@
 
 import os
 import json
-import copy
 import sys
 import pkgutil
 import importlib
@@ -205,10 +204,10 @@ class Customizer(AnyApiHandler):
 
         # Get endpoint doc
         api = self.meta_api.doc['paths'][endpoint_key][method]
-        #api = self.meta_api.doc['paths']['/' + endpoint][method]
 
         # Treat source to be a importable path.
         source = api['source'].split('/')
+        source = api['source'].split('\\')
         source = source[:-1]
         source = '/'.join(source)
 
@@ -218,7 +217,8 @@ class Customizer(AnyApiHandler):
 
         # Instanciate the Class.
         myoperation = getattr(mio_commando, api['operationId'])
-        myoperation_inst = myoperation(self.cbacker)
+        myoperation_inst = myoperation(self.cbacker, self.rbkcli_logger)
+        #myoperation_inst = myoperation(self.cbacker)
         
         # Attribute the parameters to be passed to script.
         if kwargs['data'] == {}:
@@ -243,11 +243,13 @@ class Customizer(AnyApiHandler):
 
         return json.dumps(result, indent=2)
 
+
 class RbkCliBlackOps():
     """External Script API class for rbkcli integration."""
-    def __init__(self, call_backer):
+    def __init__(self, call_backer, rbkcli_logger):
         """Initialize external scripts integration class."""
         self.rbkcli = call_backer
+        self.rbkcli_logger = rbkcli_logger
         self.request = DotDict({
               'parameter': {},
               'filter': None,
