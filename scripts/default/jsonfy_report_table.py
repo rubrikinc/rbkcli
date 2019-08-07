@@ -67,7 +67,7 @@ class JsonfyReportTable(RbkCliBlackOps):
             print(args.parameters.parameter_name)
         """
         # Treat the parameter expected, if not provided raise error.
-        if 'file' not in args.parameters.keys():
+        if 'report_id' not in args.parameters.keys():
             raise RbkcliException.ScriptError('Missing Arguments.')
 
         # Build request to get the report table:
