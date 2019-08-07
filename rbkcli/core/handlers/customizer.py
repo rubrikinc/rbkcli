@@ -152,7 +152,7 @@ class Customizer(AnyApiHandler):
                                 script_dict[key] = value
                             
                             # Instantiate a object of the class.
-                            instance = myoperation('')
+                            instance = myoperation('', self.rbkcli_logger)
 
                             # Attribute values to the instance for doc gen.
                             instance.module = script_dict['__name__']
@@ -342,7 +342,7 @@ class CustomizerControls():
                                 script_dict[key] = value
                             
                             # Instantiate a object of the class.
-                            instance = myoperation('')
+                            instance = myoperation('', self.tools.logger)
 
                             # Attribute values to the instance for doc gen.
                             script = {}
