@@ -2,7 +2,8 @@
 
 ### More information
 
-* [About rbkcli](about.md) 
+* [Requirements](requirements.md)
+* [About rbkcli](about.md)
 
 ### Getting Started
 
