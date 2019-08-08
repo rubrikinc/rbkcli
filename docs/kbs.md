@@ -28,11 +28,11 @@ The available areas are:
 
 |       Number      |    Area                    |                            Description                          |
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
-| [0001](KB0001.md) | [simple_cmd](KB0001.md)    | [Get status of all disks in the cluster - NR](KB0001.md)        |
-| [0002](KB0002.md) | [simple_cmd](KB0002.md)    | [Get a list of all SLAs in the cluster - NR](KB0002.md)         |
+| [0001](KB0001.md) | [simple_cmd](KB0001.md)    | [Get status of all disks in the cluster](KB0001.md)             |
+| [0002](KB0002.md) | [simple_cmd](KB0002.md)    | [Get a list of all SLAs in the cluster](KB0002.md)              |
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
 | [0003](KB0003.md) | [complex_cmd](KB0003.md)   | [Get archived snapshots details for all filesets](KB0003.md)    |
-| [0004](KB0004.md) | [complex_cmd](KB0004.md)   | [Get all failed events related to VMware VMs by date - NR](KB0004.md)|
+| [0004](KB0004.md) | [complex_cmd](KB0004.md)   | [Get all failed events related to VMware VMs by date](KB0004.md)|
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
 | [0006](KB0006.md) | [cmdlets](KB0006.md)       | [List all protected Objects](KB0006.md)                         |
 | [0007](KB0007.md) | [cmdlets](KB0007.md)       | [List compliance status of all protected Objects](KB0007.md)    |
