@@ -272,8 +272,8 @@ class Rbkcli():
             response = json.dumps(self.result.text, indent=2)
 
         # If not possible, means output is some other text or empty.
-        except json.decoder.JSONDecodeError:
-
+        # except JSONDecodeError:
+        except ValueError:
             # If not empty then that text is provided.
             if self.result.text != '':
                 response = self.result.text
