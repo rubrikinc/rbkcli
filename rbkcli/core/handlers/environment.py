@@ -143,11 +143,13 @@ class EnvironmentHandler(ApiTargetTools):
         """
         # If target is resolved, env_id will be loaded with a UUID.
         self.env.id = ''
+        target_ip = self.target.split(':')
+        target_ip = target_ip[0]
 
         # Go through resoltuion data and match the target with registry.
         if self.resolution.data != '' and self.resolution.data != []:
             for node in self.resolution.data:
-                if node['ip'] == self.target:
+                if node['ip'] == target_ip:
                     # First resolution found is returned.
                     self.env.id = node['envId']
 
@@ -159,6 +161,19 @@ class EnvironmentHandler(ApiTargetTools):
 
                     # Return success.
                     return True
+                for alias in node['aliases']:
+                    if alias == target_ip:
+                        # First resolution found is returned.
+                        self.env.id = node['envId']
+
+                        # Logs successfull target-environment resolution.
+                        msg = str('Target # Successfully resolved target [' +
+                                  self.target + '] into environment ID [' +
+                                  self.env.id + ']')
+                        self.rbkcli_logger.debug(msg)
+
+                        # Return success.
+                        return True
 
         # Logs unsuccessfull target-environment resolution.
         msg = str('TargetError # Failed to resolve the target IP into a'
@@ -353,6 +368,7 @@ class EnvironmentHandler(ApiTargetTools):
             target_resolution.ip = target['ip']
             target_resolution.envId = target['envId']
             target_resolution.envName = target['envName']
+            target_resolution.aliases = []
             self.resolution.data.append(target_resolution)
 
         # Remove any duplicated entry:

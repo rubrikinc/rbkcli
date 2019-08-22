@@ -7,6 +7,7 @@ import json
 import logging
 import os
 import sys
+import socket
 import time
 from getpass import getpass
 from logging.handlers import RotatingFileHandler
@@ -310,7 +311,7 @@ class RbkcliTools:
             self.auth.token = os.environ['rubrik_cdm_token']
 
         except KeyError as bad_key:
-            if str(bad_key) != "\'rubrik_cdm_token\'":
+            if str(bad_key) != "\'rubrik_cdm_token\'" and str(bad_key) != "\'RUBRIK_CDM_TOKEN\'":
                 msg = '%s%s%s' % ('Unable to load environmental variable for'
                                   ' authentication: ',
                                   bad_key,
@@ -510,6 +511,7 @@ class RbkcliTools:
         """Verify if minimum auth params has been provided."""
         self.auth = auth
         if 'server' in self.auth.keys():
+            self.auth.server = self._resolve_target(self.auth.server)
             if (self.auth.server == '' or
                     not self.is_valid_ip_port(self.auth.server)):
                 if self.workflow == 'command':
@@ -736,6 +738,26 @@ class RbkcliTools:
                 return False
         else:
             return self.is_valid_ip(ip_port)
+
+    def _resolve_target(self, target_name):
+        """Resolve target fqdn to IP."""
+        # Split port and fqdn
+        if ':' in target_name:
+            target_name = target_name.split(':')
+            target_ip = target_name[0]
+            port = ':' + target_name[1]
+        else:
+            port = ''
+            target_ip = target_name
+        try:
+            target_ip = str(socket.gethostbyname(target_ip))
+        except socket.gaierror:
+            msg = 'Unable to resolve FQDN [%s].' % target_ip
+            self.logger.error('ToolsError # ' + msg)
+            raise RbkcliException.ToolsError(msg)
+
+        return target_ip + port
+
 
     @staticmethod
     def is_not_empty_str(value):
