@@ -6,6 +6,7 @@
 - Windows 10
 
 While using the above described Operating Systems, **rbkcli** was tested with the following Python Interpreter versions:
+- python-2.7.16
 - python-3.5.6
 - python-3.6.9
 - python-3.7.3
