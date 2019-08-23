@@ -2,7 +2,8 @@
 
 ### More information
 
-* [About rbkcli](about.md) 
+* [Requirements](requirements.md)
+* [About rbkcli](about.md)
 
 ### Getting Started
 
@@ -28,32 +29,27 @@
 	 
 ### Files and Configs
 
-* [Configuration File - NR](not_ready.md)
-* [Folder Structure - NR](not_ready.md)
+* [Folder Structure](folder_structure.md)
+* [Configuration File](configuration_file.md)
+* [Logs](logs.md)
 
 	 
 ### Delivery
 
 * [Portable](portable.md)
-	- [rbkcli.pex for python 3.5/3.6/3.7](https://github.com/rubrikinc/rbkcli/releases/tag/v1.0.0-beta%2Bportable)
+	- [rbkcli.pex for python 3.5/3.6/3.7](https://github.com/rubrikinc/rbkcli/releases/tag/v1.0.0-beta.0%2Bportable)
 	
 * [PyPI](rbkcli_pip.md)
 	- [rbkcli PyPI page](https://pypi.org/project/rbkcli/)
 
-### Use Cases
+### Knowledge Base Articles
 
-* [Complex commands - NR](not_ready.md)
-* [Scripts](use_scripts.md)
-* [Cmdlets](use_cmdlets.md)
-* [Real case scenarios - NR](not_ready.md)
-* [rbkcli as a SDK - NR](not_ready.md)
+* [Use cases and How To(s)](kbs.md)
 
-### How To
 
-* [Use a credential's file - NR](not_ready.md)
-* [Change available API endpoints - NR](not_ready.md)
-* [Disable logging - NR](not_ready.md)
-* [Use rbkcli with a proxy/VPN - NR](not_ready.md)
+### Contribution
+
+* [Feature's Improvement Planning](improvement_planning.md)
 
 
 

@@ -5,7 +5,8 @@ import json
 
 from rbkcli.base.essentials import DotDict, RbkcliException
 
-class DynaTable():
+
+class DynaTable:
     """Create a dynamically sized table with summary."""
 
     ROW_DIVISION_CHAR = '|'
@@ -13,8 +14,7 @@ class DynaTable():
 
     def __init__(self, headers, rows, logger='', **kwargs):
         """Initialize DynaTable."""
-
-        # Verifying if headers and rows have the same amout of objects.
+        # Verifying if headers and rows have the same amount of objects.
         if len(headers) != len(rows) or len(headers) == 1:
             self.table = ['Error # Invalid table']
 
@@ -35,10 +35,11 @@ class DynaTable():
 
     def _format_rows(self):
         """
+        Create row with correct size dynamically.
+
         Based on the maximum size acquired, reformat each value of each row
         to have that size.
         """
-
         try:
             rows_size = self._get_rows_size(self.headers, self.rows)
         except RbkcliException.DynaTableError:
@@ -51,16 +52,17 @@ class DynaTable():
                                                             size=size))
             for line in enumerate(self.rows[i[0]]):
                 text = self.rows[i[0]][line[0]]
-                self.rows[i[0]][line[0]] = (' {text:<{size}} '. \
-                                           format(text=text, size=size))
+                self.rows[i[0]][line[0]] = (' {text:<{size}} '.
+                                            format(text=text, size=size))
         return True
 
     def assemble_table(self):
         """
-        Create and returns a 'table' list, by appending and joinning headers,
+        Build the table.
+
+        Create and returns a 'table' list, by appending and joining headers,
         line separator and rows.
         """
-
         table = []
         line = []
         lines = []
@@ -92,18 +94,19 @@ class DynaTable():
         return table
 
     def print_table(self):
-        """Re-assembles the table and prints it, prints the table."""
-
+        """Print the table."""
         table = self.assemble_table()
         for i in table:
             print(i)
 
-    def _get_rows_size(self, headers_calc, rows_calc):
+    @staticmethod
+    def _get_rows_size(headers_calc, rows_calc):
         """
+        Get the size row should be.
+
         Joins all values in one list and gets the maximum size, of all
         values per row.
         """
-
         rows_size = []
         for i in enumerate(headers_calc):
             try:
@@ -117,11 +120,14 @@ class DynaTable():
         return rows_size
 
 
-class RbkcliJsonOps():
-    """Manipulates json data in crazy ways."""
-    def __init__(self, logger, json_data=[]):
+class RbkcliJsonOps:
+    """Manipulate json data in crazy ways."""
+
+    def __init__(self, logger, json_data=None):
         """Initialize the json operation."""
         self.logger = logger
+        if json_data is None:
+            json_data = []
         self.json_data = json_data
         self._jsonfy()
 
@@ -131,9 +137,9 @@ class RbkcliJsonOps():
                 not isinstance(self.json_data, list)):
             self.json_data = json.loads(self.json_data)
 
-    def simple_dict_natural(self, simple_dict={}):
+    def simple_dict_natural(self, simple_dict=None):
         """Convert simple dictionary into natural values."""
-        if simple_dict == {}:
+        if simple_dict is None or simple_dict == {}:
             simple_dict = self.json_data
 
         result = []
@@ -142,7 +148,8 @@ class RbkcliJsonOps():
 
         return ','.join(result)
 
-    def natural_simple_dictstr(self, natural_str):
+    @staticmethod
+    def natural_simple_dictstr(natural_str):
         """Convert natural values into simple dictionary."""
         simple_dictstr = []
 
@@ -153,7 +160,11 @@ class RbkcliJsonOps():
         for item in natural_str:
             try:
                 key, value = item.split('=')
-                simple_dictstr.append('"%s": "%s"' % (key, value))
+                if value[0] == '[' and value[-1] == ']':
+                    value = value[1:-1]
+                    simple_dictstr.append('"%s": ["%s"]' % (key, value))
+                else:
+                    simple_dictstr.append('"%s": "%s"' % (key, value))
             except ValueError as e:
                 raise RbkcliException.ToolsError('jsops error: ' +
                                                  str(e) +
@@ -161,9 +172,13 @@ class RbkcliJsonOps():
 
         return str('{%s}' % ', '.join(simple_dictstr))
 
-    def simple_dict_table(self, simple_dict={}, headers=[], summary=''):
+    @staticmethod
+    def simple_dict_table(simple_dict=None, headers=None, summary=''):
         """Convert simple dictionary to table format."""
-
+        if simple_dict is None:
+            simple_dict = {}
+        if headers is None:
+            headers = []
         # Declare variables to create table.
         body = {}
         f_body = []
@@ -191,38 +206,40 @@ class RbkcliJsonOps():
 
         return table
 
-    def resolve_ref(self, definitions, json_data):
-        """Intantiate ResolveRef class and iterate it."""
-
+    @staticmethod
+    def resolve_ref(definitions, json_data):
+        """Instantiate ResolveRef class and iterate it."""
         resolve_inst = ResolveRef(definitions, json_data)
         return resolve_inst.iterit()
 
-    def pretty_print(self, json_data):
-        """Intantiate PrettyPrint class and iterate it."""
-
+    @staticmethod
+    def pretty_print(json_data):
+        """Instantiate PrettyPrint class and iterate it."""
         pprint_inst = PrettyPrint(json_data=json_data)
         return pprint_inst.iterit()
 
 
-class JsonIteration():
+class JsonIteration:
     """Manipulates json data in crazy ways."""
-    def __init__(self, definitions=[], json_data=[]):
+
+    def __init__(self, definitions=None, json_data=None):
         """Initialize the json operation."""
+        if definitions is None:
+            definitions = []
+        if json_data is None:
+            json_data = []
+
         self.json_data = json_data
         self.definitions = definitions
         self.counter = -2
         self.modifier = 2
 
     def iterit(self):
-        """
-        Runs a customize iteration through json data / nested dictionaries.
-        """
-
+        """Run customized iteration through nested json."""
         return self._iteration_context(self.definitions, self.json_data)
 
     def _iteration_context(self, definitions, json_data):
         """Allow customization of iteration context."""
-
         del definitions
 
         return self._iterate_json(json_data)
@@ -233,14 +250,15 @@ class JsonIteration():
         if isinstance(json_data, dict):
             json_data = self._before_iterate_dict(json_data)
             new_dict = self._iterate_dict(json_data)
-            json_data = self._after_iterate_dict(json_data)
+            self._after_iterate_dict(json_data)
         elif isinstance(json_data, list):
             json_data = self._before_iterate_list(json_data)
             new_dict = self._iterate_list(json_data)
-            json_data = self._after_iterate_list(json_data)
+            self._after_iterate_list(json_data)
         return new_dict
 
-    def _before_iterate_dict(self, json_data):
+    @staticmethod
+    def _before_iterate_dict(json_data):
         """Allow customization before iterating dict."""
         return json_data
 
@@ -255,12 +273,12 @@ class JsonIteration():
 
     def _action_dict(self, keys, values, json_data):
         """Allow customization of action with dict found."""
-
         # Deleting variable to avoid linting issues.
         del json_data
         return keys, values
 
-    def _after_iterate_dict(self, json_data):
+    @staticmethod
+    def _after_iterate_dict(json_data):
         """Allow customization after iterating dict."""
         return json_data
 
@@ -277,7 +295,6 @@ class JsonIteration():
 
     def _action_list(self, line, json_data):
         """Allow customization of action with list found."""
-
         # Deleting variable to avoid linting issues.
         del json_data
         return line
@@ -301,7 +318,7 @@ class PrettyPrint(JsonIteration):
         return self.output_str
 
     def _action_dict(self, keys, values, json_data):
-        """Action taken when data is dictionary."""
+        """Change data if dictionary."""
         self.counter = self.counter + self.modifier
 
         if isinstance(values, dict):
@@ -320,9 +337,9 @@ class PrettyPrint(JsonIteration):
         return keys, values
 
     def _action_list(self, line, json_data):
-        """Action taken when data is list."""
+        """Change data if list."""
         self.counter = self.counter + self.modifier
-        
+
         if isinstance(line, dict):
             line = self._iterate_json(line)
             line = self._before_iterate_list(line)
@@ -346,12 +363,14 @@ class PrettyPrint(JsonIteration):
 
 class ResolveRef(JsonIteration):
     """
+    Resolve OpenAPI file #refs.
+
     Resolve references that are present in swagger file
-    documentaion for Rubrik APIS.
+    documentaion for Rubrik APIs.
     """
 
     def _action_dict(self, keys, values, json_data):
-        """Action taken when data is dictionary."""
+        """Change data if dictionary."""
         definitions = self.definitions
         if keys == "$ref":
             ref_keys = self._convert_ref_to_keys(values)
@@ -364,13 +383,12 @@ class ResolveRef(JsonIteration):
         return keys, values
 
     def _action_list(self, line, json_data):
-        """Action taken when data is list."""
-
+        """Change data if list."""
         return self._iterate_json(line)
 
-    def _convert_ref_to_keys(self, values):
+    @staticmethod
+    def _convert_ref_to_keys(values):
         """Convert reference str to key to be resolved."""
-
         ref_keys = values.replace('#', '')
         ref_keys = ref_keys.replace('/definitions/', '')
         if '/' in ref_keys:
@@ -383,30 +401,30 @@ class MapResponseDoc(JsonIteration):
     """
     Create a reference of json structure and nested keys.
 
-    It creates the same metadata map as MapJson, but reading from the documen_
-    ted response from swagger.
-    This map is the baseline used to validate available fields to selct for 
+    It creates the same metadata map as MapJson, but reading from the
+    documented response from swagger.
+    This map is the baseline used to validate available fields to select for
     each api response.
-    Its very relevant to Rbkcli once it provides the capability to perform 
+    Its very relevant to Rbkcli once it provides the capability to perform
     relevant selections as well as autocomplete for the fields available.
     """
 
     def _iteration_context(self, definitions, json_data):
         """Define the context to use during iteration."""
         self.cursor = ''
-        
+
         # Create dictionary to save all maps and make it accessible.
         self.map = DotDict({})
         self.map.full = []
         self.data_tag = False
-        
-        ## Fix by unifying variables and removing redundant
+
+        # Fix by unifying variables and removing redundant
         self.level = 0
 
         # Json Keys that will be ignored while creating the map.
-        # the following keys are a sort of metadata presented by the docu
-        # mentation, so we use them to accuratly build a valid representation
-        # of any response.
+        # the following keys are a sort of metadata presented by the
+        # documentation, so we use them to accurately build a valid
+        # representation of any response.
         self.excluded_fields = ['properties',
                                 'items',
                                 'allOf',
@@ -422,11 +440,12 @@ class MapResponseDoc(JsonIteration):
         # Get the schema of the response documentation only.
         try:
             json_dict = json_data['doc']['responses']['200']['schema']
-        except KeyError: 
+        except KeyError:
             json_dict = {}
         # Translate datatypes from documentation to python json module.
         self.type_dict = {
             'string': 'str',
+            'unicode': 'str',
             'boolean': 'bool',
             'integer': 'int',
             'empty': 'dict',
@@ -434,7 +453,7 @@ class MapResponseDoc(JsonIteration):
             'number': 'number',
             'array': 'list'
         }
-        
+
         # Iterate json data creating the map
         result = self._iterate_json(json_dict)
 
@@ -445,9 +464,8 @@ class MapResponseDoc(JsonIteration):
         return result
 
     def _action_dict(self, keys, values, json_data):
-        """Action taken when json data is identified as dictionary."""
-        
-        if keys not in self.excluded_fields and not keys[0].isupper(): 
+        """Change data if dictionary."""
+        if keys not in self.excluded_fields and not keys[0].isupper():
             if keys not in self.exclude_properties:
                 key_str = self._appender(keys, values)
                 values = self._verifier(values)
@@ -455,18 +473,18 @@ class MapResponseDoc(JsonIteration):
             else:
                 values = self._verifier(values)
         # Treating special case, which we might remove data from output.
-        ## Will need further changes to allow configuration option.
-        ## FIX this test
+        # Will need further changes to allow configuration option.
+        # FIX this test
         elif keys == 'data':
             self.data_tag = True
             self.level = self.level + 1
-            values = self._verifier(values)   
+            values = self._verifier(values)
             self.level = self.level - 1
         # Creating a safe check for the key levels of jsons that has both
         # data and items.
         elif keys == 'items' and not self.data_tag:
             self.level = self.level + 1
-            values = self._verifier(values)   
+            values = self._verifier(values)
             self.level = self.level - 1
         else:
             values = self._verifier(values)
@@ -474,23 +492,24 @@ class MapResponseDoc(JsonIteration):
         return keys, values
 
     def _action_list(self, line, json_data):
-        """Action taken when json data is identified as list."""
+        """Change data if list."""
         return self._verifier(line)
 
     def _appender(self, keys, values):
         """Treat and append json key metadata to cursor."""
-
         self.level = self.level + 1
+        objt_type = 'string'
         try:
             # Attempt to get the documented type of the predicted parameter.
             objt_type = values['type']
-        except:
+        # Test
+        except KeyError:
             try:
                 # Best effort to get param type and keep map consistent.
                 for key, value in values.items():
                     if isinstance(value, dict):
                         objt_type = value['type']
-            except:
+            except KeyError:
                 objt_type = 'empty'
 
         objt_type = self.type_dict[objt_type]
@@ -505,8 +524,8 @@ class MapResponseDoc(JsonIteration):
         """Verify data type from received value."""
         # Iterate possible nested keys.
         if (not isinstance(values, str) or
-            not isinstance(values, bool) or
-            not isinstance(values, int)):
+                not isinstance(values, bool) or
+                not isinstance(values, int)):
             values = self._iterate_json(values)
 
         return values
@@ -533,18 +552,18 @@ class MapResponseDoc(JsonIteration):
                 all_simple_keys.append(key)
 
         simple_keys = copy.copy(all_simple_keys)
-        for key in all_simple_keys:    
+        for key in all_simple_keys:
             for key_ in nested_keys:
                 if key_.startswith(key) and key in simple_keys:
                     simple_keys.remove(key)
 
         self.map.simple_keys = simple_keys
         self.map.nested_keys = nested_keys
-    
+
     def mapit(self):
         """Return the map dict."""
         # Try and get any value assigned to map, if it does not exist
-        # reiter the json data to get it.
+        # re-iter the json data to get it.
         try:
             map_it = self.map
             del map_it
@@ -556,13 +575,13 @@ class MapResponseDoc(JsonIteration):
 
 
 class MapSelect(JsonIteration):
-    """Maps and select provided json keys."""
+    """Map and select provided json keys."""
 
     # Need to add the fields requested to this function, in that way
     # during the iteration we can match the field requested with the
     # lopped ones.
 
-    ## Fix by unifying this class with MapJson, the current class performs
+    # Fix by unifying this class with MapJson, the current class performs
     # further actions than just MAP, but it also maps, so adding options
     # during the iteration should fix that.
 
@@ -585,31 +604,40 @@ class MapSelect(JsonIteration):
 
         # Dictionary with selected keys.
         self.selected = {}
-        ### TEST
+        # TEST
         self.unselected = {}
+        self.type_dict = {
+            'str': 'str',
+            'unicode': 'str',
+            'bool': 'bool',
+            'int': 'int',
+            'dict': 'dict',
+            'number': 'number',
+            'list': 'list'
+        }
 
         for key, value in definitions.items():
             self.selected[key] = 'N/A'
             self.unselected[key] = ''
 
         # Iterate provided json data.
-        result = self._iterate_json(json_data)
+        self._iterate_json(json_data)
 
         # Once the iteration is based on the metadata_key that is matched
         # then, the ones that are not matched are never treated, so:
         # Created the unselected dictionary that stores the keys that were
         # never analyzed.
         # If after the iteration, there are unselected fields that are
-        # supposed to be filtered, then result shoud not be returned.
-        # Pratical meaning here is, if a filter/selection was ordered but the 
-        # field which we are filtering does not exist in the json at hand, 
-        # the code will interprete it as a miss match and not add it to the
+        # supposed to be filtered, then result should not be returned.
+        # Practical meaning here is, if a filter/selection was ordered but the
+        # field which we are filtering does not exist in the json at hand,
+        # the code will interpret it as a miss match and not add it to the
         # list of results.
         for key in self.unselected:
-            if (definitions[key]['filter_eq'] != '' or 
-                 definitions[key]['filter_aprox'] != '' or
-                 definitions[key]['filter_not'] != '' or
-                 definitions[key]['filter_not_aprox'] != ''):
+            if (definitions[key]['filter_eq'] != '' or
+                    definitions[key]['filter_aprox'] != '' or
+                    definitions[key]['filter_not'] != '' or
+                    definitions[key]['filter_not_aprox'] != ''):
                 self.returning = False
 
         # From full map create simple keys map.
@@ -627,14 +655,14 @@ class MapSelect(JsonIteration):
             # Match key metadata with passed metadata.
             if value['dictKey'] == found_metadata:
                 # In case a filter is specified take action.
-                if value['filter_eq'] != '': 
+                if value['filter_eq'] != '':
                     if value['filter_eq'] == str(found_value):
                         self.selected[key] = found_value
                         del self.unselected[key]
                     else:
                         # If filter is not met do not return anything.
                         self.returning = False
-                elif value['filter_aprox'] != '': 
+                elif value['filter_aprox'] != '':
                     if value['filter_aprox'] in str(found_value):
                         self.selected[key] = found_value
                         del self.unselected[key]
@@ -661,19 +689,18 @@ class MapSelect(JsonIteration):
                     self.selected[key] = found_value
                     del self.unselected[key]
 
-
     def _action_dict(self, keys, values, json_data):
-        """Action taken when json data is identified as dictionary."""
+        """Change data if dictionary."""
         # Accumulate nesting level.
         self.level = self.level + 1
-        
+
         # Generate key metadata and select the filtered key.
         metadata = self._gen_metadata(keys, values)
 
         # Generate cursor and append it to the map.
         self.cursor = self.cursor + metadata
-        ## Test
-        ### BAD TEST FOR SERIALIZED JSON in values
+        # Test
+        # BAD TEST FOR SERIALIZED JSON in values
         if isinstance(values, str):
             try:
                 values = json.loads(values)
@@ -681,25 +708,25 @@ class MapSelect(JsonIteration):
                 pass
         self._select_key(self.cursor, values)
         self.map.full.append(self.cursor)
-        
+
         # Iterate possible nested keys.
         if (not isinstance(values, str) or
-            not isinstance(values, bool) or
-            not isinstance(values, int)):
+                not isinstance(values, bool) or
+                not isinstance(values, int)):
             values = self._iterate_json(values)
 
-        # Removing key metada from cursor.
+        # Removing key metadata from cursor.
         self.cursor = self.cursor.replace(metadata, '')
         self.level = self.level - 1
 
         return keys, values
 
     def _action_list(self, line, json_data):
-        """Action taken when json data is identified as list."""
+        """Change data if list."""
         # Accumulate nesting level.
         self.level = self.level + 1
-        
-        ### BAD TEST
+
+        # BAD TEST
         if isinstance(line, str):
             try:
                 line = json.loads(line)
@@ -708,10 +735,10 @@ class MapSelect(JsonIteration):
 
         # Iterate possible nested keys.
         if (not isinstance(line, str) or
-            not isinstance(line, bool) or
-            not isinstance(line, int)):
+                not isinstance(line, bool) or
+                not isinstance(line, int)):
             line = self._iterate_json(line)
-        
+
         # Removing nesting level.
         self.level = self.level - 1
         return line
@@ -721,6 +748,7 @@ class MapSelect(JsonIteration):
         objt_type = str(type(values))
         objt_type = objt_type.split('\'')
         objt_type = objt_type[-2]
+        objt_type = self.type_dict[objt_type]
         return '[%s#%s#%s]' % (keys, str(self.level), objt_type)
 
     def _gen_all_maps(self):
@@ -743,7 +771,7 @@ class MapSelect(JsonIteration):
 
         # Iterate over all level 1 keys to remove the nested ones
         simple_keys = copy.copy(all_simple_keys)
-        for key in all_simple_keys:    
+        for key in all_simple_keys:
             for key_ in nested_keys:
                 if key_.startswith(key) and key in simple_keys:
                     simple_keys.remove(key)
@@ -752,7 +780,8 @@ class MapSelect(JsonIteration):
         self.map.simple_keys = simple_keys
         self.map.nested_keys = nested_keys
 
-    def key_metadata_key(self, metadata_map):
+    @staticmethod
+    def key_metadata_key(metadata_map):
         """Convert metadata map created to list of keys."""
         str_key_lst = []
         for metadata_key in metadata_map:
@@ -772,7 +801,7 @@ class MapSelect(JsonIteration):
         try:
             map_it = self.map
             del map_it
-        except Exception as e:
+        except Exception:
             self.iterit()
 
         # Returns map only.

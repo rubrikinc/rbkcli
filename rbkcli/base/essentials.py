@@ -80,3 +80,6 @@ class RbkcliException(Exception):
 
     class RbkcliError(Exception):
         """Customize DynaTable exceptions."""
+
+    class ScriptError(Exception):
+        """Customize Scripts exceptions."""

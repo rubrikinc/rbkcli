@@ -1,6 +1,5 @@
-
 # Scripts
----
+
 The **Scripts** use cases are generally related to automation and other examples which requires complex data manipulation or loops. 
 To check the documentation on set of commands that manages scripts, visit the following:
  - [/rbkcli/script](rbkcli_script.md)
@@ -8,8 +7,8 @@ To check the documentation on set of commands that manages scripts, visit the fo
 
 ## Template
 When creating a new script to be added to the rbkcli framework you can use the following example as a template:
- - [Template](use_script_template.md)
+ - [Template](KB0005.md)
 
 ## Cases
 Following are some real use cases to elucidate the script usage:
- - [/scripts/log/bundle](log_bundle.md)
+ - [/scripts/log/bundle](KB0009.md)

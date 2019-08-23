@@ -12,7 +12,7 @@ from rbkcli.core.target import RbkcliTarget
 class Rbkcli():
     """Class that provides the connection from any CLI to the Rbkcli."""
 
-    def __init__(self, user_profile='admin', base_folder='', auth=None):
+    def __init__(self, user_profile='config', base_folder='', auth=None):
         """Initialize CLI helper."""
         # Instantiate CLI target
         self.ops = []
@@ -272,8 +272,8 @@ class Rbkcli():
             response = json.dumps(self.result.text, indent=2)
 
         # If not possible, means output is some other text or empty.
-        except json.decoder.JSONDecodeError:
-
+        # except JSONDecodeError:
+        except ValueError:
             # If not empty then that text is provided.
             if self.result.text != '':
                 response = self.result.text

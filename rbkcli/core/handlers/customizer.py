@@ -1,8 +1,8 @@
 """Customizer module for dynamic script discovery and intantiation."""
+from __future__ import print_function
 
 import os
 import json
-import copy
 import sys
 import pkgutil
 import importlib
@@ -118,51 +118,85 @@ class Customizer(AnyApiHandler):
             'definitions': {},
             'paths': {}
             }
-    
+        self.scripts_list = []
+
         # Define classes that are instantiable:
-        intantiable_class = '(<class \'rbkcli.core.handlers.customizer.RbkCliBlackOps'
+
+        # intantiable_class = '(<class \'rbkcli.core.handlers.customizer.RbkCliBlackOps'
+        intantiable_class = 'rbkcli.core.handlers.customizer.RbkCliBlackOps'
         # Get liat of folders in the path.
         scripts_paths = [x[0] for x in os.walk(self.scripts_folder)]
         # Iterate each folder.
         for path in scripts_paths:
+            # print path
             # Get a list of modules inside the folder.
             module_path = [x[1] for x in pkgutil.iter_modules(path=[path])]
+            # print module_path
             # Iterate each module.
             for script in module_path:
                 # Make path tangible
                 sys.path.append(path)
                 # Import module in the path.
+                #print(' --script: ' + script)
+                #print(' --path: ' + path)
                 script_module = importlib.import_module(script)
-                # Get objects from the module. 
+                # Get objects from the module.
                 script_members = inspect.getmembers(script_module)
+                #print(' --script members: ')
+                #print(script_members)
+
                 # Iterate members of module.
+
                 for member in script_members:
-                    member_desc = str(member[1])
-                    # Verify members that are a class.
-                    if member_desc.startswith('<class '):
-                        # Copy the class into a object.
-                        myoperation = getattr(script_module, member[0])
+                    try:
+                        member_desc = member[1].__name__
+                        myoperation = getattr(script_module, member_desc)
                         class_base = str(myoperation.__bases__)
-                        # If the parent of th e class is a instantiable class
-                        if class_base.startswith(intantiable_class):
-                            # Create dictionary from script members
-                            script_dict = {}
-                            # Attribute values to dict
-                            for line in script_members:
-                                key, value = line
-                                script_dict[key] = value
-                            
-                            # Instantiate a object of the class.
-                            instance = myoperation('')
 
-                            # Attribute values to the instance for doc gen.
-                            instance.module = script_dict['__name__']
-                            instance.file = script_dict['__file__']
-                            instance.class_name = member[0]
+                        #print(member_desc)
+                    except AttributeError:
+                        continue
+                    #if member_desc == 'RbkCliBlackOps':
+                    #member_desc = str(member[1])
+                    # Verify members that are a class.
+                    # print member_desc
+                    #if member_desc.startswith('<class '):
+                    # Copy the class into a object.
 
-                            # Generate documentation
-                            self._gen_doc_script(instance)
-        
+                    #myoperation = getattr(script_module, member_desc)
+                    #class_base = str(myoperation.__bases__)
+                    #print(str(class_base))
+                    #print(intantiable_class)
+                    # If the parent of th e class is a instantiable class
+                    if intantiable_class in str(class_base):
+                        #print('It is in')
+                        # Create dictionary from script members
+                        script_dict = {}
+                        # Attribute values to dict
+                        for line in script_members:
+                            key, value = line
+                            script_dict[key] = value
+                        #(script_dict)
+                        # Instantiate a object of the class.
+                        instance = myoperation('', self.tools.logger)
+
+                        # Attribute values to the instance for doc gen.
+                        script = {}
+                        instance.module = script_dict['__name__']
+                        script['module'] = instance.module
+                        instance.file = script_dict['__file__']
+                        script['file'] = instance.file
+                        instance.class_name = member[0]
+                        script['class_name'] = instance.class_name
+                        script['endpoint'] = instance.endpoint
+                        script['method'] = instance.method
+
+                        self.scripts_list.append(script)
+
+                        # Generate documentation
+                        self._gen_doc_script(instance)
+                        #print(instance)
+                #exit()
         # Attribute all documentation generated to endpoints.
         self.endpoints = self.meta_api.doc
     
@@ -192,8 +226,10 @@ class Customizer(AnyApiHandler):
     def _execute_api(self, *args):
         """Instantiate and execute script called by API."""
         # split arguments as needed
+
         args, kwargs = args
         method, endpoint = args
+        endpoint_key = kwargs['endpoint_key'].split(':')[1]
 
         # identify what might be a query to the API.
         if '?' in endpoint:
@@ -202,10 +238,16 @@ class Customizer(AnyApiHandler):
             query = ''
 
         # Get endpoint doc
-        api = self.meta_api.doc['paths']['/' + endpoint][method]
+        api = self.meta_api.doc['paths'][endpoint_key][method]
 
         # Treat source to be a importable path.
-        source = api['source'].split('/')
+        if '/' in api['source']:
+            source = api['source'].split('/')
+        elif '\\' in api['source']:
+            source = api['source'].split('\\')
+        else:
+            source = api['source'].split()
+
         source = source[:-1]
         source = '/'.join(source)
 
@@ -215,7 +257,8 @@ class Customizer(AnyApiHandler):
 
         # Instanciate the Class.
         myoperation = getattr(mio_commando, api['operationId'])
-        myoperation_inst = myoperation(self.cbacker)
+        myoperation_inst = myoperation(self.cbacker, self.rbkcli_logger)
+        #myoperation_inst = myoperation(self.cbacker)
         
         # Attribute the parameters to be passed to script.
         if kwargs['data'] == {}:
@@ -240,11 +283,13 @@ class Customizer(AnyApiHandler):
 
         return json.dumps(result, indent=2)
 
+
 class RbkCliBlackOps():
     """External Script API class for rbkcli integration."""
-    def __init__(self, call_backer):
+    def __init__(self, call_backer, rbkcli_logger):
         """Initialize external scripts integration class."""
         self.rbkcli = call_backer
+        self.rbkcli_logger = rbkcli_logger
         self.request = DotDict({
               'parameter': {},
               'filter': None,
@@ -304,57 +349,82 @@ class CustomizerControls():
         self.scripts_list = []
 
         # Define classes that are instantiable:
-        intantiable_class = '(<class \'rbkcli.core.handlers.customizer.RbkCliBlackOps'
+
+        # intantiable_class = '(<class \'rbkcli.core.handlers.customizer.RbkCliBlackOps'
+        intantiable_class = 'rbkcli.core.handlers.customizer.RbkCliBlackOps'
         # Get liat of folders in the path.
         scripts_paths = [x[0] for x in os.walk(self.scripts_folder)]
         # Iterate each folder.
         for path in scripts_paths:
+            # print path
             # Get a list of modules inside the folder.
             module_path = [x[1] for x in pkgutil.iter_modules(path=[path])]
+            # print module_path
             # Iterate each module.
             for script in module_path:
                 # Make path tangible
                 sys.path.append(path)
                 # Import module in the path.
+                #print(' --script: ' + script)
+                #print(' --path: ' + path)
                 script_module = importlib.import_module(script)
                 # Get objects from the module. 
                 script_members = inspect.getmembers(script_module)
+                #print(' --script members: ')
+                #print(script_members)
+
                 # Iterate members of module.
+
                 for member in script_members:
-                    member_desc = str(member[1])
-                    # Verify members that are a class.
-                    if member_desc.startswith('<class '):
-                        # Copy the class into a object.
-                        myoperation = getattr(script_module, member[0])
+                    try:
+                        member_desc = member[1].__name__
+                        myoperation = getattr(script_module, member_desc)
                         class_base = str(myoperation.__bases__)
-                        # If the parent of th e class is a instantiable class
-                        if class_base.startswith(intantiable_class):
-                            # Create dictionary from script members
-                            script_dict = {}
-                            # Attribute values to dict
-                            for line in script_members:
-                                key, value = line
-                                script_dict[key] = value
-                            
-                            # Instantiate a object of the class.
-                            instance = myoperation('')
 
-                            # Attribute values to the instance for doc gen.
-                            script = {}
-                            instance.module = script_dict['__name__']
-                            script['module'] = instance.module
-                            instance.file = script_dict['__file__']
-                            script['file'] = instance.file
-                            instance.class_name = member[0]
-                            script['class_name'] = instance.class_name
-                            script['endpoint'] = instance.endpoint
-                            script['method'] = instance.method
+                        #print(member_desc)
+                    except AttributeError:
+                        continue
+                    #if member_desc == 'RbkCliBlackOps':
+                    #member_desc = str(member[1])
+                    # Verify members that are a class.
+                    # print member_desc
+                    #if member_desc.startswith('<class '):
+                    # Copy the class into a object.
 
-                            self.scripts_list.append(script)
+                    #myoperation = getattr(script_module, member_desc)
+                    #class_base = str(myoperation.__bases__)
+                    #print(str(class_base))
+                    #print(intantiable_class)
+                    # If the parent of th e class is a instantiable class
+                    if intantiable_class in str(class_base):
+                        #print('It is in')
+                        # Create dictionary from script members
+                        script_dict = {}
+                        # Attribute values to dict
+                        for line in script_members:
+                            key, value = line
+                            script_dict[key] = value
+                        #(script_dict)
+                        # Instantiate a object of the class.
+                        instance = myoperation('', self.tools.logger)
 
-                            # Generate documentation
-                            self._gen_doc_script(instance)
-        
+                        # Attribute values to the instance for doc gen.
+                        script = {}
+                        instance.module = script_dict['__name__']
+                        script['module'] = instance.module
+                        instance.file = script_dict['__file__']
+                        script['file'] = instance.file
+                        instance.class_name = member[0]
+                        script['class_name'] = instance.class_name
+                        script['endpoint'] = instance.endpoint
+                        script['method'] = instance.method
+
+                        self.scripts_list.append(script)
+
+                        # Generate documentation
+                        self._gen_doc_script(instance)
+                        #print(instance)
+                #exit()
         # Attribute all documentation generated to endpoints.
         self.endpoints = self.meta_api.doc
 

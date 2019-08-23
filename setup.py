@@ -36,7 +36,7 @@ def create_structure():
 
 setuptools.setup(
     name='rbkcli',
-    version='1.0.0-beta.1',
+    version='1.0.0-beta.3',
     author='Bruno Manesco',
     author_email='bruno.manesco@rubrik.com',
     description='A python package that creates a CLI conversion from Rubrik APIs',

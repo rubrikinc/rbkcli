@@ -3,31 +3,52 @@
 ## Requirements
 
 Before starting the installation make sure you match the following requirements
- - OS: Linux/Mac
- - Python3.5+
- - pip3 (Python's package indexer)
+ - OS: 
+	* Linux
+	* Mac
+	* Windows
+ - Python:
+	* python-2.7.16
+	* python-3.5.6
+	* python-3.6.9
+	* python-3.7.3
+ - pip (Python's package indexer)
  - setuptools (Python module that automates modules installation)
  
- In order to install the requirements you can run the following commands:
+In order to install setuptools package you can run the following command:
  
- ```
- $ sudo apt install python3
- $ sudo apt install python3-pip
- $ pip3 install setuptools
- ```
+```
+$ pip install setuptools
+```
+
+For more information onhow to install Python for each platform please visit: [Python Software Foundation](https://www.python.org/)
 
 ## Installation
 
-Install from source and enable auto-complete:
+Option 1:
+1. Install from source, using git command line:
 
 ```
 $ git clone git@github.com:rubrikinc/rbkcli.git
 $ cd rbkcli
 $ python setup.py install
-$ echo ' eval "$(register-python-argcomplete rbkcli)"' >> ~/.bashrc
 ```
 
-## Example
+Option 2:
+1. Install from Python Package Index, with pip:
+
+```
+$ pip install rbkcli
+```
+
+Post install:
+1. Enable auto-complete (**only for bash environments**):
+```
+$ echo ' eval "$(register-python-argcomplete rbkcli)"' >> ~/.bashrc
+$ . ~/.bashrc
+```
+
+## Configuring target
 
 By default, the rbkcli will attempt to read the the Rubrik Cluster credentials from the following environment variables:
 
@@ -35,10 +56,10 @@ By default, the rbkcli will attempt to read the the Rubrik Cluster credentials f
 * `rubrik_cdm_username`
 * `rubrik_cdm_password`
 
-You can also specify a token to be used in the authentication by exporting the following environment variable:
+You can also specify a token to be used in the authentication by exporting the following environment variable, but it is not required:
 * `rubrik_cdm_token`
 
-So the commands to be run would be:
+So for Linux/Mac systems the commands to be run would be:
 
 ```
 $ export rubrik_cdm_node_ip=<IP>
@@ -47,7 +68,18 @@ $ export rubrik_cdm_password=<password>
 $ export rubrik_cdm_token=<token>
 ```
 
+For windows systems the commands to be run would be:
+
+```
+$ set rubrik_cdm_node_ip=<IP>
+$ set rubrik_cdm_username=<username>
+$ set rubrik_cdm_password=<password>
+$ set rubrik_cdm_token=<token>
+```
+
 The token will take precedence over *username/password* authentication, once the token expires rbkcli will default back to username and password if provided.
+
+## Example
 Once the above environment variables are exported, rbkcli will dynamically create the command line based on the available APIs in that cluster.
 
 ```
