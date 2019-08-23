@@ -68,7 +68,7 @@ class JsonfyReportTable(RbkCliBlackOps):
         """
         # Treat the parameter expected, if not provided raise error.
         if 'report_id' not in args.parameters.keys():
-            raise RbkcliException.ScriptError('Missing Arguments.')
+            raise RbkcliException.ScriptError('Missing Arguments.\n')
 
         # Build request to get the report table:
         if 'limit' in args.parameters.keys():

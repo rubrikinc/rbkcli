@@ -2,6 +2,7 @@
 
 import base64
 import json
+
 import requests
 import urllib3
 
@@ -9,7 +10,7 @@ from rbkcli.base.essentials import CONSTANTS, DotDict, RbkcliException
 from rbkcli.base.tools import RbkcliTools
 
 
-class ApiRequester():
+class ApiRequester:
     """Customize API requests."""
 
     PROTOCOL = 'https'
@@ -18,7 +19,7 @@ class ApiRequester():
     VERIFICATION = False
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-    class Decorators():
+    class Decorators:
         """Decorators that share the ApiHandlers variables."""
 
         @classmethod
@@ -40,10 +41,12 @@ class ApiRequester():
         def verified(self, func):
             """Place holder for future implementation."""
 
-    def __init__(self, logger, user_profile, auth=''):
+    def __init__(self, logger, user_profile, auth=None):
         """Initialize API requester."""
         self.logger = logger
         self.auth = auth
+        if auth is None:
+            self.auth = {}
         self.url = ''
         self.api_result = requests.Response()
         self.user_profile = user_profile
@@ -53,9 +56,9 @@ class ApiRequester():
         self.auth_prpt.primary_exception = ''
 
     @Decorators.auth_verifier
-    def demand(self, method, enpoint, data=None, params=None):
+    def demand(self, method, endpoint, data=None, params=None):
         """Perform API request with provided data."""
-        self._create_url(enpoint)
+        self._create_url(endpoint)
         self._create_auth_header()
 
         try:
@@ -66,7 +69,7 @@ class ApiRequester():
                                                headers=self.auth_prpt.header,
                                                verify=self.VERIFICATION)
 
-            self._validate_token_auth(method, enpoint, data={}, params={})
+            self._validate_token_auth(method, endpoint, data={}, params={})
 
         except requests.exceptions.ConnectionError as error:
             self.logger.error('ApiRequesterError # ' + str(error))
@@ -78,10 +81,10 @@ class ApiRequester():
 
         return self.api_result
 
-    def demand_json(self, method, enpoint, data=None):
+    def demand_json(self, method, endpoint, data=None):
         """Call demand method and only return json data."""
         try:
-            self.demand(method, enpoint, data)
+            self.demand(method, endpoint, data)
             json_data = json.loads(self.api_result.text)
 
         except json.decoder.JSONDecodeError as error:
@@ -92,10 +95,10 @@ class ApiRequester():
 
         return json.dumps(json_data, indent=2, sort_keys=True)
 
-    def _create_url(self, enpoint):
+    def _create_url(self, endpoint):
         """Concatenate the URL for the request."""
         self.url = '%s://%s%s%s%s' % (self.PROTOCOL, self.auth.server,
-                                      self.PORT, self.DEFAULT_URL, enpoint)
+                                      self.PORT, self.DEFAULT_URL, endpoint)
 
     def _create_auth_header(self):
         """Create the auth header based on auth type (user/token)."""
@@ -108,11 +111,11 @@ class ApiRequester():
         except KeyError as bad_key:
             msg = ('Authorization key not found ' + str(bad_key))
             auth = self._create_username_header(msg)
-        ## FIX
+        # Fix or cleanup needed.
         except AttributeError as bad_key:
             msg = ('Authorization key not found ' + str(bad_key))
             auth = self._create_username_header(msg)
-        ##
+        # Until here
         except RbkcliException.ToolsError as error:
             auth = self._create_username_header(error)
 
@@ -128,7 +131,12 @@ class ApiRequester():
         try:
             credentials = ('%s:%s' % (self.auth.username,
                                       self.auth.password))
-            base64bytes = base64.encodebytes(credentials.encode('utf-8'))
+            # Python 2 compatibility
+            try:
+                base64bytes = base64.encodebytes(credentials.encode('utf-8'))
+            except AttributeError:
+                base64bytes = base64.b64encode(credentials.encode('utf-8'))
+
             auth = 'Basic ' + base64bytes.decode('utf-8').replace('\n', '')
             self.auth_prpt.type_ = 'username'
         except KeyError as bad_key:
@@ -140,7 +148,7 @@ class ApiRequester():
             raise RbkcliException.ApiRequesterError(msg)
         return auth
 
-    def _validate_token_auth(self, method, enpoint, data, params):
+    def _validate_token_auth(self, method, endpoint, data, params):
         """Validate last token authentication."""
         error_msg = 'The supplied authentication is invalid'
         error_msg2 = '"message":"Incorrect username/password"'
@@ -152,7 +160,7 @@ class ApiRequester():
                                    ' auth type (username/password).')
             self.logger.warning('ApiRequester # ' + error_msg)
 
-            self.demand(method, enpoint, data, params)
+            self.demand(method, endpoint, data, params)
         elif (error_msg2 in self.api_result.text and
               self.auth_prpt.type_ == 'username'):
             error_msg = 'The supplied authentication is invalid'
@@ -160,14 +168,14 @@ class ApiRequester():
             error_msg = error_msg + '.\n'
             raise RbkcliException.ApiRequesterError(error_msg)
         else:
-            # Log successfull actions
+            # Log successful actions
             msg = '%s [%s:%s]' % ('ApiRequester # Successfully requested API',
                                   method,
                                   self.url)
             self.logger.debug(msg)
 
 
-class RubrikApiHandler():
+class RubrikApiHandler:
     """Define methods to execute the APIs."""
 
     def __init__(self, logger, auth, version, user_profile='admin'):
@@ -189,13 +197,13 @@ class RubrikApiHandler():
         """Verify the provided API version."""
         if version not in CONSTANTS.SUPPORTED_API_VERSIONS:
             msg = str('API version [' + version + '] does not match any '
-                      'accepted verison.')
+                      'accepted version.')
             error = 'ApiHandlerError # ' + msg
             self.local_tools.logger.error(msg)
             raise RbkcliException.ApiHandlerError(error)
 
     def _assign_methods(self):
-        """Assing the correct import and execute method based in version."""
+        """Assign the correct import and execute method based in version."""
         if self.version in ('v1', 'v2', 'internal'):
             self.import_api = self._download_api_doc
             self.execute_api = self.api_requester

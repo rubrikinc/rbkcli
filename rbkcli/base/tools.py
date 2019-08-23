@@ -1,32 +1,43 @@
 """rbkcli tools module."""
+from __future__ import print_function
 
 import copy
-
-from getpass import getpass
-
 import ipaddress
 import json
 import logging
-
-from logging.handlers import RotatingFileHandler
-
-import time
 import os
 import sys
-
-import uuid
-from uuid import UUID
+import socket
+import time
+from getpass import getpass
+from logging.handlers import RotatingFileHandler
+from uuid import UUID, uuid4
 
 import paramiko
+
 import requests
+
 import urllib3
+
 import yaml
 
 from rbkcli.base.essentials import CONSTANTS, DotDict, RbkcliException
 
+# Python 2 compatibility
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
 
-class RbkcliLogger():
+try:
+    input = raw_input
+except NameError:
+    pass
+
+
+class RbkcliLogger:
     """Customize logger."""
+
     def __init__(self, log_name, module, mode=''):
         """Initialize logger."""
         self.module = module
@@ -89,7 +100,7 @@ class RbkcliLogger():
         try:
             if not os.path.isfile(log_name):
                 raise FileNotFoundError(log_name)
-        except FileNotFoundError as error:
+        except FileNotFoundError:
             folder = log_name.strip().split('/')
             folder.pop(-1)
             folder = '/'.join(folder)
@@ -98,8 +109,8 @@ class RbkcliLogger():
     def _configure_logger(self, log_name, mode):
         """Configure logger with console and file handling."""
         formatted = logging.Formatter('%(asctime)-15s - [%(threadName)-12.12s]'
-                                    ' %(levelname)-8s [%(module)s] - '
-                                    '%(message)-s')
+                                      ' %(levelname)-8s [%(module)s] - '
+                                      '%(message)-s')
         self.logger = logging.getLogger('rbkcli')
         self.logger.status = 'creating'
 
@@ -119,22 +130,27 @@ class RbkcliLogger():
         self.status = 'created'
 
 
-class RbkcliTools():
+class RbkcliTools:
     """Define tools to be widely available throughout the code."""
-    def __init__(self, logger, conf_dict={}, workflow='command'):
+
+    def __init__(self, logger, conf_dict=None, workflow='command'):
         """Initialize the tools."""
         self.logger = logger
         self.ssh_conn = False
         self.called_tools = []
-        self.conf_dict = conf_dict
         self.workflow = workflow
         self.auth = DotDict({})
+        self.auth_dict = {}
+
+        if conf_dict is None:
+            conf_dict = {}
+        self.conf_dict = conf_dict
 
     def load_yaml_file(self, yaml_file):
         """Open file as read, load yaml, returns dict."""
         self.called_tools.append('load_yaml_file')
-        
-        try: 
+
+        try:
             with open(yaml_file, 'r') as file:
                 dict_result = yaml.safe_load(file.read())
         except FileNotFoundError as error:
@@ -167,13 +183,13 @@ class RbkcliTools():
             return True
         except FileNotFoundError as error:
             error = str(error) + '\n'
-            msg = 'Execption is ' + error
+            msg = 'Exception is ' + error
             self.logger.error('IOToolsError # ' + msg)
             return False
 
         except Exception as error:
             error = str(error) + '\n'
-            msg = 'Execption is ' + error
+            msg = 'Exception is ' + error
             self.logger.error('IOToolsError # ' + msg)
             raise RbkcliException.ToolsError(error)
 
@@ -183,21 +199,20 @@ class RbkcliTools():
         try:
             with open(json_file, 'w') as file:
                 file.write(json.dumps(json_dict, indent=2, sort_keys=True))
-            self.logger.debug('IOTools # File created successfully: ' + 
+            self.logger.debug('IOTools # File created successfully: ' +
                               json_file)
             return True
         except FileNotFoundError as error:
             error = str(error) + '\n'
-            msg = 'Execption is ' + error
+            msg = 'Exception is ' + error
             self.logger.error('IOToolsError # ' + msg)
             return False
 
         except Exception as error:
             error = str(error) + '\n'
-            msg = 'Execption is ' + str(error)
+            msg = 'Exception is ' + str(error)
             self.logger.error('IOToolsError # ' + msg)
             raise RbkcliException.ToolsError(error)
-        return False
 
     def safe_create_json_file(self, json_dict, json_file):
         """Open file as write, dump json dict to file."""
@@ -226,7 +241,7 @@ class RbkcliTools():
                 'application/json'
             ],
             'swagger': '2.0'
-            }
+        }
         return self.create_yaml_file(swagger_example, file)
 
     def ssh_connection(self, server, username, password, port=22):
@@ -241,7 +256,7 @@ class RbkcliTools():
 
         return self.ssh_conn
 
-    def ssh_cmd(self, cmd, ssh_conn=''):
+    def ssh_cmd(self, cmd, ssh_conn=None):
         """Execute ssh command using Paramiko exec_command() method."""
         self.called_tools.append('ssh_cmd')
 
@@ -263,7 +278,7 @@ class RbkcliTools():
 
         return results
 
-    def ssh_cmd_shell(self, cmd, ssh_conn=''):
+    def ssh_cmd_shell(self, cmd, ssh_conn=None):
         """Execute ssh command using Paramiko invoke_shell() method."""
         self.called_tools.append('ssh_cmd_shell')
 
@@ -273,7 +288,7 @@ class RbkcliTools():
         ssh_session = ssh_conn.invoke_shell()
 
         time.sleep(1)
-        data = ssh_session.recv(10000)
+
         for command in cmd:
             ssh_session.send(command + '\n')
             time.sleep(2.5)
@@ -294,17 +309,17 @@ class RbkcliTools():
             self.auth.username = os.environ['rubrik_cdm_username']
             self.auth.password = os.environ['rubrik_cdm_password']
             self.auth.token = os.environ['rubrik_cdm_token']
-            
+
         except KeyError as bad_key:
-            if str(bad_key) != "\'rubrik_cdm_token\'":
+            if str(bad_key) != "\'rubrik_cdm_token\'" and str(bad_key) != "\'RUBRIK_CDM_TOKEN\'":
                 msg = '%s%s%s' % ('Unable to load environmental variable for'
-                                  ' athentication: ',
+                                  ' authentication: ',
                                   bad_key,
                                   '. Are they defined?')
                 self.logger.error('IOToolsError # ' + msg)
                 raise RbkcliException.ToolsError(msg)
             else:
-                # Log successfull actions
+                # Log successful actions
                 keys = ''
                 for line in self.auth.keys():
                     keys = keys + ',' + line
@@ -314,10 +329,11 @@ class RbkcliTools():
 
         return self.auth
 
-    def load_conf_file(self, file='', conf_dict={}):
+    def load_conf_file(self, file='', conf_dict=None):
         """Load configuration data from json file."""
         self.called_tools.append('load_conf_file')
-
+        if conf_dict is None:
+            conf_dict = {}
         try:
             if file == '':
                 file = CONSTANTS.CONF_FOLDER + '/rbkcli.conf'
@@ -333,11 +349,11 @@ class RbkcliTools():
                 msg = 'IOTools # Configuration file already loaded.'
                 self.logger.debug(msg)
             CONSTANTS.CONF_DICT = self.conf_dict
-        except RbkcliException.ToolsError as error:
+        except RbkcliException.ToolsError:
             try:
                 self.create_vanila_conf()
                 self.load_conf_file()
-            except RbkcliException.ToolsError as error:
+            except RbkcliException.ToolsError:
                 msg = 'Unable to load configuration file'
                 self.logger.error('IOToolsError # ' + msg)
                 raise RbkcliException.ToolsError(msg)
@@ -350,7 +366,7 @@ class RbkcliTools():
             "config": {
                 "storeToken": {
                     "value": "False",
-                    "description": str("Caches the last successfull token "
+                    "description": str("Caches the last successful token "
                                        "with environment data.")
                 },
                 "logLevel": {
@@ -369,34 +385,34 @@ class RbkcliTools():
                                        "before looking for env vars.")
                 },
                 "whiteList": {
-                    "description" : "",
-                    "value" : [
-                                'v1:/session:post:NA',
-                                'internal:/report/{id}/table:post:NA',
-                                'internal:/support/support_bundle:post:NA',
-                                'rbkcli:/cmdlet/profile:get:NA',
-                                'rbkcli:/cmdlet/profile:post:NA',
-                                'rbkcli:/cmdlet/sync:post:NA',
-                                'rbkcli:/cmdlet:delete:NA',
-                                'rbkcli:/cmdlet:get:NA',
-                                'rbkcli:/cmdlet:post:NA',
-                                'rbkcli:/commands:get:NA',
-                                'rbkcli:/jsonfy:get:NA',
-                                'rbkcli:/script/sync:post:NA',
-                                'rbkcli:/script:get:NA',
-                                'scripts:/log/bundle:post:NA'
-                            ]
+                    "description": "",
+                    "value": [
+                        'v1:/session:post:NA',
+                        'internal:/report/{id}/table:post:NA',
+                        'internal:/support/support_bundle:post:NA',
+                        'rbkcli:/cmdlet/profile:get:NA',
+                        'rbkcli:/cmdlet/profile:post:NA',
+                        'rbkcli:/cmdlet/sync:post:NA',
+                        'rbkcli:/cmdlet:delete:NA',
+                        'rbkcli:/cmdlet:get:NA',
+                        'rbkcli:/cmdlet:post:NA',
+                        'rbkcli:/commands:get:NA',
+                        'rbkcli:/jsonfy:get:NA',
+                        'rbkcli:/script/sync:post:NA',
+                        'rbkcli:/script:get:NA',
+                        'scripts:/log/bundle:post:NA'
+                    ]
                 },
                 "blackList": {
-                    "description" : "",
-                    "value" : []
+                    "description": "",
+                    "value": []
                 },
                 "userProfile": {
-                    "description" : str("String value which can be admin or "
-                                        "support. A profile is a set of API"
-                                        " endpoints that is available in the"
-                                        " command line."),
-                    "value" : "admin"
+                    "description": str("String value which can be admin or "
+                                       "support. A profile is a set of API"
+                                       " endpoints that is available in the"
+                                       " command line."),
+                    "value": "admin"
                 }
             }
         }
@@ -406,7 +422,7 @@ class RbkcliTools():
             self.create_json_file(conf_dict, file)
             msg = 'Successfully created new configuration file'
             self.logger.debug('IOTools # ' + msg)
-        except:
+        except Exception:
             msg = 'Unable to create new configuration file'
             self.logger.error('IOToolsError # ' + msg)
             raise RbkcliException.ToolsError(msg)
@@ -414,18 +430,18 @@ class RbkcliTools():
     def load_auth_file(self):
         """Load authentication data from json file."""
         self.called_tools.append('load_auth_file')
-
+        file = 'rbkcli.conf'
         try:
             if self.conf_dict == {}:
                 self.load_conf_file()
             file = self.conf_dict['config']['credentialsFile']['value']
             file = CONSTANTS.CONF_FOLDER + '/' + file
             self.auth_dict = self.load_json_file(file)
-        except RbkcliException.ToolsError as error:
+        except RbkcliException.ToolsError:
             msg = 'Unable to load auth file, [' + file + ']'
             self.logger.error('IOToolsError # ' + msg)
             raise RbkcliException.ToolsError(msg)
- 
+
     def load_file_auth(self):
         """Load authentication data from json file."""
         self.called_tools.append('load_file_auth')
@@ -438,7 +454,7 @@ class RbkcliTools():
         auth_keys = ['server', 'token', 'username', 'password']
         for key in auth_keys:
             self.load_auth_key(key)
-        # Log successfull actions
+        # Log successful actions
         keys = ''
         for line in self.auth.keys():
             keys = keys + ',' + line
@@ -456,7 +472,7 @@ class RbkcliTools():
         except KeyError as bad_key:
             if str(bad_key) == "\'token\'":
                 if ('username' not in self.auth_dict.keys() and
-                  'password' not in self.auth_dict.keys()):
+                        'password' not in self.auth_dict.keys()):
                     msg = '%s%s%s' % ('Unable to load authentication data from'
                                       ' configuration file: ',
                                       bad_key,
@@ -465,7 +481,7 @@ class RbkcliTools():
                     raise RbkcliException.ToolsError(msg)
 
             elif (str(bad_key) != "\'password\'" or
-               str(bad_key) != "\'username\'"):
+                  str(bad_key) != "\'username\'"):
                 msg = '%s%s%s' % ('Unable to load authentication data from '
                                   'configuration file: ',
                                   bad_key,
@@ -483,7 +499,7 @@ class RbkcliTools():
                 self.auth = self.load_env_auth()
             except RbkcliException.ToolsError:
                 self.auth = DotDict({})
-        
+
         # Change the verification for target verification, auth verification
         # # To be performed before API execution.
         if not self._verify_target_consistency(self.auth):
@@ -492,11 +508,12 @@ class RbkcliTools():
         return self.auth
 
     def _verify_target_consistency(self, auth):
-        """Verify if minimun auth params has been provided."""   
+        """Verify if minimum auth params has been provided."""
         self.auth = auth
         if 'server' in self.auth.keys():
+            self.auth.server = self._resolve_target(self.auth.server)
             if (self.auth.server == '' or
-                not self.is_valid_ip_port(self.auth.server)):
+                    not self.is_valid_ip_port(self.auth.server)):
                 if self.workflow == 'command':
                     msg = 'Invalid or missing Rubrik server'
                     self.logger.error('AuthenticationError # ' + msg)
@@ -513,16 +530,17 @@ class RbkcliTools():
         return True
 
     def verify_auth_consistency(self, auth):
-        """Verify if minimun auth params has been provided."""
+        """Verify if minimum auth params has been provided."""
         self.auth = auth
 
-        ## Fix Clean
+        # To Fix Clean
         if 'token' in self.auth.keys():
-            if self.auth.token == '' or not self.is_valid_uuid(self.auth.token):
+            if (self.auth.token == '' or
+                    not self.is_valid_uuid(self.auth.token)):
                 msg = 'Invalid or missing Rubrik token'
                 self.logger.error('AuthenticationError # ' + msg)
                 self.auth.token = self._user_input('Rubrik API token: ',
-                                                    self.is_valid_uuid)
+                                                   self.is_valid_uuid)
             else:
                 pass
 
@@ -533,7 +551,7 @@ class RbkcliTools():
                 msg = 'Invalid or missing username/password'
                 self.logger.error('AuthenticationError # ' + msg)
                 self.auth.username = self._user_input('Rubrik username: ',
-                                         self.is_not_empty_str)
+                                                      self.is_not_empty_str)
             elif self.auth.password != '':
                 print('password:' + self.auth.password)
                 pass
@@ -541,8 +559,8 @@ class RbkcliTools():
                 msg = 'Invalid or missing password format'
                 self.logger.error('AuthenticationError # ' + msg)
                 self.auth.password = self._user_input('Rubrik password: ',
-                                         self.is_not_empty_str,
-                                         inputer=getpass)
+                                                      self.is_not_empty_str,
+                                                      inputer=getpass)
         else:
             msg = 'Invalid or missing authentication parameters.'
             self.logger.error('AuthenticationError # ' + msg)
@@ -555,12 +573,12 @@ class RbkcliTools():
         self.auth = auth
         msg = 'Interactive authentication required.'
         self.logger.warning('AuthenticationWarning # ' + msg)
-        ## Fix clean
+        # To Fix Clean
         self.auth.username = self._user_input('Rubrik username: ',
-                                         self.is_not_empty_str)
+                                              self.is_not_empty_str)
         self.auth.password = self._user_input('Rubrik password: ',
-                                         self.is_not_empty_str,
-                                         inputer=getpass)
+                                              self.is_not_empty_str,
+                                              inputer=getpass)
         if self.conf_dict['config']['useCredentialsFile']['value'] == 'True':
             self._update_auth_file()
         return self.auth
@@ -580,7 +598,7 @@ class RbkcliTools():
         """Load json data."""
         self.called_tools.append('json_dump')
 
-        ##FIX
+        # To Fix Clean
         try:
             json_dict = json.loads(json_str)
         except json.decoder.JSONDecodeError:
@@ -615,7 +633,7 @@ class RbkcliTools():
         return self.json_dump(avar_dict)
 
     def cp_dict(self, existing_dict):
-        """Copy dictionary completly."""
+        """Copy dictionary completely."""
         self.called_tools.append('cp_dict')
         return copy.deepcopy(existing_dict)
 
@@ -627,15 +645,15 @@ class RbkcliTools():
             with pool.request('GET', url, preload_content=False) as file:
                 content = file.read()
             if content == b'Route not defined.':
-                error = str('Wrong or inexistent URL [' + url + '], route is'
-                            ' not defned')
+                error = str('Wrong or nonexistent URL [' + url + '], route is '
+                                                                 'not defined')
                 msg = 'IOToolsError # ' + error
                 self.logger.error(msg)
                 raise RbkcliException.ToolsError(error)
             else:
-                msg = str('IOTools # Successfully downloaded file [%s]' %  url)
+                msg = str('IOTools # Successfully downloaded file [%s]' % url)
                 self.logger.debug(msg)
-                
+
         except urllib3.exceptions.MaxRetryError as error:
             msg = 'IOToolsError # ' + str(error)
             self.logger.error(msg)
@@ -658,41 +676,48 @@ class RbkcliTools():
                               final_path + '], not taking action.')
                     self.logger.debug(msg)
                 else:
-                    os.mkdir(final_path)                    
+                    os.mkdir(final_path)
                     msg = str('IOTools # Could not find folder [' +
                               final_path + '], creating new.')
                     if self.logger.status == 'created':
                         self.logger.warning(msg)
                     else:
                         self.logger.debug(msg)
-                final_path = ''
+
             return True
         except Exception as error:
-            self.logger.error('IOToolsError # ' + error)
+            self.logger.error('IOToolsError # ' + str(error))
             return False
 
     def is_valid_uuid1(self, uuid_to_test, version=4):
-        """Copy dictionary completly."""
+        """Copy dictionary completely."""
         self.called_tools.append('is_valid_uuid')
         try:
             uuid_obj = UUID(uuid_to_test, version=version)
-        except:
+        except ValueError:
             return False
 
         return str(uuid_obj) == uuid_to_test
 
     def is_valid_uuid(self, uuid_to_test, version=4):
-        """Copy dictionary completly."""
+        """Copy dictionary completely."""
         # Because of the creation of the universal ID rbkcli no longer
         # verifies id validity
+        del uuid_to_test, version
         self.called_tools.append('is_valid_uuid')
-
         return True
 
-    def is_valid_ip(self, ip):
+    @staticmethod
+    def is_valid_ip(ip):
         """Validate if provided IP is valid, takes IPv4/IPv6."""
         try:
+            # Python 2 compatibility
+            try:
+                ip = unicode(ip, "utf-8")
+            except NameError:
+                pass
             new_ip = ipaddress.ip_address(ip)
+            del new_ip
             result = True
         except ValueError:
             result = False
@@ -705,7 +730,7 @@ class RbkcliTools():
             ip, port = ip_port.split(':')
             try:
                 if (self.is_valid_ip(ip) and
-                    int(port) < 65535 and int(port) > 0):
+                        65535 > int(port) > 0):
                     return True
                 else:
                     return False
@@ -714,17 +739,40 @@ class RbkcliTools():
         else:
             return self.is_valid_ip(ip_port)
 
-    def is_not_empty_str(self, value):
-        """Test if string is not empty."""
-        return not value == '' 
+    def _resolve_target(self, target_name):
+        """Resolve target fqdn to IP."""
+        # Split port and fqdn
+        if ':' in target_name:
+            target_name = target_name.split(':')
+            target_ip = target_name[0]
+            port = ':' + target_name[1]
+        else:
+            port = ''
+            target_ip = target_name
+        try:
+            target_ip = str(socket.gethostbyname(target_ip))
+        except socket.gaierror:
+            msg = 'Unable to resolve FQDN [%s].' % target_ip
+            self.logger.error('ToolsError # ' + msg)
+            raise RbkcliException.ToolsError(msg)
 
-    def _user_input(self, msg, validator, inputer=input):
+        return target_ip + port
+
+
+    @staticmethod
+    def is_not_empty_str(value):
+        """Test if string is not empty."""
+        return not value == ''
+
+    @staticmethod
+    def _user_input(msg, validator, inputer=input):
         """Validate user input."""
         value = inputer(msg)
         while not validator(value):
             value = input(msg)
         return value
 
-    def gen_uuid(self):
+    @staticmethod
+    def gen_uuid():
         """Generate UUID version 4."""
-        return uuid.uuid4()
+        return uuid4()

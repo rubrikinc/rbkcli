@@ -1,4 +1,5 @@
 """Command Line Interface module with autocomplete."""
+from __future__ import print_function
 
 import sys
 import argparse
@@ -276,6 +277,8 @@ class RbkCli():
             raise RbkcliException('ApiTarget # ' + str(error))
         except RbkcliException.ApiHandlerError as error:
             raise RbkcliException('ApiHandler # ' + str(error))
+        except RbkcliException.ScriptError as error:
+            raise RbkcliException('Scripts # ' + str(error))
         except RbkcliException.RbkcliError as error:
             operation.error(str(error))
         except KeyboardInterrupt:

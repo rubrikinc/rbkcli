@@ -1,5 +1,6 @@
 """Input Handler module for rbkcli."""
 
+from copy import copy
 import re
 
 from rbkcli.base import CONSTANTS, RbkcliException
@@ -99,16 +100,18 @@ class InputHandler(ApiTargetTools):
             return False
 
         # If normalization fails, fail the validation.
-        if not isinstance(self.req.endpoint, str):
+        if (type(self.req.endpoint).__name__ != 'str' and
+                type(self.req.endpoint).__name__ != 'unicode'):
+            # if not isinstance(self.req.endpoint, str):
             return False
-
         return True
 
     def _split_endpoint_arguments(self):
         """Split and parse provided endpoint."""
         self.req.not_verified = []
-
-        self.req.endpoint_parsed = self.req.endpoint.copy()
+        # Python 2 compatibility
+        # self.req.endpoint_parsed = self.req.endpoint.copy()
+        self.req.endpoint_parsed = copy(self.req.endpoint)
         while not self._match_endpoint() and self.req.endpoint_parsed != []:
             self.req.not_verified.append(self.req.endpoint_parsed[-1])
             self.req.endpoint_parsed.pop(-1)
@@ -178,7 +181,6 @@ class InputHandler(ApiTargetTools):
         # Convert from list to string.
         if isinstance(self.req.endpoint, list):
             self.req.endpoint = " ".join(self.req.endpoint)
-
         # Treat wrong syntax.
         if '?' in self.req.endpoint and ' ' in self.req.endpoint:
             error = str('Unsupported syntax, "?" can only be used for queries'
@@ -196,7 +198,8 @@ class InputHandler(ApiTargetTools):
             self.req.inline_query = ''
 
         # If its string, treat cases of space/slash separated arguments.
-        if isinstance(self.req.endpoint, str):
+        if (type(self.req.endpoint).__name__ == 'str' or
+                type(self.req.endpoint).__name__ == 'unicode'):
             if ' ' in self.req.endpoint and '/' in self.req.endpoint:
                 error = str('Unsupported syntax, when entering endpoints as'
                             ' URLs no (" ") is supported')
