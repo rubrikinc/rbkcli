@@ -93,10 +93,33 @@ class RbkCli():
         self.args_dict = self._un_list(self.args_dict)
         self.operation.un_list = self._un_list
 
+        self._auth_parameters()
         try:
             return self._execute(self.args_dict, self.arg_list, self.operation)
         except RbkcliException as msg:
             self.operation.general_error(str(msg))
+
+    def _auth_parameters(self, ):
+        global RBK
+        if self.args_dict['credentials'] is not None:
+            creds = self.args_dict['credentials'][0][0].split(':')
+            if len(creds) == 3:
+                self.auth = {
+                    'server': creds[0],
+                    'username': creds[1], 
+                    'password': creds[2]
+                }
+            elif len(creds) == 4:
+                self.auth = {
+                    'server': '%s:%s' % (creds[0], creds[1]),
+                    'username': creds[2], 
+                    'password': creds[3]
+                }
+            else:
+                raise self.operation.error('CLI # Wrong Credentials parameter provided. '
+                                           'Please provide <node_ip>:<port>:<username>:<password>')
+                exit()
+            RBK = Rbkcli(auth=self.auth)
 
     def _define_cli(self):
         prog = 'rbkcli'
@@ -226,6 +249,16 @@ class RbkCli():
                                action='append',
                                type=str,
                                nargs=2,
+                               help=help_msg)
+
+        # Loop resulting json values into another API request.
+        help_msg = 'Pass credentials as arguments to run the agains.'
+        operation.add_argument('-C',
+                               '--credentials',
+                               metavar=('<node_ip>:<port>:<username>:<password>'),
+                               action='append',
+                               type=str,
+                               nargs=1,
                                help=help_msg)
         
         out_format = operation.add_mutually_exclusive_group(required=False)
