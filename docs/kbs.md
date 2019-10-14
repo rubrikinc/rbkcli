@@ -46,6 +46,7 @@ The available areas are:
 | [0013](KB0013.md) | [scripts](KB0013.md)       | [Protect a csv list of VMs - NR](KB0013.md)                     |
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
 | [0014](KB0014.md) | [rbkcli_sdk](KB0014.md)    | [Run rbkcli commands in multiple targets](KB0014.md)            |
+| [0018](KB0018.md) | [rbkcli_sdk](KB0018.md)    | [Automate Managed Volumes with rbkcli](KB0018.md)               |
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
 | [0015](KB0015.md) | [configuration](KB0015.md) | [Change available API endpoints in rbkcli - NR](KB0015.md)      |
 | [0016](KB0016.md) | [configuration](KB0016.md) | [Disable rbkcli logging - NR](KB0016.md)                        |
