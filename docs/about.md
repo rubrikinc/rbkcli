@@ -36,4 +36,7 @@ The following page contains all the links to all documentation available on GitH
 * [Summary](SUMMARY.md)
  
 ## Feedback
-We are craving for feedback, so send them all!
+
+ - rbkcli@rubrik.com
+ 
+We are craving for feedback, so send them all! Send them questions too!
