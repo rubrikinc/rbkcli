@@ -117,6 +117,36 @@ EnvironmentHandler # No cached API found for this target, importing APIs...
 
 At this point all rbkcli features should be available, including auto-complete.
 
+## Package version and removal
+In case you want to verify the version of rbkcli package currently installed, run the following:
+```
+$ pip list
+```
+This will return all Python packages installed in your environment, you can use a command line modifier to filter rbkcli packages:
+
+
+#### Linux
+You can use **grep** in Linux to filter for rbkcli package:
+```
+$ pip list | grep rbkcli
+rbkcli              1.0.0b3
+```
+
+#### Windows
+You can use **find** in Windows to filter for rbkcli package:
+```
+$ pip list | find "rbkcli"
+rbkcli              1.0.0b3
+
+```
+
+In order to uninstall **rbkcli** you can run the following:
+```
+$ pip uninstall rbkcli
+
+```
+You can also remove the profile files created by **rbkcli** run-time, by removing folder `~/rbkcli`
+
 ## More information
 
 For more information about **rbkcli** tool and its features go to:
