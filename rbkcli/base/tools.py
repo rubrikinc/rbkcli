@@ -389,6 +389,8 @@ class RbkcliTools:
                     "value": [
                         'v1:/session:post:NA',
                         'internal:/report/{id}/table:post:NA',
+                        'internal:/managed_volume/{id}/begin_snapshot:post:NA',
+                        'internal:/managed_volume/{id}/end_snapshot:post:NA',
                         'internal:/support/support_bundle:post:NA',
                         'rbkcli:/cmdlet/profile:get:NA',
                         'rbkcli:/cmdlet/profile:post:NA',

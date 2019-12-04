@@ -31,3 +31,4 @@ You can also provide authentication during instantiation and perform multiple in
 ## Cases
 Following are some real use cases to elucidate the SDK usage:
  - [Multi target script](multi_target_script.md)
+ - [Automate Managed Volumes with rbkcli](KB0018.md)  
