@@ -48,7 +48,7 @@ The available areas are:
 | [0014](KB0014.md) | [rbkcli_sdk](KB0014.md)    | [Run rbkcli commands in multiple targets](KB0014.md)            |
 | [0018](KB0018.md) | [rbkcli_sdk](KB0018.md)    | [Automate Managed Volumes with rbkcli](KB0018.md)               |
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
-| [0015](KB0015.md) | [configuration](KB0015.md) | [Change available API endpoints in rbkcli - NR](KB0015.md)      |
+| [0015](KB0015.md) | [configuration](KB0015.md) | [Change available API endpoints in rbkcli](KB0015.md)      |
 | [0016](KB0016.md) | [configuration](KB0016.md) | [Disable rbkcli logging - NR](KB0016.md)                        |
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
 | [0017](KB0017.md) | [special_case](KB0017.md)  | [Use rbkcli with a proxy/VPN](KB0017.md)                        |
