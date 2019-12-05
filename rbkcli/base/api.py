@@ -105,8 +105,8 @@ class ApiRequester:
 
     def _create_auth_header(self):
         """Create the auth header based on auth type (user/token)."""
-        user_agent = "rbkcli--{}--{}".format(self.rbkcli_version,
-                                             self.python_version)
+        user_agent = "RubrikRbkcli--{}--{}".format(self.rbkcli_version,
+                                                   self.python_version)
         try:
             auth = 'Bearer ' + self.auth.token
             self.auth_prpt.type_ = 'token'
