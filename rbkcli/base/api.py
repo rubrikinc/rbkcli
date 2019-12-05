@@ -2,6 +2,7 @@
 
 import base64
 import json
+import sys
 
 import requests
 import urllib3
@@ -54,6 +55,8 @@ class ApiRequester:
         self.auth_prpt.type_ = ''
         self.auth_prpt.header = ''
         self.auth_prpt.primary_exception = ''
+        self.python_version = sys.version.split("(")[0].strip()
+        self.rbkcli_version = '1.0.0b3'
 
     @Decorators.auth_verifier
     def demand(self, method, endpoint, data=None, params=None):
@@ -102,6 +105,8 @@ class ApiRequester:
 
     def _create_auth_header(self):
         """Create the auth header based on auth type (user/token)."""
+        user_agent = "RubrikRbkcli--{}--{}".format(self.rbkcli_version,
+                                                   self.python_version)
         try:
             auth = 'Bearer ' + self.auth.token
             self.auth_prpt.type_ = 'token'
@@ -122,6 +127,7 @@ class ApiRequester:
         self.auth_prpt.header = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
+            'User-Agent': user_agent,
             'Authorization': auth,
         }
 
