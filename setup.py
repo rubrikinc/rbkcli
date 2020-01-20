@@ -49,7 +49,9 @@ setuptools.setup(
         'Paramiko',
         'argcomplete',
         'PyYAML',
-        'urllib3'
+        'urllib3',
+        'jinja2',
+        'python-dateutil'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',

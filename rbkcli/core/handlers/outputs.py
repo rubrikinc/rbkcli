@@ -133,6 +133,10 @@ class OutputHandler(ApiTargetTools):
             if self.selection is None:
                 self.treat_field(0, 'filter', 'a')
             self.result.text = self.selection.convert_to_prettyprint()
+        if self.req.html:
+            if self.selection is None:
+                self.treat_field(0, 'filter', 'a')
+            self.result.text = self.selection.convert_to_html()
 
 
         return self.result
@@ -149,7 +153,8 @@ class OutputHandler(ApiTargetTools):
             self.selection = JsonSelection(json_dict,
                                            fields_model,
                                            self.operations,
-                                           self.base_kit)
+                                           self.base_kit,
+                                           req=self.req)
             if action == 'select':
                 output = self.selection.select(act_value)
             elif action == 'filter':
