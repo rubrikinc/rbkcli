@@ -1,20 +1,30 @@
 """Send an email message from the user's account.
 """
-import pickle
-
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
 import base64
-from email.mime.audio import MIMEAudio
-from email.mime.base import MIMEBase
-from email.mime.image import MIMEImage
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-import mimetypes
+import pickle
 import os
 
-from apiclient import errors
+try:
+    from googleapiclient.discovery import build
+    from google_auth_oauthlib.flow import InstalledAppFlow
+    from google.auth.transport.requests import Request
+    from apiclient import errors
+except Exception as error:
+    print('Could not import Google libraries. ', os.path.realpath(__file__))
+    print('Please access: https://developers.google.com/gmail/api/quickstart'
+          '/python')
+    # pip install google-api-python-client google-auth-httplib2
+    # google-auth-oauthlib
+
+try:
+    from email.mime.audio import MIMEAudio
+    from email.mime.base import MIMEBase
+    from email.mime.image import MIMEImage
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+    import mimetypes
+except Exception as error:
+    print('Could not import Mime libraries. ', os.path.realpath(__file__))
 
 
 class Gmailer:
@@ -50,7 +60,6 @@ class Gmailer:
             message = (self.service.users().messages()
                        .send(userId=user_id, body=message)
                        .execute())
-            #print('Message Id: %s' % message['id'])
             return message
         except errors.HttpError as error:
             print('An error occurred: %s' % error)

@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from dateutil import parserq
+from dateutil import parser
 import json
 
 from rbkcli import RbkCliBlackOps, RbkcliException
@@ -11,9 +11,9 @@ from rbkcli import RbkCliBlackOps, RbkcliException
 class AllSnaps(RbkCliBlackOps):
 
     method = 'get'  
-    endpoint = '/oh_snaper'
-    description = str('Get All snaps.')
-    summary = 'All Snaps'
+    endpoint = '/snapshot/all'
+    description = str('Get all snapshots from all objects in CDM.')
+    summary = 'List all Snapshots'
     parameters = []
 
 
@@ -102,7 +102,7 @@ class AllSnaps(RbkCliBlackOps):
         self.all_snaps += fileset_snaps
 
     def add_relevant_fields(self, snap, obj, keys, org_call):
-        """."""
+        """Add more context to snapshot."""
         snap['parent_object_id'] = obj[keys[0]]
         snap['parent_object_name'] = obj[keys[1]]
         snap['api_call'] = org_call
@@ -117,7 +117,7 @@ class AllSnaps(RbkCliBlackOps):
         return snap
 
     def gen_expiry_estimate(self, max_retention, date):
-        """."""
+        """Generate estimative of snapshot final date."""
         if 'FOREVER' not in max_retention:
             time = parser.parse(date)
             time_secs = time.strftime('%s')
@@ -128,13 +128,12 @@ class AllSnaps(RbkCliBlackOps):
 
 
 def get_dicted(result):
-    """."""
+    """Convert json string from API response into dictionary."""
     return json.loads(result.text)
 
 
-
 def max_retention(frequencies):
-    """."""
+    """Calculate the amount of seconds in a retention unit."""
     sec_dict = {
         'minute': 60,
         'hourly': 3600,

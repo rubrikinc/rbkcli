@@ -8,9 +8,9 @@ from rbkcli import RbkCliBlackOps, RbkcliException
 class AllMissedSnaps(RbkCliBlackOps):
 
     method = 'get'  
-    endpoint = '/all_missed_snapshots'
-    description = str('Get All snaps.')
-    summary = 'All Snaps'
+    endpoint = '/snapshot/all/missed'
+    description = str('Get all missed snapshots for all objects in CDM.')
+    summary = 'Get all missed snapshots'
     parameters = []
 
 
@@ -69,13 +69,6 @@ class AllMissedSnaps(RbkCliBlackOps):
         snap['parent_object_id'] = obj[keys[0]]
         snap['parent_object_name'] = obj[keys[1]]
         snap['api_call'] = org_call
-        #try:
-        #    max_retention = self.slas[snap['slaId']]['frequency_max_retention']
-        #except KeyError:
-        #    max_retention = 'FOREVER-DELETED_SLAs'
-
-        #snap['estimate_expiration'] = self.gen_expiry_estimate(max_retention,
-        #                                                       snap['date'])
 
         return snap
 

@@ -1,18 +1,53 @@
-
+"""Module to send email using gmail APIs."""
+import os
 from rbkcli import RbkCliBlackOps, RbkcliException
 
 try:
     from gmailer import Gmailer
 except Exception as error:
-    print('Could not import Gmailer libraries.')
+    print('Could not import Gmailer libraries. Make sure you have installed'
+          ' gmail packages: \n$ pip install google-api-python-client '
+          'google-auth-httplib2 google-auth-oauthlib')
 
 class GmailSender(RbkCliBlackOps):
-
     method = 'post'  
     endpoint = '/email'
-    description = str('Send email using your pre-configured gmail credentials.')
+    description = str('Send email using your pre-configured gmail '
+                      'credentials.')
     summary = 'Send email message with gmail'
-    parameters = []
+    parameters = [
+        {
+            'name': 'from',
+            'description': str('Sender email address.'),
+            'in': 'body',
+            'required': True,
+            'type': 'string'
+        },
+        {
+            'name': 'to',
+            'description': str('List of destination email addresses separated'
+                               ' by semicolons ";".'),
+            'in': 'body',
+            'required': True,
+            'type': 'string'
+        },
+        {
+            'name': 'subject',
+            'description': str('Subject of the email message'),
+            'in': 'body',
+            'required': True,
+            'type': 'string'
+        },
+        {
+            'name': 'files',
+            'description': str('List of html files to be added to the email '
+                               'message, separated by semicolons ";".'),
+            'in': 'body',
+            'required': True,
+            'type': 'string'
+        },
+
+    ]
 
 
     def execute(self, args):
@@ -20,8 +55,8 @@ class GmailSender(RbkCliBlackOps):
         parameters = args['parameters']
 
         optional_parameter = {
-            'EMAIL_CREDS': '~/google/credentials.json',
-            'PICKLE_TOKEN': '~/google/token.pickle'
+            'EMAIL_CREDS': os.path.expanduser('~/google/credentials.json'),
+            'PICKLE_TOKEN': os.path.expanduser('~/google/token.pickle')
         }
 
 
