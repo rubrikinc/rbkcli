@@ -14,14 +14,16 @@ except Exception as e:
 from rbkcli.base.essentials import DotDict, RbkcliException
 from rbkcli.base.jsops import DynaTable, MapResponseDoc
 from rbkcli.base.jsops import MapSelect, PrettyPrint
+import rbkcli.base.html_table as html_table
 
 
 class JsonEditor():
     """Select specific keys and or filter the values desired."""
 
-    def __init__(self, json_data, fields_model, rbkcli_logger):
+    def __init__(self, json_data, fields_model, rbkcli_logger, req=''):
         """Initialize json selection."""
         # Initialize var for fields requested.
+        self.req = req
         self.final_fields_order = []
         self.rbkcli_logger = rbkcli_logger
 
@@ -340,6 +342,67 @@ class JsonEditor():
 
         for line in table_lst:
             table_str = table_str + line + '\n'
+
+        return table_str
+
+    def convert_to_html(self):
+        """Convert json to table."""
+        self.filled_worked = self.selected_data
+        body = []
+        for head in self.final_fields_order:
+            row = []
+
+            if isinstance(self.filled_worked, dict):
+                if 'data' in self.filled_worked.keys():
+                    self.filled_worked = self.filled_worked[data]
+                    for objt in self.filled_worked:
+                        try:
+                            line = objt[head]
+                        except Exception:
+                            line = 'N/E'
+                        line = str(line)
+                        row.append(line)
+
+                else:
+                    try:
+                        line = self.filled_worked[head]
+                        line = str(line)
+                    except KeyError:
+                        line = 'N/E'
+                    row.append(line)
+
+            elif isinstance(self.filled_worked, list):
+                for objt in self.filled_worked:
+                    try:
+                        line = objt[head]
+                    except Exception:
+                        line = 'N/E'
+                    line = str(line)
+                    row.append(line)
+
+            body.append(row)
+
+        headers = self.final_fields_order
+        summary = ''
+        if body:
+            summary = '**Total amount of objects [%s]' % str(len(body[0]))
+
+        cmd = '%s %s %s' % (self.req['version'], self.req['endpoint_matched'], self.req['method'])
+
+        table = html_table.Tabelfier(command=cmd,
+                                     title='rbkcli command report',
+                                     header=headers,
+                                     columns=body,
+                                     summary=summary)
+
+        try:
+            table_str = table.assemble()
+        except IndexError as error:
+            msg = 'No results returned, canno\'t create table...'
+            self.rbkcli_logger.error('DynamicTableError # ' + msg)
+            raise RbkcliException.DynaTableError(msg + '\n')
+
+
 
         return table_str
 
@@ -687,35 +750,36 @@ class JsonContextor(JsonEditor):
 class JsonSelection(ApiTargetTools):
     """Select specific keys and or filter the values desired."""
 
-    def __init__(self, json_data, fields_model, operations, base_kit):
+    def __init__(self, json_data, fields_model, operations, base_kit, req=''):
         ApiTargetTools.__init__(self, base_kit)
         self.operations = operations
         self.json_data = json_data
         self.fields_model = fields_model
         self.base_kit = base_kit
+        self.req = req
 
     def select(self, req_fields):
         """Get the selected fields from json data."""
-        selector = JsonEditor(self.json_data, self.fields_model, self.rbkcli_logger)
+        selector = JsonEditor(self.json_data, self.fields_model, self.rbkcli_logger, req=self.req)
         self.current_editor = selector
         return selector.iterate(req_fields)
 
     def filter(self, req_fields):
         """Get the selected fields from json data."""
-        filterer = JsonFilter(self.json_data, self.fields_model, self.rbkcli_logger)
+        filterer = JsonFilter(self.json_data, self.fields_model, self.rbkcli_logger, req=self.req)
         self.current_editor = filterer
         return filterer.iterate(req_fields)
 
     def context(self, req_fields):
         """Get the selected fields from json data."""
-        contextor = JsonContextor(self.json_data, self.fields_model, self.rbkcli_logger)
+        contextor = JsonContextor(self.json_data, self.fields_model, self.rbkcli_logger, req=self.req)
         self.current_editor = contextor
         return contextor.iterate(req_fields)
 
     def loop(self, req_fields):
         """Get the selected fields from json data."""
         self.cbacker = rbkcli.core.handlers.callback.CallBack(self.operations, self.base_kit)
-        looper = JsonLooper(self.json_data, self.fields_model, self.rbkcli_logger)
+        looper = JsonLooper(self.json_data, self.fields_model, self.rbkcli_logger, req=self.req)
         self.current_editor = looper
         return looper.loopit(req_fields, self.cbacker)
 
@@ -730,3 +794,7 @@ class JsonSelection(ApiTargetTools):
     def convert_to_prettyprint(self):
         """Method to convet json output to prettyprint."""
         return self.current_editor.convert_to_prettyprint()
+
+    def convert_to_html(self):
+        """Method to convet json output to html_table."""
+        return self.current_editor.convert_to_html()
