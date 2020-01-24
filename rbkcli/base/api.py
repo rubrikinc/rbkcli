@@ -56,7 +56,7 @@ class ApiRequester:
         self.auth_prpt.header = ''
         self.auth_prpt.primary_exception = ''
         self.python_version = sys.version.split("(")[0].strip()
-        self.rbkcli_version = '1.0.0b3'
+        self.rbkcli_version = '1.0.0b4'
 
     @Decorators.auth_verifier
     def demand(self, method, endpoint, data=None, params=None):

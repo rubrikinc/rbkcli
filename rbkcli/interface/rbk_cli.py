@@ -282,6 +282,12 @@ class RbkCli():
                                '--pretty_print',
                                action='store_true',
                                help=help_msg)
+        # Convert json output into html table output, if possible.
+        help_msg = 'Convert json output into html table output, if possible.'
+        out_format.add_argument('-H',
+                               '--html',
+                               action='store_true',
+                               help=help_msg)
 
         argcomplete.autocomplete(operation)
 
