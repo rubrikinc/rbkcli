@@ -92,8 +92,9 @@ class CallBack(ApiTargetTools):
             self.call_result = { 'result_text': api_result.text}
 
         if not isinstance(self.call_result, list):
-            if 'data' in self.call_result.keys():
-                self.call_result = self.call_result['data']
+            print(self.req)
+            #if 'data' in self.call_result.keys():
+            #    self.call_result = self.call_result['data']
 
         return self.call_result
 
