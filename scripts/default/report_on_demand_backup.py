@@ -3,7 +3,10 @@ from __future__ import division
 
 import json
 
-from rbkcli import RbkCliBlackOps, RbkcliException
+#from rbkcli import RbkCliBlackOps, RbkcliException
+RbkcliException = NotImplementedError
+
+from rbkcli import RbkCliBlackOps
 
 import sys
 import time
@@ -54,6 +57,7 @@ class OnDemandBackups(RbkCliBlackOps):
 
 
     def execute(self, args):
+        time_start = time.time()
         parameters = args['parameters']
         parameters = verify_params(self.parameters, parameters)
 
@@ -63,6 +67,7 @@ class OnDemandBackups(RbkCliBlackOps):
         after_id = ''
         on_d_str = "${onDemandBackupString}"
         end_date = ''
+        event_counter = 0
 
         # Loop through the events and only store on-demand
         while more:
@@ -88,6 +93,7 @@ class OnDemandBackups(RbkCliBlackOps):
 
             if data:
                 for event in data:
+                    event_counter += 1
 
                     if 'eventInfo' in event:
 
@@ -96,25 +102,31 @@ class OnDemandBackups(RbkCliBlackOps):
                         
                         if on_d_str in event_info['params']:
                             if 'on demand' in event_info['params'][on_d_str]:
-                                
+                                if event['eventStatus'] != 'Info':
 
-                                # Get event Series data
-                                series_id = event['eventSeriesId']
-                                
-                                cmd = 'event_series %s' % series_id
-                                series_data = get_dicted(
-                                    self.rbkcli.call_back(cmd)
-                                    )
-                                
-                                event['location'] = series_data['location']
-                                event['isOnDemand'] = True
-                                event['username'] = series_data['username']
+                                    # Get event Series data
+                                    series_id = event['eventSeriesId']
+                                    
+                                    cmd = 'event_series %s' % series_id
+                                    series_data = get_dicted(
+                                        self.rbkcli.call_back(cmd)
+                                        )
+                                    
+                                    event['location'] = series_data['location']
+                                    event['isOnDemand'] = True
+                                    try:
+                                        event['username'] = series_data['username']
+                                    except KeyError:
+                                        event['username'] = 'N/A'
 
-                                event['sla_name'] = series_data['slaName']
-                                event['sla_id'] = series_data['slaId']
-                                event['node_id'] = series_data['nodeIds']
+                                    event['sla_name'] = series_data['slaName']
+                                    event['sla_id'] = series_data['slaId']
+                                    try:
+                                        event['node_id'] = series_data['nodeIds']
+                                    except KeyError:
+                                        event['node_id'] = 'N/A'
 
-                                results.append(event)
+                                    results.append(event)
 
                 after_id = backup_events['data'][-1]['id']
                 last_date = backup_events['data'][-1]['time']
@@ -127,6 +139,7 @@ class OnDemandBackups(RbkCliBlackOps):
                                  convert_current(last_date),
                                  setit=setit)
             else:
+                RbkcliException(json.dumps(backup_events, indent=2))
                 more = False
 
         display_progress(parameters['after_date'][:-1],
@@ -135,13 +148,16 @@ class OnDemandBackups(RbkCliBlackOps):
                          setit=setit)
 
         sys.stdout.write('\n')
-        
+        time_end = time.time()
+
         with open(parameters['out_file'], 'w') as output:
             output.write(json.dumps(results, indent=2))
 
         result = {
             'status': 'Completed successfully.',
-            'json_report': parameters['out_file']
+            'json_report': parameters['out_file'],
+            'events_verified': event_counter,
+            'time_taken': str(int(int(time_end - time_start) / 60) + ' mins')
         }
         return result
 
