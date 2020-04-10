@@ -24,7 +24,7 @@ class OnDemandBackups(RbkCliBlackOps):
                                ' default is 1000.'),
             'in': 'body',
             'required': False,
-            'default': "10",
+            'default': "300",
             'type': 'string'
         },
         {
@@ -92,6 +92,11 @@ class OnDemandBackups(RbkCliBlackOps):
                 RbkcliException(json.dumps(backup_events, indent=2))
 
             if data:
+
+                last_date = data[-1]['time']
+                if not end_date:
+                    end_date = convert_current(last_date) + 'Z'
+
                 for event in data:
                     event_counter += 1
 
@@ -128,11 +133,15 @@ class OnDemandBackups(RbkCliBlackOps):
 
                                     results.append(event)
 
-                after_id = backup_events['data'][-1]['id']
-                last_date = backup_events['data'][-1]['time']
+                    #display_progress(parameters['after_date'][:-1],
+                    #                 end_date[:-1],
+                    #                 convert_current(event['time']),
+                    #                 setit=setit)
 
-                if not end_date:
-                    end_date = convert_current(last_date) + 'Z'
+                after_id = backup_events['data'][-1]['id']
+
+                #print(parameters['after_date'])
+                #print(end_date)
 
                 display_progress(parameters['after_date'][:-1],
                                  end_date[:-1],
@@ -157,7 +166,7 @@ class OnDemandBackups(RbkCliBlackOps):
             'status': 'Completed successfully.',
             'json_report': parameters['out_file'],
             'events_verified': event_counter,
-            'time_taken': str(int(int(time_end - time_start) / 60) + ' mins')
+            'time_taken': str(int(int(time_end - time_start) / 60)) + ' mins'
         }
         return result
 
