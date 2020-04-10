@@ -3,10 +3,8 @@ from __future__ import division
 
 import json
 
-#from rbkcli import RbkCliBlackOps, RbkcliException
-RbkcliException = NotImplementedError
+from rbkcli import RbkCliBlackOps, RbkcliException
 
-from rbkcli import RbkCliBlackOps
 
 import sys
 import time
@@ -24,7 +22,7 @@ class OnDemandBackups(RbkCliBlackOps):
                                ' default is 1000.'),
             'in': 'body',
             'required': False,
-            'default': "300",
+            'default': "10",
             'type': 'string'
         },
         {
@@ -93,9 +91,9 @@ class OnDemandBackups(RbkCliBlackOps):
 
             if data:
 
-                last_date = data[-1]['time']
-                if not end_date:
-                    end_date = convert_current(last_date) + 'Z'
+                # last_date = data[-1]['time']
+                # if not end_date:
+                #     end_date = convert_current(last_date) + 'Z'
 
                 for event in data:
                     event_counter += 1
@@ -139,6 +137,9 @@ class OnDemandBackups(RbkCliBlackOps):
                     #                 setit=setit)
 
                 after_id = backup_events['data'][-1]['id']
+                last_date = backup_events['data'][-1]['time']
+                if not end_date:
+                    end_date = convert_current(last_date) + 'Z'
 
                 #print(parameters['after_date'])
                 #print(end_date)
@@ -176,8 +177,9 @@ def verify_params(required_params, passed_params):
             if param['name'] not in passed_params:
                 raise RbkcliException('Missing parameter: %s \n' % param['name'] )
         else:
-            if 'default' in param:
-                passed_params[param['name']] = param['default']
+            if param['name'] not in passed_params:
+                if 'default' in param:
+                    passed_params[param['name']] = param['default']
 
     return passed_params
 
@@ -207,8 +209,11 @@ def represent_progress(progress):
 
 
 def get_epoch(date):
-    pattern = '%Y-%m-%dT%H:%M:%S'
-    return int(time.mktime(time.strptime(date, pattern)))
+    try:
+        pattern = '%Y-%m-%dT%H:%M:%S'
+        return int(time.mktime(time.strptime(date, pattern)))
+    except ValueError:
+        raise RbkcliException(date + ' Date is wrong.')
 
 def get_delta_epoch(start_date, end_date):
     start_epoch = get_epoch(start_date)
