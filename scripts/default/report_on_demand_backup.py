@@ -87,13 +87,10 @@ class OnDemandBackups(RbkCliBlackOps):
                 more = backup_events['hasMore']
                 data = backup_events['data']
             except KeyError:
-                RbkcliException(json.dumps(backup_events, indent=2))
-
+                print(json.dumps(backup_events, indent=2))
+                exit()
+                
             if data:
-
-                # last_date = data[-1]['time']
-                # if not end_date:
-                #     end_date = convert_current(last_date) + 'Z'
 
                 for event in data:
                     event_counter += 1
@@ -131,18 +128,10 @@ class OnDemandBackups(RbkCliBlackOps):
 
                                     results.append(event)
 
-                    #display_progress(parameters['after_date'][:-1],
-                    #                 end_date[:-1],
-                    #                 convert_current(event['time']),
-                    #                 setit=setit)
-
                 after_id = backup_events['data'][-1]['id']
                 last_date = backup_events['data'][-1]['time']
                 if not end_date:
                     end_date = convert_current(last_date) + 'Z'
-
-                #print(parameters['after_date'])
-                #print(end_date)
 
                 display_progress(parameters['after_date'][:-1],
                                  end_date[:-1],
@@ -192,11 +181,6 @@ def represent_progress(progress):
     int_progress = int(progress)
     toolbar_width = 100
 
-    #sys.stdout.write("[%s]" % ("_" * toolbar_width))
-    #sys.stdout.flush()
-    #sys.stdout.write("\b" * (toolbar_width+2))
-
-
     delta_empty = toolbar_width - int_progress
     empty =  "_" * delta_empty
     percentage_str = str("%.4f" % round(progress, 4)) + '%'
@@ -204,9 +188,6 @@ def represent_progress(progress):
     sys.stdout.write("\b" * (toolbar_width + len(percentage_str) + 4))
     sys.stdout.write("[%s%s] %s" % ("=" * int_progress, empty, percentage_str))
     sys.stdout.flush()
-    #sys.stdout.write("\b" * (toolbar_width + len(percentage_str) + 4))
-
-
 
 def get_epoch(date):
     try:
@@ -233,13 +214,8 @@ def convert_current(current):
      
 def display_progress(start_date, end_date, current, setit=False):
 
-    #current = convert_current(current)
     delta_epoch = get_delta_epoch(start_date, end_date)
     current_epoch = get_delta_epoch(start_date, current)
-
-    # print(start_date)
-    # print(current)
-    # print(end_date)
 
     if setit:
         delta_epoch += 3600
