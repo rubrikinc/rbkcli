@@ -74,5 +74,8 @@ class AllMissedSnaps(RbkCliBlackOps):
 
 
 def get_dicted(result):
-    """."""
-    return json.loads(result.text)
+    """Convert json string from API response into dictionary."""
+    results = json.loads(result.text)
+    if 'data' in results:
+        results = results['data']
+    return results
