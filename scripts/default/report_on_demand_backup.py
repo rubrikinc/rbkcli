@@ -91,7 +91,6 @@ class OnDemandBackups(RbkCliBlackOps):
                 exit()
                 
             if data:
-
                 for event in data:
                     event_counter += 1
 
@@ -140,7 +139,9 @@ class OnDemandBackups(RbkCliBlackOps):
             else:
                 RbkcliException(json.dumps(backup_events, indent=2))
                 more = False
-
+        
+        if not end_date:
+            end_date = parameters['after_date']
         display_progress(parameters['after_date'][:-1],
                          end_date[:-1],
                          parameters['after_date'][:-1],
@@ -223,6 +224,9 @@ def display_progress(start_date, end_date, current, setit=False):
 
     delta_delta = delta_epoch - current_epoch
 
-    progress = delta_delta / delta_epoch * 100
+    try:
+        progress = delta_delta / delta_epoch * 100
+    except ZeroDivisionError:
+        progress = 100
 
     represent_progress(progress)
