@@ -1,6 +1,7 @@
 """Script to get all on-demand Backup events"""
 from __future__ import division
 
+from collections import OrderedDict
 from datetime import datetime
 import json
 
@@ -31,7 +32,8 @@ class MissedBackups(RbkCliBlackOps):
         {
             'name': 'sla',
             'description': str('SLA or SLAs domain to fetch missed backups,'
-                               ' default is all SLAs on SLA Compliance report.'),
+                               ' default is all SLAs on SLA Compliance'
+                               ' report.'),
             'in': 'body',
             'required': False,
             'default': "",
@@ -39,8 +41,9 @@ class MissedBackups(RbkCliBlackOps):
         },
         {
             'name': 'object_type',
-            'description': str('Type or types of objects to fetch missed backups,'
-                               ' default is all objects on SLA Compliance report.'),
+            'description': str('Type or types of objects to fetch missed '
+                                'backups of, default is all objects on SLA'
+                                ' Compliance report.'),
             'in': 'body',
             'required': False,
             'default': "",
@@ -49,7 +52,8 @@ class MissedBackups(RbkCliBlackOps):
         {
             'name': 'object_id',
             'description': str('Id or ids of objects to fetch missed backups,'
-                               ' default is all objects on SLA Compliance report.'),
+                               ' default is all objects on SLA Compliance '
+                               'report.'),
             'in': 'body',
             'required': False,
             'default': "",
@@ -71,7 +75,8 @@ class MissedBackups(RbkCliBlackOps):
                                ' default is today, 15 min ago.'),
             'in': 'body',
             'required': False,
-            'type': 'string'
+            'type': 'string',
+            'default': ''
         },
         {
             'name': 'output_file',
@@ -90,6 +95,7 @@ class MissedBackups(RbkCliBlackOps):
         # Get passed paramters
         self.missed_backups = []
         self.passed_params = args['parameters']
+        self.verify_params()
 
         display_progress(1, 100, 'Getting SLA Report')
 
@@ -100,7 +106,7 @@ class MissedBackups(RbkCliBlackOps):
         self.sort_params()
         
         time_start = time.time()
-        pattern = '%Y-%m-%dT%H:%M:%S'
+        #pattern = '%Y-%m-%dT%H:%M:%S'
         #print('...Started at ' + time.strftime(pattern,
         #                                       time.localtime(time_start)))
         
@@ -111,14 +117,61 @@ class MissedBackups(RbkCliBlackOps):
 
         self.fetch_missed_backups()
         
+        self.results = self.summarize(time_start)
+
         # Write final report
         display_progress(100, 100, 'Writing Output')
         with open(self.passed_params['output_file'], 'w') as my_out:
-            my_out.write(json.dumps(self.missed_backups, indent=2))
+            my_out.write(json.dumps(self.results, indent=2))
         print('\n')
 
         #print('### Report created at %s' % self.passed_params['output_file'])
-        return self.missed_backups
+
+        return self.results
+
+
+    def summarize(self, time_start):
+        types_counter = {}
+        objects_counter = {}
+
+        for missed_bkp in self.missed_backups:
+            if missed_bkp['ObjectType'] not in types_counter:
+                types_counter[missed_bkp['ObjectType']] = 1
+            else:
+                types_counter[missed_bkp['ObjectType']] += 1
+
+            if missed_bkp['ObjectId'] not in objects_counter:
+                objects_counter[missed_bkp['ObjectId']] = 1
+            else:
+                objects_counter[missed_bkp['ObjectId']] += 1
+
+        n_types = len(list(types_counter.keys()))
+        n_objects = len(list(objects_counter.keys()))
+
+        type_summary = str('There is(are) %s affected object types, following'
+                           ' is the distribution among types:' % n_types)
+        objt_summary = str('There is(are) %s affected objects,  following'
+                           ' is the distribution of occurrences:' % n_objects)
+        summary = {
+            'ObjectTypes': {
+                'summary': type_summary,
+                'count': types_counter
+            },
+            'ObjectIds': {
+                'summary': objt_summary,
+                'count': objects_counter
+            }
+
+        }
+        time_end = time.time()
+
+        results = OrderedDict()
+        results['summary'] = summary
+        results['time_taken'] = str(int(int(time_end - time_start) / 60)) + \
+                                ' mins'
+        results['data'] = self.missed_backups
+
+        return results
 
     def filter_object_report(self, key, values):
         new_report = []
@@ -134,27 +187,30 @@ class MissedBackups(RbkCliBlackOps):
         for snappable in self.report:
 
             display_progress(weight_count, 100, 'Getting Object Info')
-            time_start = time.time()
+
+
+            after_date = self.passed_params['after_date']
+            before_date = self.passed_params['before_date']
+            protection_date = snappable['ProtectedOn'].replace(' ', 'T')
+
+            # First event should be after protection date
+            after_date = self.resolve_start_date(after_date, protection_date)
+
+
             # print('# Started snappable [%s] (%s)' % (snappable['ObjectName'],
             #                                          snappable['ObjectId']))
-            self.merge_missed_snaps(snappable)
-            self.merge_missed_backups(snappable)
-            time_end = time.time()
+            self.merge_missed_snaps(snappable, after_date, before_date)
+            self.merge_missed_backups(snappable, after_date, before_date)
+
             # print('   completed in %s ' %
             #       str(int(int(time_end - time_start))) + ' secs. \n')
             #break
             weight_count += self.snap_weight
 
     @timing
-    def merge_missed_backups(self, snappable):
+    def merge_missed_backups(self, snappable, after_date, before_date):
         # print('   > Searching for Missed Backup Events')
         limit = 200
-        after_date = self.passed_params['after_date']
-        before_date = self.passed_params['before_date']
-        protection_date = snappable['ProtectedOn'].replace(' ', 'T')
-
-        # First event should be after protection date
-        after_date = self.resolve_start_date(after_date, protection_date)
 
         # Get events for object
         cmd = str('event -q object_ids=%s,limit=%s,event_type=Backup,'
@@ -217,18 +273,23 @@ class MissedBackups(RbkCliBlackOps):
             counter = 0
             if event_epoch < anlys_start_epoch:
                 break
-            while not (event_epoch >= anlys_start_epoch and event_epoch <= anlys_end_epoch):
+            while not (event_epoch >= anlys_start_epoch and 
+                       event_epoch <= anlys_end_epoch):
 
                 missed = time.strftime(pattern, time.gmtime(anlys_start_epoch))
                 for k, v in snappable.items():
                     new_event[k] = v
 
+                limit_date = time.strftime(pattern,
+                                           time.gmtime(anlys_end_epoch-2))
+                event_date = time.strftime(pattern, time.gmtime(event_epoch-2))
                 new_event['MissedSnapshotType'] = 'Automated Discovery'
                 new_event['MissedSnapshotTime'] = missed
-                new_event['extraInfo'] = str('A Backup event should have occurred until %s,'
-                                             ' but the next backup event occurred at %s ' 
-                                             % (time.strftime(pattern, time.gmtime(anlys_end_epoch-2)),
-                                                time.strftime(pattern, time.gmtime(event_epoch-2))))
+                new_event['extraInfo'] = str('A Backup event should have occu'
+                                             'rred until %s, but the next bac'
+                                             'kup event occurred at %s ' 
+                                             % (limit_date,
+                                                event_date))
                 new_event['ComplianceStatus'] = 'NonCompliant'
                 self.missed_backups.append(new_event)
                 #print('   - Limit: ' + time.strftime(pattern, time.gmtime(anlys_end_epoch)))
@@ -280,11 +341,13 @@ class MissedBackups(RbkCliBlackOps):
 
 
     @timing
-    def merge_missed_snaps(self, snappable):
+    def merge_missed_snaps(self, snappable, after_date, before_date):
         # print('   > Searching for Missed Snapshots')
-        new_event = {}
-        for k, v in snappable.items():
-            new_event[k] = v
+        start_epoch = get_epoch_tdate(after_date)
+        end_epoch = get_epoch_tdate(before_date)
+        msnaptime = 'missedSnapshotTime'
+        
+
         api_cmd = self.resolve_object_api(snappable['ObjectType'],
                                           snappable['ObjectId'])
 
@@ -292,18 +355,31 @@ class MissedBackups(RbkCliBlackOps):
         if 'data' in missed_snaps:
             if missed_snaps['data']:
                 for missed_snap in missed_snaps['data']:
+                    new_event = {}
+                    for k, v in snappable.items():
+                        new_event[k] = v
+
                     missed_type = 'Null'
                     extra_info = ''
-                    if missed_snap['archivalLocationType'] and not missed_snap['missedSnapshotTimeUnits']:
+                    msnap_epoch = get_epoch_tdate(missed_snap[msnaptime][:-5])
+                    if (missed_snap['archivalLocationType'] and
+                        not missed_snap['missedSnapshotTimeUnits']):
                         missed_type = 'Archival' 
                         extra_info = missed_snap['archivalLocationType']
 
-                    elif 'LOCAL' in missed_snap['archivalLocationType'] and missed_snap['missedSnapshotTimeUnits']:
+                    elif ('LOCAL' in missed_snap['archivalLocationType'] and
+                          missed_snap['missedSnapshotTimeUnits']):
                         missed_type = 'Acknoledged Miss' 
                         extra_info = missed_snap['archivalLocationType']
+
+                    if not (msnap_epoch >= start_epoch and
+                            msnap_epoch <= end_epoch):
+                        break
                     
-                    new_event['MissedSnapshotType'] = missed_type
-                    new_event['MissedSnapshotTime'] = missed_snap['missedSnapshotTime']
+                    new_event['missedSnapshotType'] = missed_type
+
+                    new_event[msnaptime] = missed_snap[msnaptime]
+
                     new_event['extraInfo'] = extra_info
                     self.missed_backups.append(new_event)
         else:
@@ -320,9 +396,11 @@ class MissedBackups(RbkCliBlackOps):
         reports = get_dicted(self.rbkcli.call_back(cmd))
 
         for report in reports:
-            if report['name'] == 'SLA Compliance Summary' and report['reportType'] == 'Canned':
+            if (report['name'] == 'SLA Compliance Summary' and
+                report['reportType'] == 'Canned'):
 
-                cmd = 'jsonfy report_table -p report_id=%s,limit=9000' % report['id']
+                cmd = str('jsonfy report_table -p report_id=%s,limit=9000' 
+                          % report['id'])
                 report_content = get_dicted(self.rbkcli.call_back(cmd))
         
         return report_content
@@ -357,16 +435,6 @@ class MissedBackups(RbkCliBlackOps):
 
     def sort_params(self):
 
-        for param in self.parameters:
-            if param['required']:
-                if param['name'] not in self.passed_params:
-                    raise RbkcliException('Missing parameter: %s \n' %
-                                          param['name'] )
-            else:
-                if param['name'] not in self.passed_params:
-                    if 'default' in param:
-                        self.passed_params[param['name']] = param['default']
-
         for params in ['sla', 'object_id', 'object_type']:
             if isinstance(self.passed_params[params], str):
                 if self.passed_params[params]:
@@ -383,8 +451,27 @@ class MissedBackups(RbkCliBlackOps):
             self.filter_object_report('ObjectType',
                                       self.passed_params['object_type'])
 
+        pattern = '%Y-%m-%dT%H:%M:%S'
+        if not self.passed_params['before_date']:
+            self.passed_params['before_date'] = time.strftime(pattern,
+                                                time.gmtime(time.time() - 300))
+
+        #print('...Started at ' + time.strftime(pattern,
+        #                                       time.localtime(time_start)))
+
         self.snap_weight = float(97 / len(self.report))
 
+
+    def verify_params(self):
+        for param in self.parameters:
+            if param['required']:
+                if param['name'] not in self.passed_params:
+                    raise RbkcliException('Missing parameter: %s \n' %
+                                          param['name'] )
+            else:
+                if param['name'] not in self.passed_params:
+                    if 'default' in param:
+                        self.passed_params[param['name']] = param['default']
 
 def get_ingest_frequency(frequencies):
     """Calculate the amount of seconds in a retention unit."""
@@ -458,5 +545,3 @@ def display_progress(weight_count, full_weigh, summary):
         progress = 100
 
     represent_progress(progress, summary)
-
-
