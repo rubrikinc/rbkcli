@@ -199,8 +199,9 @@ class MissedBackups(RbkCliBlackOps):
 
             # print('# Started snappable [%s] (%s)' % (snappable['ObjectName'],
             #                                          snappable['ObjectId']))
-            self.merge_missed_snaps(snappable, after_date, before_date)
-            self.merge_missed_backups(snappable, after_date, before_date)
+            if snappable['ObjectType'] != 'ManagedVolume':
+                self.merge_missed_snaps(snappable, after_date, before_date)
+                self.merge_missed_backups(snappable, after_date, before_date)
 
             # print('   completed in %s ' %
             #       str(int(int(time_end - time_start))) + ' secs. \n')
@@ -283,8 +284,8 @@ class MissedBackups(RbkCliBlackOps):
                 limit_date = time.strftime(pattern,
                                            time.gmtime(anlys_end_epoch-2))
                 event_date = time.strftime(pattern, time.gmtime(event_epoch-2))
-                new_event['MissedSnapshotType'] = 'Automated Discovery'
-                new_event['MissedSnapshotTime'] = missed
+                new_event['missedSnapshotType'] = 'Automated Discovery'
+                new_event['missedSnapshotTime'] = missed
                 new_event['extraInfo'] = str('A Backup event should have occu'
                                              'rred until %s, but the next bac'
                                              'kup event occurred at %s ' 
@@ -346,12 +347,13 @@ class MissedBackups(RbkCliBlackOps):
         start_epoch = get_epoch_tdate(after_date)
         end_epoch = get_epoch_tdate(before_date)
         msnaptime = 'missedSnapshotTime'
-        
+        missed_snaps = { 'data': [] }
 
-        api_cmd = self.resolve_object_api(snappable['ObjectType'],
-                                          snappable['ObjectId'])
+        if snappable['ObjectType'] != 'ManagedVolume':
+            api_cmd = self.resolve_object_api(snappable['ObjectType'],
+                                              snappable['ObjectId'])
 
-        missed_snaps = get_dicted(self.rbkcli.call_back(api_cmd))
+            missed_snaps = get_dicted(self.rbkcli.call_back(api_cmd))
         if 'data' in missed_snaps:
             if missed_snaps['data']:
                 for missed_snap in missed_snaps['data']:
@@ -369,8 +371,9 @@ class MissedBackups(RbkCliBlackOps):
 
                     elif ('LOCAL' in missed_snap['archivalLocationType'] and
                           missed_snap['missedSnapshotTimeUnits']):
-                        missed_type = 'Acknoledged Miss' 
-                        extra_info = missed_snap['archivalLocationType']
+                        missed_type = 'Acknowledged Miss' 
+                        extra_info = ','.join(
+                                        missed_snap['archivalLocationType'])
 
                     if not (msnap_epoch >= start_epoch and
                             msnap_epoch <= end_epoch):
@@ -427,7 +430,7 @@ class MissedBackups(RbkCliBlackOps):
             'F': 'storage array_volume_group %s missed_snapshot' % ob_id,
             'G': 'vcd vapp %s missed_snapshot' % ob_id,
             'WindowsVolumeGroup': 'volume_group %s missed_snapshot' % ob_id,
-            'H': 'mssql db %s missed_snapshot' % ob_id,
+            'Mssql': 'mssql db %s missed_snapshot' % ob_id,
             'VmwareVirtualMachine': 'vmware vm %s missed_snapshot' % ob_id,
         }
 
