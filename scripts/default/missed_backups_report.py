@@ -367,7 +367,8 @@ class MissedBackups(RbkCliBlackOps):
                     if (missed_snap['archivalLocationType'] and
                         not missed_snap['missedSnapshotTimeUnits']):
                         missed_type = 'Archival' 
-                        extra_info = missed_snap['archivalLocationType']
+                        extra_info = ','.join(
+                                        missed_snap['archivalLocationType'])
 
                     elif ('LOCAL' in missed_snap['archivalLocationType'] and
                           missed_snap['missedSnapshotTimeUnits']):
