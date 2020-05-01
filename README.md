@@ -8,7 +8,7 @@ It can be used for both running commands or writing simplified scripts.
 Install from source and enable autocomplete:
 
 ```
-$ git clone https://github.com/rubrikinc/rbkcli
+$ git clone https://github.com/rubrikinc/rbkcli.git
 $ cd rbkcli
 $ python setup.py install
 $ echo ' eval "$(register-python-argcomplete rbkcli)"' >> ~/.bashrc
