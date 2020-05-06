@@ -1,17 +1,16 @@
 # rbkcli
 
-This project provides a Command Line Interface (CLI) convertion of Rubrik APIs.
+This project provides a Command Line Interface (CLI) conversion of Rubrik APIs.
 It can be used for both running commands or writing simplified scripts.
 
 ## :hammer: Installation
 
-Install from source and enable autocomplete:
+Install from source:
 
 ```
-$ git clone git@github.com:rubrikinc/rbkcli.git
+$ git clone https://github.com/rubrikinc/rbkcli.git
 $ cd rbkcli
 $ python setup.py install
-$ echo ' eval "$(register-python-argcomplete rbkcli)"' >> ~/.bashrc
 ```
 
 ## :mag: Example
@@ -42,7 +41,7 @@ $ rbkcli cluster me
 
 ## :blue_book: Documentation
 
-Here are some resources to get you started! If you find any challenges from this project are not properly documented or are unclear, please raise an issueand let us know! This is a fun, safe environment - don't worry if you're a GitHub newbie! :heart:
+Here are some resources to get you started! If you find any challenges from this project are not properly documented or are unclear, please raise an issue and let us know! This is a fun, safe environment - don't worry if you're a GitHub newbie! :heart:
 
 * [Quick Start Guide](docs/quick-start.md)
 * [Documentation Summary](docs/SUMMARY.md)

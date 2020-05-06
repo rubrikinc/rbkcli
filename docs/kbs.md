@@ -30,6 +30,7 @@ The available areas are:
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
 | [0001](KB0001.md) | [simple_cmd](KB0001.md)    | [Get status of all disks in the cluster](KB0001.md)             |
 | [0002](KB0002.md) | [simple_cmd](KB0002.md)    | [Get a list of all SLAs in the cluster](KB0002.md)              |
+| [0021](KB0021.md) | [simple_cmd](KB0021.md)    | [How to replace host share credentials Password](KB0021.md)     |
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
 | [0003](KB0003.md) | [complex_cmd](KB0003.md)   | [Get archived snapshots details for all filesets](KB0003.md)    |
 | [0004](KB0004.md) | [complex_cmd](KB0004.md)   | [Get all failed events related to VMware VMs by date](KB0004.md)|
@@ -44,6 +45,8 @@ The available areas are:
 | [0011](KB0011.md) | [scripts](KB0011.md)       | [Display any report as a table - NR](KB0011.md)                 |
 | [0012](KB0012.md) | [scripts](KB0012.md)       | [Convert any csv file to json - NR](KB0012.md)                  |
 | [0013](KB0013.md) | [scripts](KB0013.md)       | [Protect a csv list of VMs - NR](KB0013.md)                     |
+| [0019](KB0019.md) | [scripts](KB0019.md)       | [Generate a report of all on-demand backup](KB0019.md)          |
+| [0020](KB0020.md) | [scripts](KB0020.md)       | [Generate a report of all missed backups](KB0020.md)            |
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
 | [0014](KB0014.md) | [rbkcli_sdk](KB0014.md)    | [Run rbkcli commands in multiple targets](KB0014.md)            |
 | [0018](KB0018.md) | [rbkcli_sdk](KB0018.md)    | [Automate Managed Volumes with rbkcli](KB0018.md)               |
@@ -53,4 +56,3 @@ The available areas are:
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
 | [0017](KB0017.md) | [special_case](KB0017.md)  | [Use rbkcli with a proxy/VPN](KB0017.md)                        |
 | [0019](KB0019.md) | [special_case](KB0019.md)  | [Issues installing rbkcli](KB0019.md)                           |
-
