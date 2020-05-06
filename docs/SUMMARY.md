@@ -46,6 +46,9 @@
 
 * [Use cases and How To(s)](kbs.md)
 
+### Exercises
+
+* [Useful learning workflows](labs/labs.md)
 
 ### Contribution
 
