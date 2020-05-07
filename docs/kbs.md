@@ -58,5 +58,5 @@ The available areas are:
 | [0019](KB0022.md) | [special_case](KB0022.md)  | [Issues installing rbkcli](KB0022.md)                           |
 
 
-<-- Back to [Documentation Summary](../SUMMARY.md)
 
+<-- Back to [Documentation Summary](../SUMMARY.md)
