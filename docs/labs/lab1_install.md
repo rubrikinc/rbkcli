@@ -39,28 +39,28 @@
 	```
 
 5. Configure rbkcli session:
-- Run the commands:
-	```
-	export rubrik_cdm_node_ip="192.168.1.220"
-	export rubrik_cdm_username="admin"
-	export rubrik_cdm_password="Rubrik123!!"
-	```
-- Or less secure, add it to .bashrc file:
-	```
-	vi ~/.bashrc
-	```
-- Add the following by the end of the file:
-	```
-	# rbkcli env
-	eval "$(register-python-argcomplete rbkcli)"
-	export rubrik_cdm_node_ip="192.168.1.220"
-	export rubrik_cdm_username="admin"
-	export rubrik_cdm_password="Rubrik123!!"
-	```
-- Reload .bashrc file:
-	```
-	. ~/.bashrc
-	```
+    - Run the commands:
+        ```
+        export rubrik_cdm_node_ip="192.168.1.220"
+        export rubrik_cdm_username="admin"
+        export rubrik_cdm_password="Rubrik123!!"
+        ```
+    - Or less secure, add it to .bashrc file:
+        ```
+        vi ~/.bashrc
+        ```
+    - Add the following by the end of the file:
+        ```
+        # rbkcli env
+        eval "$(register-python-argcomplete rbkcli)"
+        export rubrik_cdm_node_ip="192.168.1.220"
+        export rubrik_cdm_username="admin"
+        export rubrik_cdm_password="Rubrik123!!"
+        ```
+    - Reload .bashrc file:
+        ```
+        . ~/.bashrc
+        ```
 
 6. Test connection:
 	```
@@ -80,3 +80,6 @@
 	  "latestEulaVersion": "1.1"
 	}
 	```
+
+
+<-- Back to [Useful learning workflows](labs/labs.md)
