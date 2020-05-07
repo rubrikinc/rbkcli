@@ -45,6 +45,7 @@ Here are some resources to get you started! If you find any challenges from this
 
 * [Quick Start Guide](docs/quick-start.md)
 * [Documentation Summary](docs/SUMMARY.md)
+* [Useful learning workflows](labs/labs.md)
 * [Rubrik API Documentation](https://github.com/rubrikinc/api-documentation)
 
 ## :muscle: How You Can Help
