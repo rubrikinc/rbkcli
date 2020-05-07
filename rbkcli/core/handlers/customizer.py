@@ -137,13 +137,10 @@ class Customizer(AnyApiHandler):
                 # Make path tangible
                 sys.path.append(path)
                 # Import module in the path.
-                #print(' --script: ' + script)
-                #print(' --path: ' + path)
                 script_module = importlib.import_module(script)
                 # Get objects from the module.
                 script_members = inspect.getmembers(script_module)
-                #print(' --script members: ')
-                #print(script_members)
+
 
                 # Iterate members of module.
 
@@ -153,23 +150,11 @@ class Customizer(AnyApiHandler):
                         myoperation = getattr(script_module, member_desc)
                         class_base = str(myoperation.__bases__)
 
-                        #print(member_desc)
                     except AttributeError:
                         continue
-                    #if member_desc == 'RbkCliBlackOps':
-                    #member_desc = str(member[1])
-                    # Verify members that are a class.
-                    # print member_desc
-                    #if member_desc.startswith('<class '):
-                    # Copy the class into a object.
 
-                    #myoperation = getattr(script_module, member_desc)
-                    #class_base = str(myoperation.__bases__)
-                    #print(str(class_base))
-                    #print(intantiable_class)
                     # If the parent of th e class is a instantiable class
                     if intantiable_class in str(class_base):
-                        #print('It is in')
                         # Create dictionary from script members
                         script_dict = {}
                         # Attribute values to dict
@@ -239,20 +224,9 @@ class Customizer(AnyApiHandler):
 
         # Get endpoint doc
         api = self.meta_api.doc['paths'][endpoint_key][method]
+        source = api['source'].replace('\\', '/')
 
-        # Treat source to be a importable path.
-        if '/' in api['source']:
-            source = api['source'].split('/')
-        elif '\\' in api['source']:
-            source = api['source'].split('\\')
-        else:
-            source = api['source'].split()
-
-        source = source[:-1]
-        source = '/'.join(source)
-
-        # Import it.
-        sys.path.append(source)
+        sys.path.append(os.path.dirname(source))
         mio_commando = importlib.import_module(api['operation'])
 
         # Instanciate the Class.
@@ -365,13 +339,9 @@ class CustomizerControls():
                 # Make path tangible
                 sys.path.append(path)
                 # Import module in the path.
-                #print(' --script: ' + script)
-                #print(' --path: ' + path)
                 script_module = importlib.import_module(script)
                 # Get objects from the module. 
                 script_members = inspect.getmembers(script_module)
-                #print(' --script members: ')
-                #print(script_members)
 
                 # Iterate members of module.
 
@@ -381,30 +351,19 @@ class CustomizerControls():
                         myoperation = getattr(script_module, member_desc)
                         class_base = str(myoperation.__bases__)
 
-                        #print(member_desc)
                     except AttributeError:
                         continue
-                    #if member_desc == 'RbkCliBlackOps':
-                    #member_desc = str(member[1])
-                    # Verify members that are a class.
-                    # print member_desc
-                    #if member_desc.startswith('<class '):
-                    # Copy the class into a object.
 
-                    #myoperation = getattr(script_module, member_desc)
-                    #class_base = str(myoperation.__bases__)
-                    #print(str(class_base))
-                    #print(intantiable_class)
                     # If the parent of th e class is a instantiable class
                     if intantiable_class in str(class_base):
-                        #print('It is in')
+
                         # Create dictionary from script members
                         script_dict = {}
                         # Attribute values to dict
                         for line in script_members:
                             key, value = line
                             script_dict[key] = value
-                        #(script_dict)
+
                         # Instantiate a object of the class.
                         instance = myoperation('', self.tools.logger)
 
@@ -423,8 +382,7 @@ class CustomizerControls():
 
                         # Generate documentation
                         self._gen_doc_script(instance)
-                        #print(instance)
-                #exit()
+
         # Attribute all documentation generated to endpoints.
         self.endpoints = self.meta_api.doc
 
