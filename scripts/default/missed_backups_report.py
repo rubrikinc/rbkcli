@@ -24,10 +24,11 @@ def timing(func):
 
 
 class MissedBackups(RbkCliBlackOps):
-    method = 'get'  
+    method = 'get'
     endpoint = '/report/missed/backup'
-    description = str('Get all on-demand Backup events.')
-    summary = 'List all Snapshots'
+    description = str('Fetch a list of all missed Backups, including missing'
+                      ' snapshots and undetected missed backups.')
+    summary = 'Fetch a list of all missed Backups'
     parameters = [
         {
             'name': 'sla',
@@ -60,6 +61,18 @@ class MissedBackups(RbkCliBlackOps):
             'type': 'Array of strings'
         },
         {
+            'name': 'tolerance',
+            'description': str('Disregard missed backups that have time deviat'
+                               'ion percentage lower than this value. Example:'
+                               ' If the backup was late by 10% of its frequency'
+                               ' and tolerance is set to 20%, that will not be'
+                               'reported.'),
+            'in': 'body',
+            'required': False,
+            'default': '0',
+            'type': 'string'
+        },
+        {
             'name': 'after_date',
             'description': str('Start date which the event will be fetched,'
                                ' the eldest event gathered will be from this'
@@ -87,7 +100,7 @@ class MissedBackups(RbkCliBlackOps):
             'required': False,
             'default': 'missed_backups_report.json',
             'type': 'string'
-        },        
+        },
     ]
 
 
@@ -104,19 +117,19 @@ class MissedBackups(RbkCliBlackOps):
 
         # Sort parameters and apply filters to report
         self.sort_params()
-        
+
         time_start = time.time()
         #pattern = '%Y-%m-%dT%H:%M:%S'
         #print('...Started at ' + time.strftime(pattern,
         #                                       time.localtime(time_start)))
-        
+
         # Get SLA domains
         display_progress(2, 100, 'Getting SLA Domains')
         self.dict_sla = self.get_sla_domain()
-        
+
 
         self.fetch_missed_backups()
-        
+
         self.results = self.summarize(time_start)
 
         # Write final report
@@ -218,7 +231,7 @@ class MissedBackups(RbkCliBlackOps):
                   'after_date=%s,before_date=%s' % (snappable['ObjectId'],
                                                     str(limit),
                                                     after_date,
-                                                    before_date           
+                                                    before_date
                     )
                   )
         all_backups = self.loop_more_results(cmd)
@@ -242,11 +255,11 @@ class MissedBackups(RbkCliBlackOps):
     def merge_skipped_date(self, all_backups, snappable, after_date, before_date):
         # print('    - creating automated events')
         pattern = '%Y-%m-%dT%H:%M:%S'
-        
+
         # Get SLA snapshot frequency in epoch
         sla_id = snappable['SlaDomainId']
         sla_frequencies = self.dict_sla[sla_id]['frequencies']
-        
+
         freq_epoch = get_ingest_frequency(sla_frequencies)
         start_epoch = get_epoch_tdate(after_date)
         end_epoch = get_epoch_tdate(before_date)
@@ -264,7 +277,7 @@ class MissedBackups(RbkCliBlackOps):
 
         for event in all_backups:
             event_epoch = get_epoch_sdate(event['time'])
-            
+
             # print('    - start:' + str(anlys_start_epoch))
             # print('   ' + time.strftime(pattern, time.localtime(anlys_start_epoch)))
             # print('    - finish:' + str(anlys_end_epoch))
@@ -274,25 +287,31 @@ class MissedBackups(RbkCliBlackOps):
             counter = 0
             if event_epoch < anlys_start_epoch:
                 break
-            while not (event_epoch >= anlys_start_epoch and 
+            while not (event_epoch >= anlys_start_epoch and
                        event_epoch <= anlys_end_epoch):
 
                 missed = time.strftime(pattern, time.gmtime(anlys_start_epoch))
                 for k, v in snappable.items():
                     new_event[k] = v
 
-                limit_date = time.strftime(pattern,
-                                           time.gmtime(anlys_end_epoch-2))
-                event_date = time.strftime(pattern, time.gmtime(event_epoch-2))
-                new_event['missedSnapshotType'] = 'Automated Discovery'
-                new_event['missedSnapshotTime'] = missed
-                new_event['extraInfo'] = str('A Backup event should have occu'
-                                             'rred until %s, but the next bac'
-                                             'kup event occurred at %s ' 
-                                             % (limit_date,
-                                                event_date))
-                new_event['ComplianceStatus'] = 'NonCompliant'
-                self.missed_backups.append(new_event)
+                # Get deviation percentage:
+                delta_deviation = event_epoch - anlys_end_epoch
+                deviation_perc = delta_deviation / freq_epoch * 100
+                if deviation_perc > self.passed_params['tolerance']:
+
+                    limit_date = time.strftime(pattern,
+                                               time.gmtime(anlys_end_epoch-2))
+                    event_date = time.strftime(pattern, time.gmtime(event_epoch-2))
+                    new_event['missedSnapshotType'] = 'Automated Discovery'
+                    new_event['missedSnapshotTime'] = missed
+                    new_event['extraInfo'] = str('A Backup event should have occu'
+                                                 'rred until %s, but the next bac'
+                                                 'kup event occurred at %s '
+                                                 % (limit_date,
+                                                    event_date))
+                    new_event['deviationPercentage'] = str(deviation_perc)
+                    new_event['ComplianceStatus'] = 'NonCompliant'
+                    self.missed_backups.append(new_event)
                 #print('   - Limit: ' + time.strftime(pattern, time.gmtime(anlys_end_epoch)))
                 #print('   - Event: ' + time.strftime(pattern, time.gmtime(event_epoch)))
                 #print('   - Event Original: ' + event['time'])
@@ -319,7 +338,7 @@ class MissedBackups(RbkCliBlackOps):
         all_results = []
         more = True
         new_cmd = cmd
-        
+
         while more:
             try:
                 # print('    - fetching new batch of events')
@@ -336,7 +355,7 @@ class MissedBackups(RbkCliBlackOps):
                 # print('    - fetched batch of events')
             except KeyboardInterrupt:
                 more = False
-        
+
         return all_results
 
 
@@ -366,25 +385,26 @@ class MissedBackups(RbkCliBlackOps):
                     msnap_epoch = get_epoch_tdate(missed_snap[msnaptime][:-5])
                     if (missed_snap['archivalLocationType'] and
                         not missed_snap['missedSnapshotTimeUnits']):
-                        missed_type = 'Archival' 
+                        missed_type = 'Archival'
                         extra_info = ','.join(
                                         missed_snap['archivalLocationType'])
 
                     elif ('LOCAL' in missed_snap['archivalLocationType'] and
                           missed_snap['missedSnapshotTimeUnits']):
-                        missed_type = 'Acknowledged Miss' 
+                        missed_type = 'Acknowledged Miss'
                         extra_info = ','.join(
                                         missed_snap['archivalLocationType'])
 
                     if not (msnap_epoch >= start_epoch and
                             msnap_epoch <= end_epoch):
                         break
-                    
+
                     new_event['missedSnapshotType'] = missed_type
 
                     new_event[msnaptime] = missed_snap[msnaptime]
 
                     new_event['extraInfo'] = extra_info
+                    new_event['deviationPercentage'] = "0"
                     self.missed_backups.append(new_event)
         else:
             print(missed_snaps)
@@ -403,10 +423,10 @@ class MissedBackups(RbkCliBlackOps):
             if (report['name'] == 'SLA Compliance Summary' and
                 report['reportType'] == 'Canned'):
 
-                cmd = str('jsonfy report_table -p report_id=%s,limit=9000' 
+                cmd = str('jsonfy report_table -p report_id=%s,limit=9000'
                           % report['id'])
                 report_content = get_dicted(self.rbkcli.call_back(cmd))
-        
+
         return report_content
 
     @timing
@@ -423,13 +443,14 @@ class MissedBackups(RbkCliBlackOps):
             'LinuxFileset': 'fileset %s missed_snapshot' % ob_id,
             'ShareFileset': 'fileset %s missed_snapshot' % ob_id,
             'WindowsFileset': 'fileset %s missed_snapshot' % ob_id,
-            'A': 'app_blueprint %s missed_snapshot' % ob_id,
-            'B': 'aws ec2_instance %s missed_snapshot' % ob_id,
-            'C': 'hyperv vm %s missed_snapshot' % ob_id,
-            'D': 'nutanix vm %s missed_snapshot' % ob_id,
-            'E': 'oracle db %s missed_snapshot' % ob_id,
-            'F': 'storage array_volume_group %s missed_snapshot' % ob_id,
-            'G': 'vcd vapp %s missed_snapshot' % ob_id,
+            'AppBlueprint': 'app_blueprint %s missed_snapshot' % ob_id,
+            'Ec2Instance': 'aws ec2_instance %s missed_snapshot' % ob_id,
+            'HypervVirtualMachine': 'hyperv vm %s missed_snapshot' % ob_id,
+            'NutanixVirtualMachine': 'nutanix vm %s missed_snapshot' % ob_id,
+            'OracleDatabase': 'oracle db %s missed_snapshot' % ob_id,
+            'StorageArrayVolumeGroup': 'storage array_volume_group %s missed_'
+                                       'snapshot' % ob_id,
+            'VcdVapp': 'vcd vapp %s missed_snapshot' % ob_id,
             'WindowsVolumeGroup': 'volume_group %s missed_snapshot' % ob_id,
             'Mssql': 'mssql db %s missed_snapshot' % ob_id,
             'VmwareVirtualMachine': 'vmware vm %s missed_snapshot' % ob_id,
@@ -459,6 +480,8 @@ class MissedBackups(RbkCliBlackOps):
         if not self.passed_params['before_date']:
             self.passed_params['before_date'] = time.strftime(pattern,
                                                 time.gmtime(time.time() - 300))
+
+        self.passed_params['tolerance'] = float(self.passed_params['tolerance'])
 
         #print('...Started at ' + time.strftime(pattern,
         #                                       time.localtime(time_start)))
@@ -509,9 +532,9 @@ def represent_progress(progress, summary):
     delta_empty = toolbar_width - int_progress
     empty =  "_" * delta_empty
     percentage_str = str("%.4f" % round(progress, 4)) + '%'
-    
+
     sys.stdout.write("\b" * (toolbar_width + len(percentage_str) + 25))
-    sys.stdout.write("%-20s [%s%s] %s" % 
+    sys.stdout.write("%-20s [%s%s] %s" %
                      (summary, "=" * int_progress, empty, percentage_str))
     sys.stdout.flush()
 
@@ -533,14 +556,14 @@ def get_epoch_sdate(current):
         pattern = '%a %b %d %H:%M:%S %Z %Y'
         return int(time.mktime(time.strptime(current, pattern)))
     except ValueError:
-        raise RbkcliException(date + ' Date is wrong.') 
+        raise RbkcliException(date + ' Date is wrong.')
 
 def convert_current(current):
     pattern = '%a %b %d %H:%M:%S %Z %Y'
     current_epoch = int(time.mktime(time.strptime(current, pattern)))
     pattern = '%Y-%m-%dT%H:%M:%S'
     return str(time.strftime(pattern, time.localtime(current_epoch)))
-     
+
 def display_progress(weight_count, full_weigh, summary):
 
     try:
