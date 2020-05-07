@@ -1,3 +1,4 @@
+
 # INSTALLATION
 
 0. Make sure you meet the requirements OS, Python, pip:
@@ -82,4 +83,4 @@
 	```
 
 
-<-- Back to [Useful learning workflows](labs/labs.md)
+<-- Back to [Useful learning workflows](labs.md)

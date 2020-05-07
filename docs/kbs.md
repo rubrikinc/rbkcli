@@ -55,4 +55,8 @@ The available areas are:
 | [0016](KB0016.md) | [configuration](KB0016.md) | [Disable rbkcli logging - NR](KB0016.md)                        |
 | ----------------- | -------------------------- | ----------------------------------------------------------------|
 | [0017](KB0017.md) | [special_case](KB0017.md)  | [Use rbkcli with a proxy/VPN](KB0017.md)                        |
-| [0019](KB0019.md) | [special_case](KB0019.md)  | [Issues installing rbkcli](KB0019.md)                           |
+
+
+
+<-- Back to [Documentation Summary](../SUMMARY.md)
+
