@@ -129,7 +129,10 @@ class AllSnaps(RbkCliBlackOps):
 
 def get_dicted(result):
     """Convert json string from API response into dictionary."""
-    return json.loads(result.text)
+    results = json.loads(result.text)
+    if 'data' in results:
+        results = results['data']
+    return results
 
 
 def max_retention(frequencies):
