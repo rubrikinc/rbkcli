@@ -15,12 +15,12 @@ Create a Lab with:
 ### Lab 1 Workflows
 
 * [Install rbkcli](lab1_install.md)
-* [CDM basic 360](lab1_360.md)
 * [Advanced configuration](lab1_advanced_conf.md)
 * [Add vCenter Server](lab1_add_vc.md)
 * [Add hosts and Filesets](lab1_add_hosts.md)
 * [Protect Objects](lab1_protect_objects.md)
+* [CDM basic 360](lab1_360.md)
 
 
-<-- Back to [Documentation Summary](../SUMMARY.md)
+<-- Back to [Documentation Summary](../../SUMMARY.md)
 
