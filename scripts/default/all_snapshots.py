@@ -120,7 +120,7 @@ class AllSnaps(RbkCliBlackOps):
         """Generate estimative of snapshot final date."""
         if 'FOREVER' not in max_retention:
             time = parser.parse(date)
-            time_secs = time.strftime('%s')
+            time_secs = time.timestamp()
             final_time = int(time_secs) + int(max_retention)
             max_retention = datetime.utcfromtimestamp(final_time).isoformat()
 
