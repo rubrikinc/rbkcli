@@ -28,16 +28,21 @@
 	$ python3 -m pip install .
 	```
 	
-	If the above command could not install the package successfully proceed running the following.
+	If the above command could not install the package successfully, or if the `rbkcli` alias is not added to the shell, proceed running the following.
 	```
 	$ sudo python3 setup.py install
 	```
 
 4. Configure rbkcli auto-complete:
-	```
-	$ echo ' eval "$(register-python-argcomplete rbkcli)"' >> ~/.bashrc
-	$ . ~/.bashrc
-	```
+    - This step will change the `~/.bashrc` file, before making any changes let's create a backup copy of the file and move forward.
+        ```
+        $ cp ~/.bashrc ~/bashrc-OLD
+        ```
+    - Now add the line to the file:
+        ```
+        $ echo ' eval "$(register-python-argcomplete rbkcli)"' >> ~/.bashrc
+        $ . ~/.bashrc
+        ```    
 
 5. Configure rbkcli session:
     - Run the commands:
@@ -46,7 +51,11 @@
         export rubrik_cdm_username="admin"
         export rubrik_cdm_password="Rubrik123!!"
         ```
-    - Or less secure, add it to .bashrc file:
+    - Be aware that most shell environments have special characters interpretation, for example the `!` (exclamation mark) in bash. Therefore when passing a password through a shell command, you might need to escape that character, using a `\` (backslash) as following:
+        ```
+        $ export rubrik_cdm_password="Rubrik123\!\!"
+        ```
+    - Or less secure, add it to .bashrc file (if you did not create a backup copy of the `~/.bashrc` file on step 4, now is a good time):
         ```
         vi ~/.bashrc
         ```
@@ -58,6 +67,7 @@
         export rubrik_cdm_username="admin"
         export rubrik_cdm_password="Rubrik123!!"
         ```
+    - You dont need to add `register-python-argcomplete` if you ran step 4 successfully, just re-arrange the file so its all organized  . 
     - Reload .bashrc file:
         ```
         . ~/.bashrc
