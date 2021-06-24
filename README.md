@@ -1,5 +1,10 @@
 # rbkcli
 
+:warning: This project is no longer being maintained, there are not active contributions.
+
+:x: This project is *NOT* supported by Rubrik Support, it is a community effort to facilitate usability. 
+
+
 This project provides a Command Line Interface (CLI) conversion of Rubrik APIs.
 It can be used for both running commands or writing simplified scripts.
 
