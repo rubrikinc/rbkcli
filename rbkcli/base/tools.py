@@ -116,8 +116,8 @@ class RbkcliLogger:
 
         self._validate_log_folder(log_name)
 
-        file_handler = RotatingFileHandler(log_name, maxBytes=2000000,
-                                           backupCount=5)
+        file_handler = RotatingFileHandler(log_name, maxBytes=20971520,
+                                           backupCount=50)
         file_handler.setFormatter(formatted)
         console_handler = logging.StreamHandler(sys.stderr)
         console_handler.setFormatter(formatted)
